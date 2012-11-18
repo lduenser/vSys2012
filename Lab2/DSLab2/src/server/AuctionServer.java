@@ -1,8 +1,6 @@
 package server;
 
-import threads.ScannerThread;
-import threads.ThreadPooledServer;
-import threads.UpdateThread;
+import server.threads.*;
 import methods.Methods;
 import debug.Debug;
 

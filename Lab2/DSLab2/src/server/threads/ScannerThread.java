@@ -1,4 +1,4 @@
-package threads;
+package server.threads;
 
 import java.util.Scanner;
 
