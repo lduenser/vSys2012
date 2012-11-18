@@ -2,7 +2,7 @@ package billing.model;
 
 import java.util.ArrayList;
 
-public class PriceStepList {
+public class PriceSteps {
 
 	ArrayList<PriceStep> priceStepList;
 	public enum addErrorTypes {
@@ -16,7 +16,7 @@ public class PriceStepList {
 		NONE
 	}
 	
-	public PriceStepList() {
+	public PriceSteps() {
 		priceStepList = new ArrayList<PriceStep>();
 	}
 	
