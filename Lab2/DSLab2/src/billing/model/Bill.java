@@ -13,7 +13,7 @@ public class Bill {
 	
 	}
 	
-	public void addLineCalculate(BillLine line, PriceStepList priceSteps) {
+	public void addLineCalculate(BillLine line, PriceSteps priceSteps) {
 		
 		BillLine temp = line;
 		line.calculatePrice(priceSteps);
@@ -25,7 +25,7 @@ public class Bill {
 		billLines.add(line);
 	}
 	
-	public Bill getUserBill(String user, PriceStepList priceSteps) {
+	public Bill getUserBill(String user, PriceSteps priceSteps) {
 		
 		Bill temp = new Bill();
 		

@@ -7,16 +7,16 @@ import billing.model.*;
 
 public class BillingServerSecure implements IBillingServerSecure {
 
-	private PriceStepList steps;
+	private PriceSteps steps;
 	private Bill bills;
 	
 	public BillingServerSecure() {
-		steps = new PriceStepList();
+		steps = new PriceSteps();
 		bills = new Bill();
 	}
 	
 	@Override
-	public PriceStepList getPriceSteps() {
+	public PriceSteps getPriceSteps() {
 		// TODO Auto-generated method stub
 		return steps;
 	}

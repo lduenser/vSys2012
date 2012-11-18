@@ -17,7 +17,7 @@ public class BillLine {
 		this.strike_price = strike_price;
 	}
 	
-	boolean calculatePrice(PriceStepList list) {
+	boolean calculatePrice(PriceSteps list) {
 		
 		PriceStep step = list.getStepByPrice(this.strike_price);
 		

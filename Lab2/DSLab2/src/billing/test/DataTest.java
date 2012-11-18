@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 import debug.Debug;
 import billing.BillingServerSecure;
 import billing.model.PriceStep;
-import billing.model.PriceStepList;
+import billing.model.PriceSteps;
 
 public class DataTest {
 	
