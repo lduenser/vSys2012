@@ -6,6 +6,11 @@ import java.rmi.RemoteException;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import debug.Debug;
+
+import billing.model.PriceStep;
+import billing.test.DataTest;
+
 import management.Admin;
 
 public class BillingServer implements IBillingServer {
@@ -14,6 +19,8 @@ public class BillingServer implements IBillingServer {
 	private static String bindingBilling;
 	
 	public static void main(String[] args){
+		
+		new DataTest();
 		
 		checkArguments(args);				
 	}

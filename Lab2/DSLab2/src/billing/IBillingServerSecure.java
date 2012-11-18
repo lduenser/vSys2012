@@ -1,11 +1,15 @@
 package billing;
 
+import billing.model.*;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+import billing.model.PriceStep;
+
 public interface IBillingServerSecure extends Remote {
 
-	public PriceStep getPriceSteps();
+	public PriceStepList getPriceSteps();
     
     public void createPriceStep(double startPrice, double endPrice, double fixedPrice, double variablePricePercent) throws RemoteException;
     

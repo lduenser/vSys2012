@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-import billing.Bill;
+import billing.model.Bill;
 
 public class ManagementClient {
 	
