@@ -15,8 +15,7 @@ public class BillingServer implements IBillingServer {
 	
 	public static void main(String[] args){
 		
-		checkArguments(args);
-				
+		checkArguments(args);				
 	}
 	
 	@Override
