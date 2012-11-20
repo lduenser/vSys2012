@@ -4,6 +4,15 @@ import server.threads.*;
 import methods.Methods;
 import debug.Debug;
 
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+
+import analytics.IAnalyticsServer;
+import billing.BillingServer;
+import billing.IBillingServer;
+import billing.IBillingServerSecure;
 
 public class AuctionServer {
 
@@ -18,6 +27,9 @@ public class AuctionServer {
 	private static int argCount = 3;
 	public static boolean active = true;
 	
+	public static IBillingServerSecure billingServer;
+	public static IAnalyticsServer analytics;
+	
 	public AuctionServer() {
 		Debug.info = true;
 		Debug.error = true;
@@ -26,7 +38,6 @@ public class AuctionServer {
 	
 	public static void main(String[] args) throws InterruptedException {
 		
-		new AuctionServer();		
 		data = new DataHandler();
 		
 		checkArguments(args);		
@@ -53,9 +64,51 @@ public class AuctionServer {
 		*/
 		new Thread(scanner).start();
 		
+		/*
+		 * TODO: Connect to Billing Server
+		 */
+		
+		try {
+            String name = "BillingServer";
+            
+            Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);
+            
+            Debug.printInfo(registry.toString());
+            
+            IBillingServer billing = (IBillingServer) registry.lookup(name);
+           
+            billingServer = billing.login("user", "password");
+            
+            Debug.printInfo("Connected to secure billing server");
+            
+        } catch (Exception e) {
+        	Debug.printInfo("Couldn't connect to secure billing server");
+            
+            e.printStackTrace();
+        }
+		
+		try {
+            String name = "AnalyticsServer";
+            
+            Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);
+            
+            Debug.printInfo(registry.toString());
+            
+            analytics = (IAnalyticsServer) registry.lookup(name);
+           
+            Debug.printInfo("Connected to AnalyticsServer");
+            
+        } catch (Exception e) {
+        	Debug.printInfo("Couldn't connect to AnalyticsServer");
+            
+            e.printStackTrace();
+        }
+		
 		Debug.printInfo("Server started on port: "+port);
 		
 		while(active) {
+			
+
 			
 			Thread.sleep(100);
 		}

@@ -1,6 +1,13 @@
 package model;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+
+import events.AuctionEvent;
+import events.Event;
+import events.UserEvent;
+
+import server.AuctionServer;
 
 public class AuctionList {
 	static ArrayList<Auction> auctionList = new ArrayList<Auction>();
@@ -9,6 +16,13 @@ public class AuctionList {
 		auctionList.add(auction);
 		auction.setId(auctionList.size());
 		
+		Event temp = new AuctionEvent(AuctionEvent.types.AUCTION_STARTED, auction.id);
+		try {
+			AuctionServer.analytics.processEvent(temp);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return auction;
 	}
 	

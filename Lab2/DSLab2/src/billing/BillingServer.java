@@ -3,13 +3,13 @@ package billing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
 import debug.Debug;
-
-import billing.model.PriceStep;
-import billing.test.DataTest;
 
 import management.Admin;
 
@@ -18,22 +18,50 @@ public class BillingServer implements IBillingServer {
 	private static int argCount = 1;
 	private static String bindingBilling;
 	
+	public BillingServer() {
+		
+	}
+	
 	public static void main(String[] args){
 		
-		new DataTest();
+		try {
+			String name = "BillingServer";
+            
+            Registry registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+            
+            Debug.printInfo(registry.toString());
+            
+            IBillingServer engine = new BillingServer();
+            IBillingServer stub =
+                (IBillingServer) UnicastRemoteObject.exportObject(engine, 0);
+            
+            
+            registry.rebind(name, stub);
+            Debug.printInfo("BillingServerEngine started");
+        }
+		catch (Exception e) {
+            Debug.printInfo("Couldn't start BillingServerEngine");
+            e.printStackTrace();
+        }
 		
-		checkArguments(args);				
+		//checkArguments(args);				
 	}
 	
 	@Override
     public IBillingServerSecure login(String username, String password) throws RemoteException {
-		String pwd = readUserProp(username);
-		if(pwd != null){
-			//check
-		}
+		//String pwd = readUserProp(username);
+		//if(pwd != null) {
+		//	//check
+		//}
+		
+		IBillingServerSecure engine = new BillingServerSecure();
+		IBillingServerSecure stub =
+            (IBillingServerSecure) UnicastRemoteObject.exportObject(engine, 0);
+		
+		return stub;
 		
 		//return interface
-        return null;
+        //return null;
     }
 	
 	public String readUserProp(String username){

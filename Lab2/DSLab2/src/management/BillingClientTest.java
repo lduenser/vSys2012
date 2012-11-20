@@ -11,14 +11,14 @@ import java.util.StringTokenizer;
 
 import debug.Debug;
 
-
 import billing.model.Bill;
 
-public class ManagementClient {
+public class BillingClientTest {
 	
 	private static int argCount = 2;
 	static String bindingAnalytics;
 	static String bindingBilling;
+	
 	
 	public static void main(String args[]) {		
 		

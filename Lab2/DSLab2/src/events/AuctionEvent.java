@@ -4,9 +4,16 @@ public class AuctionEvent extends Event{
 
 	long auctionID;
 	
-	enum types {
+	public enum types {
 		AUCTION_STARTED,
 		AUCTION_ENDED
+	}
+	
+	public AuctionEvent(types type, long auctionID) {
+		super();
+		
+		this.type = type.toString();
+		this.auctionID = auctionID;
 	}
 	
 	/*

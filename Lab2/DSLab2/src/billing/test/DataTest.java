@@ -13,7 +13,7 @@ public class DataTest {
 		
 		PriceStep step1 = new PriceStep(1.0, 10.0, 5.0, 2.3);
 		PriceStep step2 = new PriceStep(11.0, 100.0, 5.0, 4.3);
-		
+		/*
 		BillingServerSecure server = new BillingServerSecure();
 		
 		try {
@@ -43,6 +43,7 @@ public class DataTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 		
 	
 	}

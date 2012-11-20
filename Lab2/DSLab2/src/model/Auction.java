@@ -1,11 +1,16 @@
 package model;
 
+import java.rmi.RemoteException;
 import java.util.Calendar;
 import java.util.Date;
 
+import server.AuctionServer;
 import server.DataHandler;
 
 import debug.Debug;
+import events.AuctionEvent;
+import events.BidEvent;
+import events.Event;
 
 
 public class Auction {
@@ -60,6 +65,26 @@ public class Auction {
 		Notification winner = new Notification(this.highest.getUser(), "!auction-ended", "The auction '" + this.name + "' has ended. you won with "+this.highest.getMoney().toString()+".");
 		DataHandler.pendingNotifications.addNotification(winner);
 		
+		Event temp = new AuctionEvent(AuctionEvent.types.AUCTION_ENDED, this.id);
+		try {
+			AuctionServer.analytics.processEvent(temp);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		temp = new BidEvent(BidEvent.types.BID_WON, this.highest.getUser().getName(), this.id, this.highest.getMoney());
+		try {
+			AuctionServer.analytics.processEvent(temp);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			AuctionServer.billingServer.billAuction(this.highest.getUser().getName(), this.id, this.highest.getMoney());
+		}
+		catch(Exception e) {
+			Debug.printInfo("No connection to Billing Server");
+		}
 		return true;
 	}
 
@@ -70,7 +95,27 @@ public class Auction {
 			Notification over = new Notification(highest.getUser(), "!new-bid", "You have been overbid on '" + this.getName() + "'");
 			DataHandler.pendingNotifications.addNotification(over);
 			
+			Event temp;
+			
+			if(this.highest.getMoney() > 0.00) {
+				temp = new BidEvent(BidEvent.types.BID_OVERBID, this.highest.getUser().getName(), this.id, this.highest.getMoney());
+				try {
+					AuctionServer.analytics.processEvent(temp);
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
 			this.highest = newBid;
+			
+			temp = new BidEvent(BidEvent.types.BID_PLACED, this.highest.getUser().getName(), this.id, this.highest.getMoney());
+			try {
+				AuctionServer.analytics.processEvent(temp);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			return true;
 		}
 		return false;

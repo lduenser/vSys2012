@@ -1,10 +1,12 @@
 package events;
 
+import events.BidEvent.types;
+
 public class StatisticsEvent extends Event{
 	
 	Double value;
 	
-	enum types {
+	public enum types {
 		USER_SESSIONTIME_MIN,
 		USER_SESSIONTIME_MAX,
 		USER_SESSIONTIME_AVG,
@@ -12,6 +14,13 @@ public class StatisticsEvent extends Event{
 		BID_COUNT_PER_MINUTE,
 		AUCTION_TIME_AVG,
 		AUCTION_SUCCESS_RATIO
+	}
+	
+	public StatisticsEvent(types type, Double value) {
+		super();
+		
+		this.type = type.toString();
+		this.value = value;
 	}
 	
 	/*

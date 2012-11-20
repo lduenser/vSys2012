@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.rmi.RemoteException;
 import java.util.StringTokenizer;
 
 import server.AuctionServer;
@@ -14,6 +15,8 @@ import model.Bid;
 import model.User;
 
 import debug.Debug;
+import events.Event;
+import events.UserEvent;
 
 
 public class AuctionServerThread extends Thread {
@@ -22,6 +25,7 @@ public class AuctionServerThread extends Thread {
 	BufferedReader in = null;
 	
 	User user = null;
+	String username = "";
 	
 	public AuctionServerThread(Socket s) {
 		this.s = s;
@@ -54,6 +58,7 @@ public class AuctionServerThread extends Thread {
 					}
 				}
 			}
+			
 			Debug.printInfo("Client " + s.toString() + " disconnected");
 
 		} catch (IOException e) {
@@ -64,6 +69,17 @@ public class AuctionServerThread extends Thread {
 			terminateClient();
 		} catch (IOException e) {
 			Debug.printError("Client connection to " + user.getName() + " couldn't be terminated!");
+		}
+		
+		Event temp1 = new UserEvent(UserEvent.types.USER_LOGOUT, username);
+		Event temp2 = new UserEvent(UserEvent.types.USER_DISCONNECTED, username);
+		
+		try {
+			AuctionServer.analytics.processEvent(temp1);
+			AuctionServer.analytics.processEvent(temp2);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -92,6 +108,14 @@ public class AuctionServerThread extends Thread {
 							user = null;
 						}
 						else {
+							Event temp = new UserEvent(UserEvent.types.USER_LOGIN, name);
+							try {
+								AuctionServer.analytics.processEvent(temp);
+							} catch (RemoteException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							username = user.getName();
 							sendText("Successfully logged in as " + user.getName());
 						}
 					}
@@ -106,6 +130,13 @@ public class AuctionServerThread extends Thread {
 					DataHandler.users.logout(user.getName());
 				}
 				sendText("Successfully logged out as "+user.getName()+"!");
+				Event temp = new UserEvent(UserEvent.types.USER_LOGOUT, user.getName());
+				try {
+					AuctionServer.analytics.processEvent(temp);
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				user = null;
 				
 				completed = true;
@@ -190,6 +221,7 @@ public class AuctionServerThread extends Thread {
 	}
 	
 	public synchronized void terminateClient() throws IOException {
+		
 		in.close();
 		out.close();
 		s.close();

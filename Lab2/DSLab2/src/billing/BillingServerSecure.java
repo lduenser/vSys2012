@@ -1,22 +1,27 @@
 package billing;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 
 import debug.Debug;
 import billing.model.*;
 
-public class BillingServerSecure implements IBillingServerSecure {
+public class BillingServerSecure implements IBillingServerSecure, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7242763769072849160L;
 	private PriceSteps steps;
 	private Bill bills;
 	
-	public BillingServerSecure() {
+	public BillingServerSecure()  throws RemoteException {
 		steps = new PriceSteps();
 		bills = new Bill();
 	}
 	
 	@Override
-	public PriceSteps getPriceSteps() {
+	public PriceSteps getPriceSteps()  throws RemoteException {
 		// TODO Auto-generated method stub
 		return steps;
 	}
@@ -71,7 +76,7 @@ public class BillingServerSecure implements IBillingServerSecure {
 	}
 
 	@Override
-	public void billAuction(String user, long auctionID, double price) {
+	public void billAuction(String user, long auctionID, double price) throws RemoteException {
 		// TODO Auto-generated method stub
 		
 		BillLine temp = new BillLine(user, auctionID, price);
