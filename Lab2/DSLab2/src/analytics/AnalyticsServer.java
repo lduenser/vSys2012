@@ -5,12 +5,11 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Properties;
 
+import methods.ReadProp;
 import analytics.model.StatisticsEventData;
-import billing.BillingServer;
-import billing.IBillingServer;
 import debug.Debug;
-
 import events.AuctionEvent;
 import events.BidEvent;
 import events.Event;
@@ -27,25 +26,34 @@ public class AnalyticsServer implements IAnalyticsServer {
 	}
 
 	public static void main(String[] args){
-		try {
-			String name = "AnalyticsServer";
-            
-            Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);
-            
-            Debug.printInfo(registry.toString());
-            
-            IAnalyticsServer engine = new AnalyticsServer();
-            IAnalyticsServer stub =
-                (IAnalyticsServer) UnicastRemoteObject.exportObject(engine, 0);
-            
-            
-            registry.rebind(name, stub);
-            Debug.printInfo("AnalyticsServer started");
-        }
-		catch (Exception e) {
-            Debug.printInfo("Couldn't start AnalyticsServer");
-            e.printStackTrace();
-        }
+		
+		String name = "AnalyticsServer";
+		Properties regProp= ReadProp.readRegistry();
+		
+		if (regProp==null) {
+            System.out.println("Reg.Properties file could not be found!");
+       } else {	    	        
+			try {				     
+				String registryHost = regProp.getProperty("registry.host");				
+				Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
+				Registry registry = LocateRegistry.getRegistry(registryPort);
+				   
+	         //   Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);
+	            
+	            Debug.printInfo(registry.toString());
+	            
+	            IAnalyticsServer engine = new AnalyticsServer();
+	            IAnalyticsServer stub =
+	                (IAnalyticsServer) UnicastRemoteObject.exportObject(engine, 0);
+	            
+	            registry.rebind(name, stub);
+	            Debug.printInfo("AnalyticsServer started");
+	        }
+			catch (Exception e) {
+	            Debug.printInfo("Couldn't start AnalyticsServer");
+	            e.printStackTrace();
+	        }
+       }
 	}
 	
 	@Override
