@@ -8,6 +8,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.security.*;
 
 import debug.Debug;
 
@@ -50,10 +51,22 @@ public class BillingServer implements IBillingServer {
 	
 	@Override
     public IBillingServerSecure login(String username, String password) throws RemoteException {
-		//String pwd = readUserProp(username);
+		/*
+		String pwd = "";
+		try {
+			MessageDigest md = MessageDigest.getInstance(pwd);
+			
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		
+		*/
+		
+		//pwd = readUserProp(username);
 		//if(pwd != null) {
-		//	//check
+			//check
 		//}
+		
 		
 		IBillingServerSecure engine = new BillingServerSecure();
 		IBillingServerSecure stub =
@@ -62,7 +75,6 @@ public class BillingServer implements IBillingServer {
 		return stub;
 		
 		//return interface
-        //return null;
     }
 	
 	public String readUserProp(String username){

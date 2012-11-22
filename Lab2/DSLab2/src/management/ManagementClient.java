@@ -71,12 +71,17 @@ public class ManagementClient {
 						ibss=billRef.login(name,pwd);
 		                  
 	                    if (ibss==null) {
-	                          throw new RemoteException("Something went wrong!");
+	                          throw new RemoteException("ERROR: Something went wrong!");
 	                    } else{ 
 	                           System.out.println(name+" successfully logged in");
 	                      }                      
 					}                    
 				}
+				
+				/*
+				 * ! BILLING:
+				 */
+				
 				// List all existing price steps
 				else if(userInput.startsWith("!steps")){
 					if(ibss!=null){
@@ -90,7 +95,7 @@ public class ManagementClient {
 						}						
 					}
 					else{
-						System.out.println("You have to log in first!");
+						System.out.println("ERROR: You are currently not logged in.");
 					}					
 				}
 				
@@ -117,7 +122,7 @@ public class ManagementClient {
 								}								
 							}
 							else{
-								System.out.println("You have to log in first!");
+								System.out.println("ERROR: You are currently not logged in.");
 							}
 						}
 						catch(Exception e){
@@ -137,9 +142,11 @@ public class ManagementClient {
 							end = Long.parseLong(st.nextToken());
 							if(ibss!=null){
 								ibss.deletePriceStep(start, end);
-							}
+							//	System.out.println("Price step ["+ start +" "+ end +"] successfully removed");
+							
+							}							
 							else{
-								System.out.println("You have to log in first!");
+								System.out.println("ERROR: You are currently not logged in.");
 							}
 						}
 						catch(Exception e){
@@ -147,7 +154,7 @@ public class ManagementClient {
 						}
 					}
 				}
-				
+				// shows the bill for a certain user name
 				else if(userInput.startsWith("!bill")){
 					String username;
 					if(st.countTokens() < 1){
@@ -162,20 +169,56 @@ public class ManagementClient {
 								bill.toString();
 							}
 							else{
-								System.out.println("You have to log in first!");
+								System.out.println("ERROR: You are currently not logged in.");
 							}
 						}
 						catch(Exception e){
 						    e.printStackTrace();	 
 						}
 					}
-				}   
-				else if(userInput.startsWith("!logout")){
+				}  
+				// set the client into "logged out" state
+				else if(userInput.startsWith("!logout")){					
 					// admin.setOnline(false); ??
 					ibss = null;
 					// active = false;
 					System.out.println("Successfully logged out");
 				}
+				
+				/*
+				 *  ! ANALYTICS:
+				 */
+				
+				// !subscribe <filterRegex>
+				else if(userInput.startsWith("!subscribe")){
+					
+					
+				}
+				// !unsubscribe <subscriptionID>
+				else if(userInput.startsWith("!unsubscribe")){
+					int id;
+					if(st.countTokens() < 1){
+						System.out.println("ID missing");
+					}
+					else{
+						id = Integer.parseInt(st.nextToken());
+						
+					}
+					
+				}
+				else if(userInput.startsWith("!auto")){
+					
+					
+				}
+				else if(userInput.startsWith("!hide")){
+					
+					
+				}
+				else if(userInput.startsWith("!print")){
+					
+					
+				}
+				
 				else{
 					System.out.println("unknown command");
 				}
@@ -183,30 +226,9 @@ public class ManagementClient {
 			} 
 		}
 		catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-	}
-	
-	/*
-	 * cmds with the billing server
-	 * !login <username> <password> : Login
-	 * !steps : List all existing price steps
-	 * !addStep <startPrice> <endPrice> <fixedPrice> <variablePricePercent> : Add a new price step
-	 * !removeStep <startPrice> <endPrice> : Remove an existing price step
-	 * !bill <username> : shows the bill for a certain user name
-	 * !logout : set the client into "logged out" state
-	 */
-	
-	/*
-	 * cmds with the analytics server
-	 * !subscribe <filterRegex>
-	 * !unsubscribe <subscriptionID>
-	 * !auto
-	 * !hide
-	 * !print
-	 */
+		}		
+	}	
 	
     private static void checkArguments(String[] args){
 		if(args.length != argCount){
