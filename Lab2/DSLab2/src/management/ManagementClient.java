@@ -15,6 +15,8 @@ import debug.Debug;
 import billing.IBillingServer;
 import billing.IBillingServerSecure;
 import billing.model.Bill;
+import billing.model.PriceStep;
+import billing.model.PriceSteps;
 
 public class ManagementClient {
 	
@@ -56,8 +58,7 @@ public class ManagementClient {
 				st = new StringTokenizer(line);
 				userInput = st.nextToken();
 				
-				if(userInput.startsWith("!login")){
-					
+				if(userInput.startsWith("!login")){					
 					String name=""; 
 					String pwd="";
 					if(st.countTokens() < 2){
@@ -72,34 +73,111 @@ public class ManagementClient {
 	                    if (ibss==null) {
 	                          throw new RemoteException("Something went wrong!");
 	                    } else{ 
-	                           System.out.println("Successfully logged in as '" +name+ "'.");
+	                           System.out.println(name+" successfully logged in");
 	                      }                      
 					}                    
 				}
+				// List all existing price steps
+				else if(userInput.startsWith("!steps")){
+					if(ibss!=null){
+						PriceSteps steps;
+						try{
+							steps = ibss.getPriceSteps();							
+							System.out.println("Price Steps\r\n" + steps.toString());
+						}
+						catch(Exception e){
+							System.out.println("could not print PriceSteps");
+						}						
+					}
+					else{
+						System.out.println("You have to log in first!");
+					}					
+				}
 				
-				if(userInput.startsWith("!steps")){
-					
-				}
-				if(userInput.startsWith("!addStep")){
-					
-				}
-				if(userInput.startsWith("!removeStep")){
-					
+				else if(userInput.startsWith("!addStep")){
+					Long start, end, fixed, variable;
+					if(st.countTokens() < 4){
+						System.out.println("start/end/fixed/variable missing");
+					}
+					else{
+						try{
+							start = Long.parseLong(st.nextToken());
+							end = Long.parseLong(st.nextToken());
+							
+							fixed = Long.parseLong(st.nextToken());
+							variable = Long.parseLong(st.nextToken());
+							if(ibss!=null){
+								ibss.createPriceStep(start, end, fixed, variable);
+								if(end == 0){
+									String inf = "INFINITY";
+									System.out.println("Step ["+ start +" "+ inf +"] successfully added");
+								}
+								else{
+									System.out.println("Step ["+ start +" "+ end +"] successfully added");
+								}								
+							}
+							else{
+								System.out.println("You have to log in first!");
+							}
+						}
+						catch(Exception e){
+							System.out.println("only numbers!");
+						}						
+					}					
 				}
 				
-				if(userInput.startsWith("!bill")){
-				     try {
-				      // Bill b = ibss.getBill(username);
-				    }
-				    catch(Exception e){
-				    	 
-				    }
+				else if(userInput.startsWith("!removeStep")){										
+					Long start, end;
+					if(st.countTokens() < 2){
+						System.out.println("start/end missing");
+					}
+					else{
+						try{
+							start = Long.parseLong(st.nextToken());
+							end = Long.parseLong(st.nextToken());
+							if(ibss!=null){
+								ibss.deletePriceStep(start, end);
+							}
+							else{
+								System.out.println("You have to log in first!");
+							}
+						}
+						catch(Exception e){
+							System.out.println("only numbers!");
+						}
+					}
+				}
+				
+				else if(userInput.startsWith("!bill")){
+					String username;
+					if(st.countTokens() < 1){
+						System.out.println("username missing");
+					}
+					else{							
+						try{
+							username = st.nextToken();
+							if(ibss!=null){
+								Bill bill = ibss.getBill(username);
+								System.out.println("bill: ");
+								bill.toString();
+							}
+							else{
+								System.out.println("You have to log in first!");
+							}
+						}
+						catch(Exception e){
+						    e.printStackTrace();	 
+						}
+					}
 				}   
-				if(userInput.startsWith("!logout") && (ibss != null)){
+				else if(userInput.startsWith("!logout")){
 					// admin.setOnline(false); ??
 					ibss = null;
-					active = false;
-					System.out.println("Successfully logged out.");
+					// active = false;
+					System.out.println("Successfully logged out");
+				}
+				else{
+					System.out.println("unknown command");
 				}
 				
 			} 

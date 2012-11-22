@@ -1,6 +1,8 @@
 package billing.model;
 
-public class PriceStep {
+import java.io.Serializable;
+
+public class PriceStep implements Serializable {
 
 	Double startPrice;
 	Double endPrice;
