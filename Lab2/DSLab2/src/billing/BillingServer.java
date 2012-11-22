@@ -16,7 +16,7 @@ import management.Admin;
 public class BillingServer implements IBillingServer {
 
 	private static int argCount = 1;
-	private static String bindingBilling;
+	private static String bindingBilling = "BillingServer";
 	
 	public BillingServer() {
 		
@@ -24,8 +24,10 @@ public class BillingServer implements IBillingServer {
 	
 	public static void main(String[] args){
 		
+		//checkArguments(args);
+		
 		try {
-			String name = "BillingServer";
+			String name = bindingBilling;
             
             Registry registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
             
@@ -35,7 +37,6 @@ public class BillingServer implements IBillingServer {
             IBillingServer stub =
                 (IBillingServer) UnicastRemoteObject.exportObject(engine, 0);
             
-            
             registry.rebind(name, stub);
             Debug.printInfo("BillingServerEngine started");
         }
@@ -44,7 +45,7 @@ public class BillingServer implements IBillingServer {
             e.printStackTrace();
         }
 		
-		//checkArguments(args);				
+						
 	}
 	
 	@Override
