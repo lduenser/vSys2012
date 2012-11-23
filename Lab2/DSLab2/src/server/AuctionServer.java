@@ -65,43 +65,34 @@ public class AuctionServer {
 		*/
 		new Thread(scanner).start();
 		
-		/*
-		 * TODO: Connect to Billing Server
-		 */
+		
 		String registryHost = regProp.getProperty("registry.host");				
 		Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
 		
 		try {
             String name = bindingBilling;
-            Registry registry = LocateRegistry.getRegistry(registryPort);
-            
-            Debug.printInfo(registry.toString());
-            
+            Registry registry = LocateRegistry.getRegistry(registryPort);            
+            Debug.printInfo(registry.toString());            
             IBillingServer billing = (IBillingServer) registry.lookup(name);
           
-            billingServer = billing.login("auctionClientUser", "management");
-            
+            billingServer = billing.login("auctionClientUser", "management");            
             Debug.printInfo("Connected to secure billing server");
             
         } catch (Exception e) {
-        	Debug.printInfo("Couldn't connect to secure billing server");
-            
+        	Debug.printInfo("Couldn't connect to secure billing server");            
             e.printStackTrace();
         }
 		
 		try {
             String name = bindingAnalytics;
-            Registry registry = LocateRegistry.getRegistry(registryPort);
-            
+            Registry registry = LocateRegistry.getRegistry(registryPort);            
             Debug.printInfo(registry.toString());
             
-            analytics = (IAnalyticsServer) registry.lookup(name);
-           
+            analytics = (IAnalyticsServer) registry.lookup(name);           
             Debug.printInfo("Connected to AnalyticsServer");
             
         } catch (Exception e) {
-        	Debug.printInfo("Couldn't connect to AnalyticsServer");
-            
+        	Debug.printInfo("Couldn't connect to AnalyticsServer");            
             e.printStackTrace();
         }
 		

@@ -39,9 +39,9 @@ public class BillingServer implements IBillingServer {
 				Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
 	            Debug.printInfo(registryPort.toString());
 	            
-	         // TODO: check ob registry bereits existiert (getReg), sonst createReg
+	         // TODO:
 	         // check whether the RMI registry is already available, and create 
-			// a new registry instance if it does not yet exist   
+			 // a new registry instance if it does not yet exist   
 	            
 	            Registry registry = LocateRegistry.createRegistry(registryPort);
 	         //   Registry registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
@@ -74,6 +74,7 @@ public class BillingServer implements IBillingServer {
 		}
 		Debug.printDebug("end billing");
 		scanner.close();
+		
 	}
 	
 	@Override
@@ -107,17 +108,18 @@ public class BillingServer implements IBillingServer {
 		if(hashword.equals(secret)){
 			Debug.printInfo("richtiges pwd");
 			// hier stub etc .. dann einfuegen
+			// return stub;
 		}
 		else{
 			Debug.printDebug("falsches Passwort");
+			// return null;
 		}
 				
 		IBillingServerSecure engine = new BillingServerSecure();
 		IBillingServerSecure stub =
             (IBillingServerSecure) UnicastRemoteObject.exportObject(engine, 0);
 		
-		return stub;		
-		//return interface
+		return stub;
     }	
 	
 	private static void checkArguments(String[] args){
@@ -130,7 +132,6 @@ public class BillingServer implements IBillingServer {
 	                case 0: bindingBilling=args[i]; break;	                	                	
 	            }
 	     }
-	}
-	
+	}	
 	
 }

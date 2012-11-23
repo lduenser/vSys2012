@@ -1,5 +1,6 @@
 package analytics;
 
+import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -37,7 +38,7 @@ public class AnalyticsServer implements IAnalyticsServer {
 		
 		String name = bindingAnalytics;
 		Properties regProp= ReadProp.readRegistry();
-		
+				
 		if (regProp==null) {
             System.out.println("Reg.Properties file could not be found!");
        } else {	    	        
@@ -45,9 +46,9 @@ public class AnalyticsServer implements IAnalyticsServer {
 				String registryHost = regProp.getProperty("registry.host");				
 				Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
 				
-				// TODO: check ob registry bereits existiert (getReg), sonst createReg
-				// check whether the RMI registry is already available, and create 
-				// a new registry instance if it does not yet exist
+		   // TODO:
+		   // check whether the RMI registry is already available, and create 
+		   // a new registry instance if it does not yet exist 
 				Registry registry = LocateRegistry.getRegistry(registryPort);		
 				
 	            Debug.printInfo(registry.toString());
@@ -70,7 +71,7 @@ public class AnalyticsServer implements IAnalyticsServer {
 						Debug.printInfo("unknown command");
 					}
 	            }	            
-	        }
+	        }			
 			catch (Exception e) {
 	            Debug.printInfo("Couldn't start AnalyticsServer");
 	            e.printStackTrace();
@@ -81,9 +82,12 @@ public class AnalyticsServer implements IAnalyticsServer {
 	}
 	
 	@Override
-	public String subscribe(String client, String filter)
-			throws RemoteException {
+	public String subscribe(String client, String filter) throws RemoteException {
 		// TODO Auto-generated method stub
+		// The filter is a Java regular expression which is 
+		// matched against the type variable of the Event class
+		// filter "(USER_.*)|(BID_.*)"
+		
 		return null;
 	}
 

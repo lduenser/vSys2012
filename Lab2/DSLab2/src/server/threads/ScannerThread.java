@@ -24,7 +24,8 @@ public class ScannerThread implements Runnable {
 				if(System.in.available()>0) {
 					String output = scanner.nextLine();
 					
-					if(output.length() == 0) {
+				//	if(output.length() == 0) {
+					if(output.startsWith("!exit")){
 						AuctionServer.active = false;
 					}
 					else {

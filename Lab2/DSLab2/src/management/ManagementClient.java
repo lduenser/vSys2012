@@ -36,30 +36,26 @@ public class ManagementClient {
 		scanner = new Scanner(System.in);
 		String line="";
 		IBillingServer billRef = null;
-		try {
+	
+		Properties regProp= ReadProp.readRegistry();
+		
+		if (regProp==null) {
+            System.out.println("Reg.Properties file could not be found!");
+        } 
+		else {		
+    	   try {
 			/*
 			NotifyMClient notifyRemObj= new NotifyMClient();
             notifyStub= (INotifyMClient)UnicastRemoteObject.exportObject(notifyRemObj, 0);
 			*/			
-				Properties regProp= ReadProp.readRegistry();
-				
-				if (regProp==null) {
-		            System.out.println("Reg.Properties file could not be found!");
-		       } else {		    	  
-					try {						
-						 String registryHost = regProp.getProperty("registry.host");
-						 Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
-				    	 Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);				       
-				    	//  Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);				            
-						billRef = (IBillingServer) registry.lookup(bindingBilling);
-					} catch (NotBoundException nbe) {
-						// TODO Auto-generated catch block
-						nbe.printStackTrace();
-					}
-					catch(Exception e){
-						e.printStackTrace();
-					}
-		            
+					String registryHost = regProp.getProperty("registry.host");
+					Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
+				    Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);				       
+				    //  Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);				            
+					billRef = (IBillingServer) registry.lookup(bindingBilling);
+					
+					Debug.printInfo("hello ...");
+					
 					String userInput="";
 					StringTokenizer st;
 					boolean active = true;
@@ -71,23 +67,28 @@ public class ManagementClient {
 						userInput = st.nextToken();
 						
 						if(userInput.startsWith("!login")){					
-							String name=""; 
-							String pwd="";
-							if(st.countTokens() < 2){
-								System.out.println("username/pwd missing");
+							if(ibss == null){
+								String name=""; 
+								String pwd="";
+								if(st.countTokens() < 2){
+									System.out.println("username/pwd missing");
+								}
+								else{
+									name = st.nextToken();
+									pwd = st.nextToken(); 
+																	
+									ibss=billRef.login(name,pwd);
+					                  
+				                    if (ibss==null) {
+				                          throw new RemoteException("ERROR: Something went wrong!");
+				                    } else{ 
+				                           System.out.println(name+" successfully logged in");
+				                      }                      
+								}
 							}
 							else{
-								name = st.nextToken();
-								pwd = st.nextToken(); 
-																
-								ibss=billRef.login(name,pwd);
-				                  
-			                    if (ibss==null) {
-			                          throw new RemoteException("ERROR: Something went wrong!");
-			                    } else{ 
-			                           System.out.println(name+" successfully logged in");
-			                      }                      
-							}                    
+								Debug.printError("you are already logged in");
+							}							                    
 						}
 						
 						/*
@@ -103,7 +104,7 @@ public class ManagementClient {
 									System.out.println("Price Steps\r\n" + steps.toString());
 								}
 								catch(Exception e){
-									System.out.println("could not print PriceSteps");
+									Debug.printError("could not print PriceSteps");
 								}						
 							}
 							else{
@@ -119,10 +120,10 @@ public class ManagementClient {
 							else{
 								try{
 									start = Long.parseLong(st.nextToken());
-									end = Long.parseLong(st.nextToken());
-									
+									end = Long.parseLong(st.nextToken());									
 									fixed = Long.parseLong(st.nextToken());
 									variable = Long.parseLong(st.nextToken());
+									
 									if(ibss!=null){
 										ibss.createPriceStep(start, end, fixed, variable);
 										if(end == 0){
@@ -138,7 +139,7 @@ public class ManagementClient {
 									}
 								}
 								catch(Exception e){
-									System.out.println("only numbers!");
+									Debug.printError("only numbers!");
 								}						
 							}					
 						}
@@ -162,7 +163,7 @@ public class ManagementClient {
 									}
 								}
 								catch(Exception e){
-									System.out.println("only numbers!");
+									Debug.printError("only numbers!");
 								}
 							}
 						}
@@ -176,9 +177,13 @@ public class ManagementClient {
 								try{
 									username = st.nextToken();
 									if(ibss!=null){
-										Bill bill = ibss.getBill(username);
-										System.out.println("bill: ");
-										bill.toString();
+										Bill bill = ibss.getBill(username);										
+										if(bill != null){
+											bill.toString();
+										}
+										else{
+											Debug.printError("could not print bill");
+										}
 									}
 									else{
 										System.out.println("ERROR: You are currently not logged in.");
@@ -203,8 +208,18 @@ public class ManagementClient {
 						
 						// !subscribe <filterRegex>
 						else if(userInput.startsWith("!subscribe")){
-							
-							
+							if(st.hasMoreTokens()){
+								String filter = st.nextToken();
+								int id = 0;
+								
+								// TODO: insert subscription method, ...
+								
+								Debug.printInfo("Created subscription with ID "+id+" for events" +
+										"using filter " +filter+ " .");
+							}
+							else{
+								Debug.printError("Filter is missing");
+							}							
 						}
 						// !unsubscribe <subscriptionID>
 						else if(userInput.startsWith("!unsubscribe")){
@@ -213,17 +228,23 @@ public class ManagementClient {
 								System.out.println("ID missing");
 							}
 							else{
-								id = Integer.parseInt(st.nextToken());
-								
-							}
-							
+								try{
+									id = Integer.parseInt(st.nextToken());
+									// TODO: insert unsubscribe method, ...	
+									
+									Debug.printInfo("subscription " +id+ " terminated");
+								}
+								catch(Exception e){
+									Debug.printError("ID has to be a number");
+								}																
+							}							
 						}
 						else if(userInput.startsWith("!auto")){
-							
+							Debug.printInfo("enabled the automatic printing of events");
 							
 						}
 						else if(userInput.startsWith("!hide")){
-							
+							Debug.printInfo("disabled the automatic printing of events");
 							
 						}
 						else if(userInput.startsWith("!print")){
@@ -232,16 +253,22 @@ public class ManagementClient {
 						}
 						
 						else{
-							System.out.println("unknown command");
+							Debug.printError("unknown command!");
 						}						
 					}
 					
-		       }			
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}	
-		
+		       }	
+	    	   catch (IOException io) {
+	   			io.printStackTrace();
+		   		}
+		   		catch (NotBoundException nbe) {
+		   			// TODO Auto-generated catch block
+		   			nbe.printStackTrace();
+		   		}
+		   		catch(Exception e){
+		   			e.printStackTrace();
+		   		}
+			}
 		scanner.close();
 	}	
 	
