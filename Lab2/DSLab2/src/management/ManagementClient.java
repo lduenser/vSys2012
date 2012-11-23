@@ -27,7 +27,7 @@ public class ManagementClient {
 	static String bindingBilling = "BillingServer";
 	private static INotifyMClient  notifyStub =null;
 	private static IBillingServerSecure ibss;
-	static Scanner scanner;
+	private static Scanner scanner;
 	
 	public static void main(String args[]) {		
 		
@@ -40,8 +40,7 @@ public class ManagementClient {
 			/*
 			NotifyMClient notifyRemObj= new NotifyMClient();
             notifyStub= (INotifyMClient)UnicastRemoteObject.exportObject(notifyRemObj, 0);
-			*/
-			
+			*/			
 				Properties regProp= ReadProp.readRegistry();
 				
 				if (regProp==null) {
@@ -50,10 +49,8 @@ public class ManagementClient {
 					try {						
 						 String registryHost = regProp.getProperty("registry.host");
 						 Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
-				    	 Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);
-				       
-				    	//  Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);
-				            
+				    	 Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);				       
+				    	//  Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);				            
 						billRef = (IBillingServer) registry.lookup(bindingBilling);
 					} catch (NotBoundException nbe) {
 						// TODO Auto-generated catch block
@@ -237,12 +234,15 @@ public class ManagementClient {
 						else{
 							System.out.println("unknown command");
 						}						
-					}    
+					}
+					
 		       }			
 		}
 		catch (IOException e) {
 			e.printStackTrace();
-		}		
+		}	
+		
+		scanner.close();
 	}	
 	
     private static void checkArguments(String[] args){

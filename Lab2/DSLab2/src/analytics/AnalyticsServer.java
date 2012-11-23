@@ -6,6 +6,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Scanner;
 
 import methods.ReadProp;
 import analytics.model.StatisticsEventData;
@@ -19,15 +20,22 @@ import events.UserEvent;
 // receives events from the system and computes simple statistics/analytics
 public class AnalyticsServer implements IAnalyticsServer {
 	
+	private static int argCount = 1;
 	public StatisticsEventData statistics;
+	private static String bindingAnalytics = "AnalyticsServer";
+	private static Scanner scanner;
 	
 	public AnalyticsServer() {
 		statistics = new StatisticsEventData();
 	}
 
 	public static void main(String[] args){
+		//checkArguments(args);
+		boolean active = true;
+		scanner = new Scanner(System.in);
+		String line;
 		
-		String name = "AnalyticsServer";
+		String name = bindingAnalytics;
 		Properties regProp= ReadProp.readRegistry();
 		
 		if (regProp==null) {
@@ -36,10 +44,12 @@ public class AnalyticsServer implements IAnalyticsServer {
 			try {				     
 				String registryHost = regProp.getProperty("registry.host");				
 				Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
-				Registry registry = LocateRegistry.getRegistry(registryPort);
-				   
-	         //   Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);
-	            
+				
+				// TODO: check ob registry bereits existiert (getReg), sonst createReg
+				// check whether the RMI registry is already available, and create 
+				// a new registry instance if it does not yet exist
+				Registry registry = LocateRegistry.getRegistry(registryPort);		
+				
 	            Debug.printInfo(registry.toString());
 	            
 	            IAnalyticsServer engine = new AnalyticsServer();
@@ -48,12 +58,26 @@ public class AnalyticsServer implements IAnalyticsServer {
 	            
 	            registry.rebind(name, stub);
 	            Debug.printInfo("AnalyticsServer started");
+	            
+	            while(active){
+	            	line = scanner.nextLine();					
+					if(line.startsWith("!exit")){
+						Debug.printInfo("Shutdown AnalyticsServer");
+						active = false;
+						// TODO: shutdown server
+					}
+					else{
+						Debug.printInfo("unknown command");
+					}
+	            }	            
 	        }
 			catch (Exception e) {
 	            Debug.printInfo("Couldn't start AnalyticsServer");
 	            e.printStackTrace();
 	        }
        }
+		Debug.printDebug("end analytics");
+		scanner.close();
 	}
 	
 	@Override
@@ -108,5 +132,17 @@ public class AnalyticsServer implements IAnalyticsServer {
 	public boolean unsubscribe(String id) throws RemoteException {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	private static void checkArguments(String[] args){
+		if(args.length != argCount){
+			System.out.println("Args Anzahl stimmt nicht");
+		}
+		
+		for (int i = 0; i < args.length; i++) {
+	            switch (i) {
+	                case 0: bindingAnalytics=args[i]; break;	                	                	
+	            }
+	     }
 	}
 }

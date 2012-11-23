@@ -2,12 +2,14 @@ package server;
 
 import server.threads.*;
 import methods.Methods;
+import methods.ReadProp;
 import debug.Debug;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Properties;
 
 import analytics.IAnalyticsServer;
 import billing.BillingServer;
@@ -19,9 +21,9 @@ public class AuctionServer {
 	/**
 	 * @param args
 	 */
-	static int port = 5000;
-	static String bindingAnalytics;
-	static String bindingBilling;
+	private static int port = 10290;
+	private static String bindingAnalytics = "AnalyticsServer";
+	private static String bindingBilling = "BillingServer";
 	static int maxClients = 10;
 	static DataHandler data;
 	private static int argCount = 3;
@@ -41,12 +43,11 @@ public class AuctionServer {
 		data = new DataHandler();
 		
 		checkArguments(args);		
-				
-		//port = 10290;
 		
 		ThreadPooledServer server = null;
 		UpdateThread updater = new UpdateThread();
 		ScannerThread scanner = new ScannerThread();
+		Properties regProp= ReadProp.readRegistry();
 		
 		while(server==null) {
 			try {
@@ -67,17 +68,18 @@ public class AuctionServer {
 		/*
 		 * TODO: Connect to Billing Server
 		 */
+		String registryHost = regProp.getProperty("registry.host");				
+		Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
 		
 		try {
-            String name = "BillingServer";
-            
-            Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);
+            String name = bindingBilling;
+            Registry registry = LocateRegistry.getRegistry(registryPort);
             
             Debug.printInfo(registry.toString());
             
             IBillingServer billing = (IBillingServer) registry.lookup(name);
-           
-            billingServer = billing.login("user", "password");
+          
+            billingServer = billing.login("auctionClientUser", "management");
             
             Debug.printInfo("Connected to secure billing server");
             
@@ -88,9 +90,8 @@ public class AuctionServer {
         }
 		
 		try {
-            String name = "AnalyticsServer";
-            
-            Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);
+            String name = bindingAnalytics;
+            Registry registry = LocateRegistry.getRegistry(registryPort);
             
             Debug.printInfo(registry.toString());
             
@@ -108,7 +109,6 @@ public class AuctionServer {
 		
 		while(active) {
 			
-
 			
 			Thread.sleep(100);
 		}
