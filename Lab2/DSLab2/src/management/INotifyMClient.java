@@ -6,4 +6,5 @@ import java.rmi.RemoteException;
 public interface INotifyMClient extends Remote {
 
 	public String notify(String message) throws RemoteException;
+	
 }

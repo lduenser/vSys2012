@@ -1,9 +1,9 @@
 package analytics;
 
-import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -34,7 +34,7 @@ public class AnalyticsServer implements IAnalyticsServer {
 		clients = new ArrayList<INotifyClient>();
 	}
 
-	public static void main(String[] args){
+	public static void main(String[] args) throws RemoteException{
 		//checkArguments(args);
 		boolean active = true;
 		scanner = new Scanner(System.in);
@@ -42,25 +42,29 @@ public class AnalyticsServer implements IAnalyticsServer {
 		
 		String name = bindingAnalytics;
 		Properties regProp= ReadProp.readRegistry();
+		Registry registry = null;
 				
 		if (regProp==null) {
             System.out.println("Reg.Properties file could not be found!");
-       } else {	    	        
-			try {				     
-				String registryHost = regProp.getProperty("registry.host");				
-				Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
-				
-		   // TODO:
-		   // check whether the RMI registry is already available, and create 
-		   // a new registry instance if it does not yet exist 
-				Registry registry = LocateRegistry.getRegistry(registryPort);		
-				
-	            Debug.printInfo(registry.toString());
+       } else {	  
+    	    String registryHost = regProp.getProperty("registry.host");				
+			Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
+    	   
+			try {			
+				registry = LocateRegistry.createRegistry(registryPort);	
+				Debug.printInfo(registry.toString());
+			}
+			catch(ExportException ee){
+				Debug.printDebug("registry already created");
+				registry = LocateRegistry.getRegistry(registryHost, registryPort);
+			}
+			
+			try{    
 	            
 	            IAnalyticsServer engine = new AnalyticsServer();
 	            IAnalyticsServer stub =
 	                (IAnalyticsServer) UnicastRemoteObject.exportObject(engine, 0);
-	            
+	          
 	            registry.rebind(name, stub);
 	            Debug.printInfo("AnalyticsServer started");
 	            
@@ -69,20 +73,20 @@ public class AnalyticsServer implements IAnalyticsServer {
 					if(line.startsWith("!exit")){
 						Debug.printInfo("Shutdown AnalyticsServer");
 						active = false;
-						// TODO: shutdown server
+						UnicastRemoteObject.unexportObject(engine, true);
+				//		registry.unbind(name); ??
 					}
 					else{
 						Debug.printInfo("unknown command");
 					}
 	            }	            
-	        }			
+	        }
 			catch (Exception e) {
 	            Debug.printInfo("Couldn't start AnalyticsServer");
 	            e.printStackTrace();
 	        }
-       }
-		Debug.printDebug("end analytics");
-		scanner.close();
+       }		
+		scanner.close();		
 	}
 	
 	@Override
