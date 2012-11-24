@@ -60,6 +60,7 @@ public class BillingServer implements IBillingServer {
 						Debug.printInfo("Shutdown BillingServer");
 						active = false;	
 						// TODO: shutdown server
+						// eigenen ScannerThread erstellen?
 						
 					}
 					else{
@@ -71,9 +72,12 @@ public class BillingServer implements IBillingServer {
 	            Debug.printInfo("Couldn't start BillingServerEngine");
 	            e.printStackTrace();
 	        }
+			
 		}
 		Debug.printDebug("end billing");
 		scanner.close();
+		// registry.unbind() ?
+		Debug.printDebug("active: "+Thread.activeCount());
 		
 	}
 	
