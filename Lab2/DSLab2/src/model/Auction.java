@@ -27,12 +27,19 @@ public class Auction {
 	
 	private Boolean open = false;
 	
+	private int duration = 0;
+	
 	public Auction(String name, User owner, int seconds) {
 		this.name = name;
 		this.endDate = new Date(System.currentTimeMillis() + seconds*1000);
 		this.owner = owner;
 		this.open = true;
 		this.highest = new Bid(owner, 0.00);
+		this.duration = seconds;
+	}
+	
+	public int getDuration() {
+		return duration;
 	}
 	
 	Bid getHighestBid() {
@@ -65,20 +72,17 @@ public class Auction {
 		Notification winner = new Notification(this.highest.getUser(), "!auction-ended", "The auction '" + this.name + "' has ended. you won with "+this.highest.getMoney().toString()+".");
 		DataHandler.pendingNotifications.addNotification(winner);
 		
-		Event temp = new AuctionEvent(AuctionEvent.types.AUCTION_ENDED, this.id);
 		try {
+			Event temp = new BidEvent(BidEvent.types.BID_WON, this.highest.getUser().getName(), this.id, this.highest.getMoney());
 			AuctionServer.analytics.processEvent(temp);
+			temp = new AuctionEvent(AuctionEvent.types.AUCTION_ENDED, this.id, 0);
+			AuctionServer.analytics.processEvent(temp);
+			
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		temp = new BidEvent(BidEvent.types.BID_WON, this.highest.getUser().getName(), this.id, this.highest.getMoney());
-		try {
-			AuctionServer.analytics.processEvent(temp);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		try {
 			AuctionServer.billingServer.billAuction(this.highest.getUser().getName(), this.id, this.highest.getMoney());
 		}

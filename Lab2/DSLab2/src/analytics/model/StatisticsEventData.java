@@ -104,6 +104,7 @@ public class StatisticsEventData {
 		} 
 		return false;
 	}
+	
 	public void addBid() {
 		this.BID_COUNT++;
 	}

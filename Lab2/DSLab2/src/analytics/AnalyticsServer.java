@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Scanner;
 
+import management.INotifyClient;
 import methods.ReadProp;
 import analytics.model.StatisticsEventData;
 import debug.Debug;
@@ -26,8 +27,11 @@ public class AnalyticsServer implements IAnalyticsServer {
 	private static String bindingAnalytics = "AnalyticsServer";
 	private static Scanner scanner;
 	
+	private ArrayList<INotifyClient> clients;
+	
 	public AnalyticsServer() {
 		statistics = new StatisticsEventData();
+		clients = new ArrayList<INotifyClient>();
 	}
 
 	public static void main(String[] args){
@@ -82,62 +86,81 @@ public class AnalyticsServer implements IAnalyticsServer {
 	}
 	
 	@Override
-	public String subscribe(String client, String filter) throws RemoteException {
-		// TODO Auto-generated method stub
-		// The filter is a Java regular expression which is 
-		// matched against the type variable of the Event class
-		// filter "(USER_.*)|(BID_.*)"
-		
-		return null;
-	}
-
-	@Override
 	public void processEvent(Event event) throws RemoteException {
-		// TODO Auto-generated method stub
 		
 		ArrayList<Event> send = new ArrayList<Event>();
 		send.add(event);
 		
+		
 		if(event.getType().equals(AuctionEvent.types.AUCTION_STARTED)) {
 			
+			AuctionEvent e = (AuctionEvent)event;
+			statistics.addAuction(e.getDuration());
+			StatisticsEvent temp = new StatisticsEvent(StatisticsEvent.types.AUCTION_TIME_AVG, statistics.getAUCTION_TIME_AVG());
+			send.add(temp);
 		}
 		if(event.getType().equals(AuctionEvent.types.AUCTION_ENDED)) {
 			statistics.endAuction();
 			
-			StatisticsEvent temp = new StatisticsEvent(StatisticsEvent.types.AUCTION_TIME_AVG, statistics.getAUCTION_TIME_AVG());
+			StatisticsEvent temp = new StatisticsEvent(StatisticsEvent.types.AUCTION_SUCCESS_RATIO, statistics.getAUCTION_SUCCESS_RATIO());
 			send.add(temp);
 		}
 		
 		if(event.getType().equals(UserEvent.types.USER_LOGIN)) {
 			statistics.addUserToList((UserEvent)event);
 		}
-		if(event.getType().equals(UserEvent.types.USER_LOGOUT)) {
+		if(event.getType().equals(UserEvent.types.USER_LOGOUT) || event.getType().equals(UserEvent.types.USER_DISCONNECTED)) {
 			statistics.logoutUser((UserEvent)event);
 			
-			StatisticsEvent temp = new StatisticsEvent(StatisticsEvent.types.USER_SESSIONTIME_AVG, statistics.getUSER_SESSIONTIME_AVG());
+			StatisticsEvent temp = new StatisticsEvent(StatisticsEvent.types.USER_SESSIONTIME_MIN, statistics.getUSER_SESSIONTIME_MIN());
+			send.add(temp);
+			temp = new StatisticsEvent(StatisticsEvent.types.USER_SESSIONTIME_MAX, statistics.getUSER_SESSIONTIME_MAX());
+			send.add(temp);
+			temp = new StatisticsEvent(StatisticsEvent.types.USER_SESSIONTIME_AVG, statistics.getUSER_SESSIONTIME_AVG());
 			send.add(temp);
 		}
 		
 		if(event.getType().equals(BidEvent.types.BID_PLACED)) {
+			BidEvent bid = (BidEvent)event;
+			statistics.addBid();
+			
+			StatisticsEvent temp = new StatisticsEvent(StatisticsEvent.types.BID_COUNT_PER_MINUTE, statistics.getBID_COUNT_PER_MINUTE());
+			send.add(temp);
+			
+			if(statistics.checkPriceMax(bid.getPrice())) {
+				temp = new StatisticsEvent(StatisticsEvent.types.BID_PRICE_MAX, statistics.getBID_PRICE_MAX());
+				send.add(temp);
+			}
 			
 		}		
 		if(event.getType().equals(BidEvent.types.BID_OVERBID)) {
 			
 		}		
 		if(event.getType().equals(BidEvent.types.BID_WON)) {
-			
+			statistics.bidWon();
 		}
 		
-		Debug.printInfo(event.getType().toString());
-		
-	}
-
-	@Override
-	public boolean unsubscribe(String id) throws RemoteException {
-		// TODO Auto-generated method stub
-		return false;
+		//Sende Events an alle Clients
+		for(Event e:send) {
+			Debug.printDebug(e.toString());
+			notifyClients(e);
+		}
 	}
 	
+	private void notifyClients(Event event) {
+		for(INotifyClient client:clients) {
+			try {
+				Debug.printDebug("Compare String: " + event.getType() + " with " + client.getSubscription());
+				if(event.getType().matches(client.getSubscription())) {
+					client.eventRecieved(event);
+				}
+			}
+			catch(Exception e) {
+				clients.remove(client);
+			}
+		}
+	}
+
 	private static void checkArguments(String[] args){
 		if(args.length != argCount){
 			System.out.println("Args Anzahl stimmt nicht");
@@ -148,5 +171,19 @@ public class AnalyticsServer implements IAnalyticsServer {
 	                case 0: bindingAnalytics=args[i]; break;	                	                	
 	            }
 	     }
+	}
+
+	@Override
+	public void subscribe(INotifyClient client) throws RemoteException {
+		// TODO Auto-generated method stub
+		Debug.printDebug("New Subscription: " + client.getSubscription());
+		clients.add(client);
+	}
+
+	@Override
+	public void unsubscribe(INotifyClient client) throws RemoteException {
+		// TODO Auto-generated method stub
+		Debug.printDebug("Remove Subscription: " + client.getSubscription());
+		clients.remove(client);
 	}
 }

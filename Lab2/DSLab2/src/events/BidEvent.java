@@ -23,11 +23,24 @@ public class BidEvent extends Event{
 		this.price = price;
 	}
 	
-	/*
-	 * type is either of:
-	 * - BID_PLACED
-	 * - BID_OVERBID
-	 * - BID_WON
-	 */
+	public Double getPrice() {
+		return this.price;
+	}
+	
+	public String toString() {
+		String info = "";
+		
+		if(this.type.equals(types.BID_PLACED.toString())) {
+			info = "User " + this.userName + " placed bid " + this.price.toString() + " on auction " + this.auctionID;
+		}
+		if(this.type.equals(types.BID_OVERBID.toString())) {
+			info = "User " + this.userName + " overbid recent bid on auction " + this.auctionID;
+		}
+		if(this.type.equals(types.BID_WON.toString())) {
+			info = "User " + this.userName + " won auction " + this.auctionID + " with bid " + this.price.toString();
+		}
+		
+		return this.getHead() + info;
+	}
 
 }

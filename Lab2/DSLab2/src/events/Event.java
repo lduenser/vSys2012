@@ -32,4 +32,12 @@ public abstract class Event implements Serializable {
 		java.util.Date date= new java.util.Date();
 		timestamp = new Timestamp(date.getTime()).getTime();
 	}
+	
+	public String toString() {
+		return getHead() + "Event";
+	}
+	
+	protected String getHead() {
+		return type + ": " + new Timestamp(timestamp).toString() + " - ";
+	}
 }
