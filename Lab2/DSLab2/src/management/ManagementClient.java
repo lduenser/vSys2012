@@ -70,8 +70,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
     		   
     		   	String registryHost = regProp.getProperty("registry.host");
 				Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
-			    Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);				       
-			    //  Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);				            
+			    Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);				            
 				billRef = (IBillingServer) registry.lookup(bindingBilling);
 				analyticsRef = (IAnalyticsServer) registry.lookup(bindingAnalytics);
 				
@@ -134,16 +133,16 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 						}
 						
 						else if(userInput.startsWith("!addStep")){
-							Long start, end, fixed, variable;
+							Double start, end, fixed, variable;
 							if(st.countTokens() < 4){
 								System.out.println("start/end/fixed/variable missing");
 							}
 							else{
 								try{
-									start = Long.parseLong(st.nextToken());
-									end = Long.parseLong(st.nextToken());									
-									fixed = Long.parseLong(st.nextToken());
-									variable = Long.parseLong(st.nextToken());
+									start = Double.parseDouble(st.nextToken());
+									end = Double.parseDouble(st.nextToken());									
+									fixed = Double.parseDouble(st.nextToken());
+									variable = Double.parseDouble(st.nextToken());
 									
 									if(ibss!=null){
 										ibss.createPriceStep(start, end, fixed, variable);
@@ -169,14 +168,14 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 						}
 						
 						else if(userInput.startsWith("!removeStep")){										
-							Long start, end;
+							Double start = null, end = null;
 							if(st.countTokens() < 2){
 								System.out.println("start/end missing");
 							}
 							else{
 								try{
-									start = Long.parseLong(st.nextToken());
-									end = Long.parseLong(st.nextToken());
+									start = Double.parseDouble(st.nextToken());
+									end = Double.parseDouble(st.nextToken());
 									if(ibss!=null){										
 										ibss.deletePriceStep(start, end);										
 										System.out.println("Price step ["+ start +" "+ end +"] successfully removed");									
@@ -186,7 +185,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 									}
 								}
 								catch(RemoteException re){
-									Debug.printError("PriceStep does not exist!");
+									Debug.printError("PriceStep ["+ start +" "+ end +"] does not exist!");
 								}
 								catch(Exception e){
 									Debug.printError("only numbers!");
@@ -221,10 +220,8 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 							}
 						}  
 						// set the client into "logged out" state
-						else if(userInput.startsWith("!logout")){					
-							// admin.setOnline(false); ??
+						else if(userInput.startsWith("!logout")){
 							ibss = null;
-							// active = false;
 							System.out.println("Successfully logged out");
 						}
 						
