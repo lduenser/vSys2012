@@ -26,10 +26,10 @@ public class AuctionEvent extends Event{
 		String info = "";
 		
 		if(this.type.equals(types.AUCTION_STARTED.toString())) {
-			info = "Auction " + id + " started";
+			info = "Auction " + auctionID + " started";
 		}
 		if(this.type.equals(types.AUCTION_ENDED.toString())) {
-			info = "Auction " + id + " ended";
+			info = "Auction " + auctionID + " ended";
 		}
 		
 		return this.getHead() + info;

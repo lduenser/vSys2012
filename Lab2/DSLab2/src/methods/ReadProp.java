@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import management.Admin;
-
 public class ReadProp {
 
 	public static Properties readRegistry(){

@@ -31,20 +31,28 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 	 */
 	private static final long serialVersionUID = 1L;
 
-	protected ManagementClient() throws RemoteException {
+	public ManagementClient() throws RemoteException {
 		super();
 		this.subscription = new ArrayList<Subscription>();
+		this.buffer = new ArrayList<Event>();
+		this.status = Status.AUTO;
 		// TODO Auto-generated constructor stub
 	}
+	
+	private enum Status {
+		AUTO,
+		HIDE
+	}
+	private ArrayList<Event> buffer = null;
 
 	private static int argCount = 2;
 	static String bindingAnalytics = "AnalyticsServer";
 	static String bindingBilling = "BillingServer";
-	
-	private static IBillingServerSecure ibss;
+
 	private static Scanner scanner;
 	
 	ArrayList<Subscription> subscription = null;
+	private Status status;
 	private int filterId = 0;
 	
 	public static void main(String args[]) {		
@@ -55,6 +63,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 		String line="";
 		IBillingServer billRef = null;
 		IAnalyticsServer analyticsRef = null;
+		IBillingServerSecure ibss = null;
 		
 		ManagementClient self = null;
 				
@@ -96,7 +105,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 								else{
 									name = st.nextToken();
 									pwd = st.nextToken(); 
-																	
+									
 									ibss=billRef.login(name,pwd);
 					                  
 				                    if (ibss==null) {
@@ -173,9 +182,11 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 								try{
 									start = Long.parseLong(st.nextToken());
 									end = Long.parseLong(st.nextToken());
-									if(ibss!=null){
+									if(ibss!=null) {
+										
 										ibss.deletePriceStep(start, end);
-									//	System.out.println("Price step ["+ start +" "+ end +"] successfully removed");
+									
+										System.out.println("Price step ["+ start +" "+ end +"] successfully removed");
 									
 									}							
 									else{
@@ -197,9 +208,11 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 								try{
 									username = st.nextToken();
 									if(ibss!=null){
-										Bill bill = ibss.getBill(username);										
+										Bill bill = ibss.getBill(username);	
+										
 										if(bill != null){
-											bill.toString();
+											
+											System.out.println(bill.toString());
 										}
 										else{
 											Debug.printError("could not print bill");
@@ -270,16 +283,18 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 							}							
 						}
 						else if(userInput.startsWith("!auto")){
+							self.status = Status.AUTO;
 							Debug.printInfo("enabled the automatic printing of events");
 							
 						}
 						else if(userInput.startsWith("!hide")){
+							self.status = Status.HIDE;
 							Debug.printInfo("disabled the automatic printing of events");
 							
 						}
 						else if(userInput.startsWith("!print")){
-							
-							
+							self.printBuffer();
+							Debug.printInfo("print events on buffer");
 						}
 						
 						else{
@@ -318,8 +333,24 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 	@Override
 	public void eventRecieved(Event event) throws RemoteException {
 		// TODO Event ausgeben
+		switch(this.status) {
+		case AUTO:
+			System.out.println(event.toString());
+			break;
+		case HIDE:
+			this.buffer.add(event);
+			break;
+		}
+	}
+	
+	public void printBuffer() {
+		ArrayList<Event> copy = (ArrayList<Event>) this.buffer.clone();
 		
-		System.out.println(event.toString());
+		for(Event e:copy) {
+				System.out.println(e.toString());
+				this.buffer.remove(e);
+		}
+		
 	}
 	
 	public int setSubscription(String newSub) {

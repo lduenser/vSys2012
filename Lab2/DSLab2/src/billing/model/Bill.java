@@ -1,11 +1,15 @@
 package billing.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-import debug.Debug;
+public class Bill implements Serializable {
 
-public class Bill {
-
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5927966445351852822L;
 	ArrayList<BillLine> billLines;
 	
 	public Bill(){

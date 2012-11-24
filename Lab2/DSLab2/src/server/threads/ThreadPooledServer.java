@@ -14,7 +14,7 @@ import debug.Debug;
 
 public class ThreadPooledServer implements Runnable{
 
-	protected int maxClients = 10;
+	protected int maxClients = 10000;
     protected int port;
     protected ServerSocket serverSocket;
     

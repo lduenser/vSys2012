@@ -2,18 +2,15 @@ package billing;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
 import debug.Debug;
 import billing.model.*;
 
-public class BillingServerSecure implements IBillingServerSecure, Serializable {
+public class BillingServerSecure implements IBillingServerSecure {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7242763769072849160L;
-	private PriceSteps steps;
-	private Bill bills;
+	private static PriceSteps steps;
+	private static Bill bills;
 	
 	public BillingServerSecure()  throws RemoteException {
 		steps = new PriceSteps();
@@ -92,7 +89,7 @@ public class BillingServerSecure implements IBillingServerSecure, Serializable {
 		
 		Bill temp = bills.getUserBill(user, steps);
 		
-		Debug.printInfo("Bill for "+user+ "\r\n" + temp.toString());	
+		Debug.printInfo("Bill for "+user+ "\r\n" + temp.toString());
 		
 		return temp;
 	}

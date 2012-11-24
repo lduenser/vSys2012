@@ -13,10 +13,11 @@ public class DataTest {
 		
 		PriceStep step1 = new PriceStep(1.0, 10.0, 5.0, 2.3);
 		PriceStep step2 = new PriceStep(11.0, 100.0, 5.0, 4.3);
-		/*
-		BillingServerSecure server = new BillingServerSecure();
 		
+		BillingServerSecure server;
 		try {
+			server = new BillingServerSecure();
+			
 			server.createPriceStep(1.0, 10.0, 5.0, 2.3);
 			server.createPriceStep(11.0, 100.0, 5.0, 4.3);
 			
@@ -38,13 +39,10 @@ public class DataTest {
 			
 			server.getBill("fred");
 			
-			//Debug.printInfo("\r\n" + server.getPriceSteps().toString());
-		} catch (RemoteException e) {
+		} catch (RemoteException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		*/
 		
-	
 	}
 }

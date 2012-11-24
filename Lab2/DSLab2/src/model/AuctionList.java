@@ -26,7 +26,7 @@ public class AuctionList {
 		return auction;
 	}
 	
-	public boolean updateList() {
+	public synchronized boolean updateList() {
 		for (Auction auction:auctionList) {
 			auction.checkOpen();
 		}

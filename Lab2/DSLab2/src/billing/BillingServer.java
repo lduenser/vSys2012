@@ -19,7 +19,11 @@ public class BillingServer implements IBillingServer {
 	private static String bindingBilling = "BillingServer";
 	private static Scanner scanner;
 	
-	public BillingServer() {		
+	private static IBillingServerSecure secureServer;
+	private static IBillingServerSecure secureStub;
+	
+	public BillingServer() {
+		
 	}
 	
 	public static void main(String[] args) throws RemoteException{
@@ -31,6 +35,11 @@ public class BillingServer implements IBillingServer {
 		Properties regProp= ReadProp.readRegistry();
 		String name = bindingBilling;
 		Registry registry = null;
+		
+		secureServer = new BillingServerSecure();
+		secureStub =
+            (IBillingServerSecure) UnicastRemoteObject.exportObject(secureServer, 0);
+		
 		
 		if(regProp == null){
 			System.out.println("Reg.Properties file could not be found!");
@@ -116,11 +125,7 @@ public class BillingServer implements IBillingServer {
 			// return null;
 		}
 				
-		IBillingServerSecure engine = new BillingServerSecure();
-		IBillingServerSecure stub =
-            (IBillingServerSecure) UnicastRemoteObject.exportObject(engine, 0);
-		
-		return stub;
+		return secureServer;
     }	
 	
 	private static void checkArguments(String[] args){

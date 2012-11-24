@@ -39,7 +39,7 @@ public class AuctionServerThread extends Thread {
 		
 	}
  
-	public void run() {
+	public synchronized void run() {
 		
 		try {
 			while(AuctionServer.active) {
@@ -48,7 +48,7 @@ public class AuctionServerThread extends Thread {
 				input = in.readLine();
 				
 				if(input!=null) {
-					Debug.printDebug("Command: " + input);
+					Debug.printDebug(this.username + "Command: " + input);
 					
 					try {
 						processInput(input);
@@ -71,19 +71,18 @@ public class AuctionServerThread extends Thread {
 			Debug.printError("Client connection to " + user.getName() + " couldn't be terminated!");
 		}
 		
-		Event temp1 = new UserEvent(UserEvent.types.USER_LOGOUT, username);
 		Event temp2 = new UserEvent(UserEvent.types.USER_DISCONNECTED, username);
 		
 		try {
-			AuctionServer.analytics.processEvent(temp1);
-			AuctionServer.analytics.processEvent(temp2);
+			if(user!=null)
+				AuctionServer.analytics.processEvent(temp2);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	void processInput(String input) {
+	synchronized void processInput(String input) {
 		
 		StringTokenizer st = new StringTokenizer(input);
 		String token = st.nextToken();

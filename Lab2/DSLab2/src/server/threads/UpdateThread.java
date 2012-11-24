@@ -12,6 +12,7 @@ public class UpdateThread implements Runnable{
         while(AuctionServer.active){
         	DataHandler.auctions.updateList();
         	
+        	/*
         	while(null != DataHandler.pendingNotifications.getNotificationFromOnlineUser(DataHandler.users)) {
         		Notification temp = DataHandler.pendingNotifications.getNotificationFromOnlineUser(DataHandler.users);
         		boolean sent = false;
@@ -26,7 +27,7 @@ public class UpdateThread implements Runnable{
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				Debug.printError(e.toString());
-			}
+			}*/
       
         }
     }

@@ -73,8 +73,11 @@ public class Auction {
 		DataHandler.pendingNotifications.addNotification(winner);
 		
 		try {
-			Event temp = new BidEvent(BidEvent.types.BID_WON, this.highest.getUser().getName(), this.id, this.highest.getMoney());
-			AuctionServer.analytics.processEvent(temp);
+			Event temp = null;
+			if(this.highest.getMoney() > 0) {
+				temp = new BidEvent(BidEvent.types.BID_WON, this.highest.getUser().getName(), this.id, this.highest.getMoney());
+				AuctionServer.analytics.processEvent(temp);	
+			}
 			temp = new AuctionEvent(AuctionEvent.types.AUCTION_ENDED, this.id, 0);
 			AuctionServer.analytics.processEvent(temp);
 			

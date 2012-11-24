@@ -5,11 +5,11 @@ import java.util.ArrayList;
 
 public class PriceSteps implements Serializable {
 
+	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = 13086410831029628L;
 	ArrayList<PriceStep> priceStepList;
 	public enum addErrorTypes {
 		NEGATIVE,

@@ -1,7 +1,15 @@
 package billing.model;
 
-public class BillLine {
+import java.io.Serializable;
+
+public class BillLine implements Serializable{
 	
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5410686365350948562L;
+
 	String user;
 	
 	long auctionId;

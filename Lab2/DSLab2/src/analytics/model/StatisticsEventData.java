@@ -83,6 +83,7 @@ public class StatisticsEventData {
 	}
 	
 	public boolean addSessionTime(double time) {
+		time = time/1000;
 		if(time > USER_SESSIONTIME_MAX) USER_SESSIONTIME_MAX = time;
 		if(time < USER_SESSIONTIME_MIN || USER_SESSIONTIME_MIN == 0) USER_SESSIONTIME_MIN = time;
 		

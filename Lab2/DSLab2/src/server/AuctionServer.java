@@ -24,7 +24,7 @@ public class AuctionServer {
 	private static int port = 10290;
 	private static String bindingAnalytics = "AnalyticsServer";
 	private static String bindingBilling = "BillingServer";
-	static int maxClients = 10;
+	static int maxClients = 10000;
 	static DataHandler data;
 	private static int argCount = 3;
 	public static boolean active = true;
@@ -60,9 +60,7 @@ public class AuctionServer {
 		}
 		
 		new Thread(server).start();
-		/* no UDP in Lab2
 		new Thread(updater).start();
-		*/
 		new Thread(scanner).start();
 		
 		
@@ -99,8 +97,6 @@ public class AuctionServer {
 		Debug.printInfo("Server started on port: "+port);
 		
 		while(active) {
-			
-			
 			Thread.sleep(100);
 		}
 		

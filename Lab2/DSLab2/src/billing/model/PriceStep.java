@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 public class PriceStep implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1197915023576412121L;
 	Double startPrice;
 	Double endPrice;
 	Double fixedPrice;

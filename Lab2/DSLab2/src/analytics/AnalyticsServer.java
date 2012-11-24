@@ -96,24 +96,24 @@ public class AnalyticsServer implements IAnalyticsServer {
 		send.add(event);
 		
 		
-		if(event.getType().equals(AuctionEvent.types.AUCTION_STARTED)) {
+		if(event.getType().equals(AuctionEvent.types.AUCTION_STARTED.toString())) {
 			
 			AuctionEvent e = (AuctionEvent)event;
 			statistics.addAuction(e.getDuration());
 			StatisticsEvent temp = new StatisticsEvent(StatisticsEvent.types.AUCTION_TIME_AVG, statistics.getAUCTION_TIME_AVG());
 			send.add(temp);
 		}
-		if(event.getType().equals(AuctionEvent.types.AUCTION_ENDED)) {
+		if(event.getType().equals(AuctionEvent.types.AUCTION_ENDED.toString())) {
 			statistics.endAuction();
 			
 			StatisticsEvent temp = new StatisticsEvent(StatisticsEvent.types.AUCTION_SUCCESS_RATIO, statistics.getAUCTION_SUCCESS_RATIO());
 			send.add(temp);
 		}
 		
-		if(event.getType().equals(UserEvent.types.USER_LOGIN)) {
+		if(event.getType().equals(UserEvent.types.USER_LOGIN.toString())) {
 			statistics.addUserToList((UserEvent)event);
 		}
-		if(event.getType().equals(UserEvent.types.USER_LOGOUT) || event.getType().equals(UserEvent.types.USER_DISCONNECTED)) {
+		if(event.getType().equals(UserEvent.types.USER_LOGOUT.toString()) || event.getType().equals(UserEvent.types.USER_DISCONNECTED.toString())) {
 			statistics.logoutUser((UserEvent)event);
 			
 			StatisticsEvent temp = new StatisticsEvent(StatisticsEvent.types.USER_SESSIONTIME_MIN, statistics.getUSER_SESSIONTIME_MIN());
@@ -122,9 +122,10 @@ public class AnalyticsServer implements IAnalyticsServer {
 			send.add(temp);
 			temp = new StatisticsEvent(StatisticsEvent.types.USER_SESSIONTIME_AVG, statistics.getUSER_SESSIONTIME_AVG());
 			send.add(temp);
+			
 		}
 		
-		if(event.getType().equals(BidEvent.types.BID_PLACED)) {
+		if(event.getType().equals(BidEvent.types.BID_PLACED.toString())) {
 			BidEvent bid = (BidEvent)event;
 			statistics.addBid();
 			
@@ -137,12 +138,14 @@ public class AnalyticsServer implements IAnalyticsServer {
 			}
 			
 		}		
-		if(event.getType().equals(BidEvent.types.BID_OVERBID)) {
+		if(event.getType().equals(BidEvent.types.BID_OVERBID.toString())) {
 			
 		}		
-		if(event.getType().equals(BidEvent.types.BID_WON)) {
+		if(event.getType().equals(BidEvent.types.BID_WON.toString())) {
 			statistics.bidWon();
 		}
+		
+		Debug.printDebug("Send size: " + send.size());
 		
 		//Sende Events an alle Clients
 		for(Event e:send) {
