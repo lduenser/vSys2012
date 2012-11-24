@@ -42,7 +42,7 @@ public class AuctionServer {
 		
 		data = new DataHandler();
 		
-		checkArguments(args);		
+	//	checkArguments(args);		
 		
 		ThreadPooledServer server = null;
 		UpdateThread updater = new UpdateThread();

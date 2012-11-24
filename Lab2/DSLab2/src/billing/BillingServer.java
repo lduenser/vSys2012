@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Properties;
 import java.util.Scanner;
@@ -21,32 +22,33 @@ public class BillingServer implements IBillingServer {
 	public BillingServer() {		
 	}
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws RemoteException{
 		
 		//checkArguments(args);
 		boolean active = true;
 		scanner = new Scanner(System.in);
 		String line;
 		Properties regProp= ReadProp.readRegistry();
+		String name = bindingBilling;
+		Registry registry = null;
 		
 		if(regProp == null){
 			System.out.println("Reg.Properties file could not be found!");
 		}		
 		else{						
-			try {
-				String name = bindingBilling;
-					
-				Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
-	            Debug.printInfo(registryPort.toString());
-	            
-	         // TODO:
-	         // check whether the RMI registry is already available, and create 
-			 // a new registry instance if it does not yet exist   
-	            
-	            Registry registry = LocateRegistry.createRegistry(registryPort);
-	         //   Registry registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
-	            
-	            Debug.printInfo(registry.toString());	            
+			String registryHost = regProp.getProperty("registry.host");	
+			Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
+          			
+			try {			
+				registry = LocateRegistry.createRegistry(registryPort);	
+			}
+			catch(ExportException ee){
+				Debug.printDebug("registry already created");
+				registry = LocateRegistry.getRegistry(registryHost, registryPort);
+			}
+			
+			try {        
+	            	            
 	            IBillingServer engine = new BillingServer();
 	            IBillingServer stub =
 	                (IBillingServer) UnicastRemoteObject.exportObject(engine, 0);
@@ -73,10 +75,7 @@ public class BillingServer implements IBillingServer {
 	        }
 			
 		}
-		Debug.printDebug("end billing");
-		scanner.close();
-		
-		
+		scanner.close();		
 	}
 	
 	@Override

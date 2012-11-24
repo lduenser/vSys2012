@@ -25,7 +25,6 @@ public class ManagementClient {
 	private static int argCount = 2;
 	static String bindingAnalytics = "AnalyticsServer";
 	static String bindingBilling = "BillingServer";
-	private static INotifyMClient  notifyStub =null;
 	private static IBillingServerSecure ibss;
 	private static Scanner scanner;
 	
@@ -44,14 +43,10 @@ public class ManagementClient {
         } 
 		else {		
     	   try {
-			/*
-			NotifyMClient notifyRemObj= new NotifyMClient();
-            notifyStub= (INotifyMClient)UnicastRemoteObject.exportObject(notifyRemObj, 0);
-			*/			
+					
 					String registryHost = regProp.getProperty("registry.host");
 					Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
-				    Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);				       
-				    //  Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);				            
+				    Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);				            
 					billRef = (IBillingServer) registry.lookup(bindingBilling);
 					
 					Debug.printInfo("hello ...");
