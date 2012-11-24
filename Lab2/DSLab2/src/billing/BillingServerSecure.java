@@ -38,17 +38,14 @@ public class BillingServerSecure implements IBillingServerSecure {
 
 			case COLLISION:
 				Debug.printDebug("Collision with existing step");
-				
-				break;
+				throw new RemoteException("!");				
 				
 			case NEGATIVE:
 				Debug.printDebug("Negative values");
-				
-				break;
+				throw new RemoteException("!");				
 		}
 		
 		Debug.printInfo("Price Steps\r\n" + steps.toString());
-
 	}
 
 	@Override
@@ -66,7 +63,8 @@ public class BillingServerSecure implements IBillingServerSecure {
 			
 			case NOT_FOUND:
 				Debug.printDebug("Step not found");
-				break;
+				throw new RemoteException("!");
+			//	break;
 		}
 		
 		Debug.printInfo("Price Steps\r\n" + steps.toString());		
