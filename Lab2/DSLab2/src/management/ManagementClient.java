@@ -1,6 +1,7 @@
 package management;
 
 import java.io.IOException;
+import java.rmi.ConnectException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
@@ -74,7 +75,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 				billRef = (IBillingServer) registry.lookup(bindingBilling);
 				analyticsRef = (IAnalyticsServer) registry.lookup(bindingAnalytics);
 				
-				Debug.printInfo("hello ...");
+				System.out.println("hello management client");
 				
 				String userInput="";
 				StringTokenizer st;
@@ -102,7 +103,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 				                    if (ibss==null) {
 				                          throw new RemoteException("ERROR: Something went wrong!");
 				                    } else{ 
-				                           System.out.println(name+" successfully logged in");
+				                           Debug.printInfo(name+" successfully logged in");
 				                      }                      
 								}
 							}
@@ -158,6 +159,9 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 										System.out.println("ERROR: You are currently not logged in.");
 									}
 								}
+								catch(RemoteException re){
+									Debug.printError("values are not valid");
+								}
 								catch(Exception e){
 									Debug.printError("only numbers!");
 								}						
@@ -173,14 +177,16 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 								try{
 									start = Long.parseLong(st.nextToken());
 									end = Long.parseLong(st.nextToken());
-									if(ibss!=null){
-										ibss.deletePriceStep(start, end);
-									//	System.out.println("Price step ["+ start +" "+ end +"] successfully removed");
-									
+									if(ibss!=null){										
+										ibss.deletePriceStep(start, end);										
+										System.out.println("Price step ["+ start +" "+ end +"] successfully removed");									
 									}							
 									else{
 										System.out.println("ERROR: You are currently not logged in.");
 									}
+								}
+								catch(RemoteException re){
+									Debug.printError("PriceStep does not exist!");
 								}
 								catch(Exception e){
 									Debug.printError("only numbers!");
@@ -288,12 +294,16 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 					}
 					
 		       }	
+    	   		catch(ConnectException ce){
+	   			Debug.printError("could not connect to server");
+    	   		}
 	    	   catch (IOException io) {
-	   			io.printStackTrace();
+	   				io.printStackTrace();
 		   		}
+    	   		
 		   		catch (NotBoundException nbe) {
 		   			// TODO Auto-generated catch block
-		   			nbe.printStackTrace();
+		   			Debug.printError("could not bind, sever is not available");
 		   		}
 		   		catch(Exception e){
 		   			e.printStackTrace();
