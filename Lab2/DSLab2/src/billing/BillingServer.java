@@ -58,10 +58,9 @@ public class BillingServer implements IBillingServer {
 	            	line = scanner.nextLine();					
 					if(line.startsWith("!exit")){
 						Debug.printInfo("Shutdown BillingServer");
-						active = false;	
-						// TODO: shutdown server
-						// eigenen ScannerThread erstellen?
-						
+						active = false;
+						// registry.unbind() ??
+						UnicastRemoteObject.unexportObject(engine, true);
 					}
 					else{
 						Debug.printInfo("unknown command");
@@ -76,8 +75,7 @@ public class BillingServer implements IBillingServer {
 		}
 		Debug.printDebug("end billing");
 		scanner.close();
-		// registry.unbind() ?
-		Debug.printDebug("active: "+Thread.activeCount());
+		
 		
 	}
 	

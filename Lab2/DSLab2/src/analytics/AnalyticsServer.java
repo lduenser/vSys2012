@@ -65,7 +65,8 @@ public class AnalyticsServer implements IAnalyticsServer {
 					if(line.startsWith("!exit")){
 						Debug.printInfo("Shutdown AnalyticsServer");
 						active = false;
-						// TODO: shutdown server
+						UnicastRemoteObject.unexportObject(engine, true);
+				//		registry.unbind(name); ??
 					}
 					else{
 						Debug.printInfo("unknown command");
@@ -79,6 +80,7 @@ public class AnalyticsServer implements IAnalyticsServer {
        }
 		Debug.printDebug("end analytics");
 		scanner.close();
+		
 	}
 	
 	@Override
