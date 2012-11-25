@@ -22,7 +22,6 @@ public class InputThread implements Runnable {
 		try {
 			socketReader = new BufferedReader(new InputStreamReader(s.getInputStream()));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			 Debug.printError(e.toString());
 		}
 		
@@ -55,7 +54,6 @@ public class InputThread implements Runnable {
 		 try {
 			 socketReader.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		 

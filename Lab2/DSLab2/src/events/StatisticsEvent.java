@@ -1,7 +1,5 @@
 package events;
 
-import events.BidEvent.types;
-
 public class StatisticsEvent extends Event{
 	
 	Double value;

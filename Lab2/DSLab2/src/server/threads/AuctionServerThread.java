@@ -35,8 +35,7 @@ public class AuctionServerThread extends Thread {
 			out = new PrintWriter(s.getOutputStream(), true);
 		} catch (IOException e) {
 			Debug.printError(e.toString());
-		}
-		
+		}		
 	}
  
 	public synchronized void run() {
@@ -55,6 +54,7 @@ public class AuctionServerThread extends Thread {
 					}
 					catch(Exception e) {
 						sendText("Error while processing your input!");
+						e.printStackTrace();
 					}
 				}
 			}
@@ -75,9 +75,11 @@ public class AuctionServerThread extends Thread {
 		
 		try {
 			if(user!=null)
-				AuctionServer.analytics.processEvent(temp2);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
+				if(AuctionServer.analytics != null){
+					AuctionServer.analytics.processEvent(temp2);
+				}
+				
+		} catch (RemoteException e) {			
 			e.printStackTrace();
 		}
 	}
@@ -109,9 +111,10 @@ public class AuctionServerThread extends Thread {
 						else {
 							Event temp = new UserEvent(UserEvent.types.USER_LOGIN, name);
 							try {
-								AuctionServer.analytics.processEvent(temp);
+								if(AuctionServer.analytics != null){
+									AuctionServer.analytics.processEvent(temp);
+								}
 							} catch (RemoteException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 							username = user.getName();
@@ -131,9 +134,10 @@ public class AuctionServerThread extends Thread {
 				sendText("Successfully logged out as "+user.getName()+"!");
 				Event temp = new UserEvent(UserEvent.types.USER_LOGOUT, user.getName());
 				try {
-					AuctionServer.analytics.processEvent(temp);
+					if(AuctionServer.analytics != null){
+						AuctionServer.analytics.processEvent(temp);
+					}					
 				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				user = null;
@@ -203,7 +207,7 @@ public class AuctionServerThread extends Thread {
 					terminateClient();
 					Debug.printDebug("Socket " + s.toString() + " closed!");
 				} catch (IOException e) {
-					Debug.printError(e.toString());
+					// Debug.printError(e.toString());
 				}
 			}
 			else if(token.equals("!notifications")) {

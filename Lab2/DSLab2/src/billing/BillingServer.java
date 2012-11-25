@@ -72,6 +72,7 @@ public class BillingServer implements IBillingServer {
 						active = false;
 						// registry.unbind() ??
 						UnicastRemoteObject.unexportObject(engine, true);
+						UnicastRemoteObject.unexportObject(secureServer, true);
 					}
 					else{
 						Debug.printInfo("unknown command");
@@ -79,7 +80,7 @@ public class BillingServer implements IBillingServer {
 	            }
 	        }
 			catch (Exception e) {
-	            Debug.printInfo("Couldn't start BillingServerEngine");
+	            Debug.printInfo("Could not start BillingServerEngine");
 	            e.printStackTrace();
 	        }
 			
@@ -112,25 +113,24 @@ public class BillingServer implements IBillingServer {
 			e.printStackTrace();
 		}
 		
-		Debug.printDebug("secret: "+secret);
-		Debug.printDebug("hash: "+hashword);
+	//	Debug.printDebug("secret: "+secret);
+	//	Debug.printDebug("hash: "+hashword);
 		
 		if(hashword.equals(secret)){
-			Debug.printInfo("richtiges pwd");
-			// hier stub etc .. dann einfuegen
-			// return stub;
+			Debug.printInfo("richtiges pwd");			
+			return secureServer;
 		}
 		else{
-			Debug.printDebug("falsches Passwort");
-			// return null;
+			Debug.printDebug("falsches pwd");			
+			return null;
 		}
 				
-		return secureServer;
+	//	return secureServer;
     }	
 	
-	private static void checkArguments(String[] args){
+	private static void checkArguments(String[] args) throws Exception{
 		if(args.length != argCount){
-			System.out.println("Args Anzahl stimmt nicht");
+			throw new Exception("Anzahl der Argumente stimmen nicht");
 		}
 		
 		for (int i = 0; i < args.length; i++) {

@@ -2,10 +2,8 @@ package billing.test;
 
 import java.rmi.RemoteException;
 
-import debug.Debug;
 import billing.BillingServerSecure;
 import billing.model.PriceStep;
-import billing.model.PriceSteps;
 
 public class DataTest {
 	
@@ -40,7 +38,6 @@ public class DataTest {
 			server.getBill("fred");
 			
 		} catch (RemoteException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		

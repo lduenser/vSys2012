@@ -5,8 +5,6 @@ import billing.model.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import billing.model.PriceStep;
-
 public interface IBillingServerSecure extends Remote {
 
 	public PriceSteps getPriceSteps()  throws RemoteException;

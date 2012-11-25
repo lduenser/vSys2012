@@ -1,11 +1,14 @@
 package loadTest;
 
-import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Properties;
+
+import debug.Debug;
 
 import loadTest.client.GenericClient;
 import management.ManagementClient;
+import methods.ReadProp;
 
 public class LoadTest {
 	
@@ -44,6 +47,27 @@ public class LoadTest {
 	public static void main(String args[]) {
 		System.out.println("hallo");
 		
-		new LoadTest("localhost", 10290, 50, 1, 2*60, 20, 3); 
+		Properties loadProp = ReadProp.readLoadTest();
+		
+		if(loadProp != null){
+			try{
+				Integer clients = Integer.parseInt(loadProp.getProperty("clients"));
+				Integer auctionsPerMin = Integer.parseInt(loadProp.getProperty("auctionsPerMin"));
+				Integer auctionDuration = Integer.parseInt(loadProp.getProperty("auctionDuration"));
+				Integer updateIntervalSec = Integer.parseInt(loadProp.getProperty("updateIntervalSec"));
+				Integer bidsPerMin = Integer.parseInt(loadProp.getProperty("bidsPerMin"));
+	
+				new LoadTest("localhost", 10290, clients, auctionsPerMin, auctionDuration, updateIntervalSec, bidsPerMin);
+				
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+				
+		}else{
+			Debug.printError("could not find loadTest property - starting default LoadTest");
+			 new LoadTest("localhost", 10290, 50, 1, 120, 20, 3); 
+		}
+		
 	}
 }

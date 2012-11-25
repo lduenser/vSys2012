@@ -5,22 +5,18 @@ import methods.Methods;
 import methods.ReadProp;
 import debug.Debug;
 
-import java.rmi.RemoteException;
+import java.rmi.ConnectException;
+import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.Properties;
 
 import analytics.IAnalyticsServer;
-import billing.BillingServer;
 import billing.IBillingServer;
 import billing.IBillingServerSecure;
 
 public class AuctionServer {
-
-	/**
-	 * @param args
-	 */
+	
 	private static int port = 10290;
 	private static String bindingAnalytics = "AnalyticsServer";
 	private static String bindingBilling = "BillingServer";
@@ -70,27 +66,38 @@ public class AuctionServer {
 		try {
             String name = bindingBilling;
             Registry registry = LocateRegistry.getRegistry(registryPort);            
-            Debug.printInfo(registry.toString());            
+      //      Debug.printInfo(registry.toString());            
             IBillingServer billing = (IBillingServer) registry.lookup(name);
           
             billingServer = billing.login("auctionClientUser", "management");            
-            Debug.printInfo("Connected to secure billing server");
+            Debug.printInfo("Connected to secure Billing Server");
             
-        } catch (Exception e) {
-        	Debug.printInfo("Couldn't connect to secure billing server");            
+        } 
+		catch(ConnectException ce){
+			Debug.printError("could not connect to secure billing server");
+		}
+		catch(NotBoundException nbe){
+			Debug.printError("could not bound to billing server");
+		}
+		catch (Exception e) {        	           
             e.printStackTrace();
         }
 		
 		try {
             String name = bindingAnalytics;
             Registry registry = LocateRegistry.getRegistry(registryPort);            
-            Debug.printInfo(registry.toString());
+     //       Debug.printInfo(registry.toString());
             
             analytics = (IAnalyticsServer) registry.lookup(name);           
-            Debug.printInfo("Connected to AnalyticsServer");
-            
-        } catch (Exception e) {
-        	Debug.printInfo("Couldn't connect to AnalyticsServer");            
+            Debug.printInfo("Connected to Analytics Server");            
+        }
+		catch(ConnectException ce){
+			Debug.printError("could not connect to analytics server");
+		}
+		catch(NotBoundException nbe){
+			Debug.printError("could not bound to analytics server");
+		}
+		catch (Exception e) {        	           
             e.printStackTrace();
         }
 		
@@ -109,9 +116,9 @@ public class AuctionServer {
 		Debug.printInfo("Server shutdown complete!");
 	}
 	
-	private static void checkArguments(String[] args){
+	private static void checkArguments(String[] args) throws Exception{
 		if(args.length != argCount){
-			System.out.println("Args Anzahl stimmt nicht");
+			throw new Exception("Anzahl der Argumente stimmen nicht");
 		}
 		
 		for (int i = 0; i < args.length; i++) {
@@ -120,13 +127,12 @@ public class AuctionServer {
 		                try{	
 		                	port=Integer.parseInt(args[i]);
 		                } catch (Exception e) {
-		                    System.out.println("Port ist kein Integerwert!");
+		                    throw new Exception("Port ist kein Integerwert!");
 		                }
 		                port = Methods.setPort(Integer.valueOf(args[0]));		                
 		                break;	                	                	
 		           case 1:  bindingAnalytics=args[i]; break;
-		           case 2: 	bindingBilling=args[i]; break;	 
-		                
+		           case 2: 	bindingBilling=args[i]; break;		                
 	            }
 	     }
 	}

@@ -1,6 +1,5 @@
 package client;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -8,8 +7,6 @@ import java.net.Socket;
 import java.util.Scanner;
 
 import debug.Debug;
-
-
 
 public class CommandThread implements Runnable {
 	
@@ -28,7 +25,6 @@ public class CommandThread implements Runnable {
 			socketWriter = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
 			scanner = new Scanner(System.in);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -58,7 +54,6 @@ public class CommandThread implements Runnable {
 			} while(Client.active);
 				 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// Debug.printError(e.toString());
 		} 
 		 
@@ -73,7 +68,6 @@ public class CommandThread implements Runnable {
 			scanner.close();
 			socketWriter.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		 

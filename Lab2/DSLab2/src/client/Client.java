@@ -6,20 +6,18 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import methods.Methods;
-
 import debug.Debug;
 
-
-
 public class Client {
-
-	/**
-	 * @param args
-	 */
+	
+	private static int argCount = 3;
 	static int port = 5000;
 	static boolean active = true;
 	static Socket socket = null;
 	static int keepAliveTime = 5000;
+	static String host;
+	static int serverPort;
+	static int clientPort;
 	
 	public Client() {
 		Debug.info = true;
@@ -27,10 +25,10 @@ public class Client {
 		Debug.debug = true;
 	}
 	
-	public static void main(String[] args) throws InterruptedException {
-		// TODO Auto-generated method stub
-		new Client();
+	public static void main(String[] args) throws Exception {
 		
+		new Client();
+	//	checkArguments(args);
 		String host = args[0];
 		int serverPort = Methods.setPort(Integer.parseInt(args[1]));
 		int clientPort = Methods.setPort(Integer.parseInt(args[2]));
@@ -52,8 +50,10 @@ public class Client {
 			new Thread(input).start();
 			new Thread(output).start();
 			/* no UDP in Lab2
+			 * 
+			 */
 			new Thread(udp).start();
-			*/
+			
 			Debug.printInfo("Client connected to server");
 		}
 		catch(Exception e) {
@@ -82,6 +82,38 @@ public class Client {
 		Debug.printInfo("Shutdown completed!");
 	}
 	
+	private static void checkArguments(String[] args) throws Exception{
+		if(args.length != argCount){
+			throw new Exception("Anzahl der Argumente stimmen nicht");
+		}
+		
+		for (int i = 0; i < args.length; i++) {
+	            switch (i) {
+	                case 0: host=args[i]; break;
+	                
+	                case 1: 
+	                	try{
+	                		serverPort = Integer.parseInt(args[i]);
+	                	}
+	                	catch(Exception e){
+	                		Debug.printError("serverPort is no Integer");
+	                	}
+	                	serverPort = Methods.setPort(Integer.valueOf(args[1]));
+	                	break;
+	                	
+	                case 2: 
+	                	try{
+	                		clientPort = Integer.parseInt(args[i]);
+	                	}
+	                	catch(Exception e){
+	                		Debug.printError("clientPort is no Integer");
+	                	}
+	                	clientPort = Methods.setPort(Integer.valueOf(args[2]));
+	                	break;
+	            }
+	     }
+	}	
+	
 	private static boolean checkAlive(Socket socket){
 		
 		Socket s = socket;
@@ -89,7 +121,6 @@ public class Client {
 		try {
 			socketWriter = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		

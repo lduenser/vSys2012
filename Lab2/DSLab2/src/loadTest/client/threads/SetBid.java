@@ -1,19 +1,12 @@
 package loadTest.client.threads;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 import loadTest.LoadTest;
 
-import debug.Debug;
 
 public class SetBid implements Runnable {
 	
@@ -50,7 +43,6 @@ public class SetBid implements Runnable {
 					
 					Thread.sleep((60*1000)/delay);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

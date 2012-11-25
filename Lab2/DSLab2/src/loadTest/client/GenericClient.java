@@ -1,7 +1,6 @@
 package loadTest.client;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -10,8 +9,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
-
-import client.Client;
 
 import loadTest.LoadTest;
 import loadTest.client.threads.SetBid;
@@ -52,10 +49,8 @@ public class GenericClient implements Runnable {
 			
 			socketWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -80,7 +75,6 @@ public class GenericClient implements Runnable {
 				Thread.sleep(updateInterval * 1000);
 				//LoadTest.active = false;
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -119,14 +113,11 @@ public class GenericClient implements Runnable {
 	
 	synchronized void stop() {
 		 Debug.printInfo("Shutdown CommandThread");
-		 
-		 
-		 
+		 		 
 		 try {
 			scanner.close();
 			socketWriter.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		 

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import events.AuctionEvent;
 import events.Event;
-import events.UserEvent;
 
 import server.AuctionServer;
 
@@ -19,8 +18,7 @@ public class AuctionList {
 		Event temp = new AuctionEvent(AuctionEvent.types.AUCTION_STARTED, auction.id, auction.getDuration());
 		try {
 			AuctionServer.analytics.processEvent(temp);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
+		} catch (RemoteException e) {			
 			e.printStackTrace();
 		}
 		return auction;

@@ -1,8 +1,6 @@
 package billing;
 
-import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 
 import debug.Debug;
 import billing.model.*;
@@ -18,8 +16,7 @@ public class BillingServerSecure implements IBillingServerSecure {
 	}
 	
 	@Override
-	public PriceSteps getPriceSteps()  throws RemoteException {
-		// TODO Auto-generated method stub
+	public PriceSteps getPriceSteps()  throws RemoteException {		
 		return steps;
 	}
 
@@ -72,23 +69,17 @@ public class BillingServerSecure implements IBillingServerSecure {
 
 	@Override
 	public void billAuction(String user, long auctionID, double price) throws RemoteException {
-		// TODO Auto-generated method stub
-		
-		BillLine temp = new BillLine(user, auctionID, price);
-		
-		bills.addLine(temp);
-		
+				
+		BillLine temp = new BillLine(user, auctionID, price);		
+		bills.addLine(temp);		
 		Debug.printInfo("BillLine for "+user+ " created!\r\n" + temp.toString());	
 	}
 
 	@Override
 	public Bill getBill(String user) throws RemoteException {
-		// TODO Auto-generated method stub
-		
-		Bill temp = bills.getUserBill(user, steps);
-		
-		Debug.printInfo("Bill for "+user+ "\r\n" + temp.toString());
-		
+				
+		Bill temp = bills.getUserBill(user, steps);		
+		Debug.printInfo("Bill for "+user+ "\r\n" + temp.toString());		
 		return temp;
 	}
 

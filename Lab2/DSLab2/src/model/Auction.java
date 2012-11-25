@@ -82,7 +82,6 @@ public class Auction {
 			AuctionServer.analytics.processEvent(temp);
 			
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -109,7 +108,7 @@ public class Auction {
 				try {
 					AuctionServer.analytics.processEvent(temp);
 				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 			}
@@ -120,7 +119,7 @@ public class Auction {
 			try {
 				AuctionServer.analytics.processEvent(temp);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
 			return true;

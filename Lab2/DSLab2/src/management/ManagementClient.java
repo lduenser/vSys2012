@@ -1,9 +1,8 @@
 package management;
 
 import java.io.IOException;
-import java.rmi.Naming;
+import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -21,7 +20,6 @@ import analytics.IAnalyticsServer;
 import billing.IBillingServer;
 import billing.IBillingServerSecure;
 import billing.model.Bill;
-import billing.model.PriceStep;
 import billing.model.PriceSteps;
 
 public class ManagementClient extends UnicastRemoteObject implements INotifyClient  {
@@ -36,7 +34,6 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 		this.subscription = new ArrayList<Subscription>();
 		this.buffer = new ArrayList<Event>();
 		this.status = Status.AUTO;
-		// TODO Auto-generated constructor stub
 	}
 	
 	private enum Status {
@@ -78,12 +75,11 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
     		   
     		   	String registryHost = regProp.getProperty("registry.host");
 				Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
-			    Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);				       
-			    //  Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);				            
+			    Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);				            
 				billRef = (IBillingServer) registry.lookup(bindingBilling);
 				analyticsRef = (IAnalyticsServer) registry.lookup(bindingAnalytics);
 				
-				Debug.printInfo("hello ...");
+				System.out.println("hello management client");
 				
 				String userInput="";
 				StringTokenizer st;
@@ -100,7 +96,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 								String name=""; 
 								String pwd="";
 								if(st.countTokens() < 2){
-									System.out.println("username/pwd missing");
+									System.out.println("username/password missing");
 								}
 								else{
 									name = st.nextToken();
@@ -109,7 +105,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 									ibss=billRef.login(name,pwd);
 					                  
 				                    if (ibss==null) {
-				                          throw new RemoteException("ERROR: Something went wrong!");
+				                    	Debug.printError("username/password is not valid!");
 				                    } else{ 
 				                           System.out.println(name+" successfully logged in");
 				                      }                      
@@ -142,16 +138,16 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 						}
 						
 						else if(userInput.startsWith("!addStep")){
-							Long start, end, fixed, variable;
+							Double start, end, fixed, variable;
 							if(st.countTokens() < 4){
 								System.out.println("start/end/fixed/variable missing");
 							}
 							else{
 								try{
-									start = Long.parseLong(st.nextToken());
-									end = Long.parseLong(st.nextToken());									
-									fixed = Long.parseLong(st.nextToken());
-									variable = Long.parseLong(st.nextToken());
+									start = Double.parseDouble(st.nextToken());
+									end = Double.parseDouble(st.nextToken());									
+									fixed = Double.parseDouble(st.nextToken());
+									variable = Double.parseDouble(st.nextToken());
 									
 									if(ibss!=null){
 										ibss.createPriceStep(start, end, fixed, variable);
@@ -167,6 +163,9 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 										System.out.println("ERROR: You are currently not logged in.");
 									}
 								}
+								catch(RemoteException re){
+									Debug.printError("values are not valid");
+								}
 								catch(Exception e){
 									Debug.printError("only numbers!");
 								}						
@@ -174,24 +173,24 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 						}
 						
 						else if(userInput.startsWith("!removeStep")){										
-							Long start, end;
+							Double start = null, end = null;
 							if(st.countTokens() < 2){
 								System.out.println("start/end missing");
 							}
 							else{
 								try{
-									start = Long.parseLong(st.nextToken());
-									end = Long.parseLong(st.nextToken());
-									if(ibss!=null) {
-										
-										ibss.deletePriceStep(start, end);
-									
+									start = Double.parseDouble(st.nextToken());
+									end = Double.parseDouble(st.nextToken());
+									if(ibss!=null) {										
+										ibss.deletePriceStep(start, end);									
 										System.out.println("Price step ["+ start +" "+ end +"] successfully removed");
-									
 									}							
 									else{
 										System.out.println("ERROR: You are currently not logged in.");
 									}
+								}
+								catch(RemoteException re){
+									Debug.printError("PriceStep ["+ start +" "+ end +"] does not exist!");
 								}
 								catch(Exception e){
 									Debug.printError("only numbers!");
@@ -208,10 +207,8 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 								try{
 									username = st.nextToken();
 									if(ibss!=null){
-										Bill bill = ibss.getBill(username);	
-										
-										if(bill != null){
-											
+										Bill bill = ibss.getBill(username);										
+										if(bill != null){											
 											System.out.println(bill.toString());
 										}
 										else{
@@ -228,11 +225,14 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 							}
 						}  
 						// set the client into "logged out" state
-						else if(userInput.startsWith("!logout")){					
-							// admin.setOnline(false); ??
-							ibss = null;
-							// active = false;
-							System.out.println("Successfully logged out");
+						else if(userInput.startsWith("!logout")){
+							if(ibss != null){
+								ibss = null;
+								System.out.println("Successfully logged out");
+							}
+							else{
+								Debug.printInfo("you have to log in first!");
+							}							
 						}
 						
 						/*
@@ -292,9 +292,17 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 							Debug.printInfo("disabled the automatic printing of events");
 							
 						}
-						else if(userInput.startsWith("!print")){
-							self.printBuffer();
+						else if(userInput.startsWith("!print")){							
 							Debug.printInfo("print events on buffer");
+							self.printBuffer();							
+						}
+						
+						else if(userInput.startsWith("!exit")){
+							//TODO: shutdown client
+							ibss = null;
+							active = false;
+							
+							Debug.printDebug("shutdown client");
 						}
 						
 						else{
@@ -303,23 +311,26 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 					}
 					
 		       }	
+	    	   catch(ConnectException ce){
+		   			Debug.printError("could not connect to server");
+	   	   		}
 	    	   catch (IOException io) {
-	   			io.printStackTrace();
+	   				io.printStackTrace();
 		   		}
 		   		catch (NotBoundException nbe) {
-		   			// TODO Auto-generated catch block
-		   			nbe.printStackTrace();
+		   			Debug.printError("could not bind, sever is not available");
 		   		}
 		   		catch(Exception e){
 		   			e.printStackTrace();
 		   		}
 			}
+		Debug.printDebug("ende - M.client -");
 		scanner.close();
 	}	
 	
-    private static void checkArguments(String[] args){
+    private static void checkArguments(String[] args) throws Exception{
 		if(args.length != argCount){
-			System.out.println("Args Anzahl stimmt nicht");
+			throw new Exception("Anzahl der Argumente stimmen nicht");
 		}
 		
 		for (int i = 0; i < args.length; i++) {
@@ -332,7 +343,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 
 	@Override
 	public void eventRecieved(Event event) throws RemoteException {
-		// TODO Event ausgeben
+		
 		switch(this.status) {
 		case AUTO:
 			System.out.println(event.toString());

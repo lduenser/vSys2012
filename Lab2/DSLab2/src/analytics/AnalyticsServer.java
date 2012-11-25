@@ -51,8 +51,7 @@ public class AnalyticsServer implements IAnalyticsServer {
 			Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));
     	   
 			try {			
-				registry = LocateRegistry.createRegistry(registryPort);	
-				Debug.printInfo(registry.toString());
+				registry = LocateRegistry.createRegistry(registryPort);				
 			}
 			catch(ExportException ee){
 				Debug.printDebug("registry already created");
@@ -82,7 +81,7 @@ public class AnalyticsServer implements IAnalyticsServer {
 	            }	            
 	        }
 			catch (Exception e) {
-	            Debug.printInfo("Couldn't start AnalyticsServer");
+	            Debug.printInfo("Could not start AnalyticsServer");
 	            e.printStackTrace();
 	        }
        }		
@@ -168,9 +167,9 @@ public class AnalyticsServer implements IAnalyticsServer {
 		}
 	}
 
-	private static void checkArguments(String[] args){
+	private static void checkArguments(String[] args) throws Exception{
 		if(args.length != argCount){
-			System.out.println("Args Anzahl stimmt nicht");
+			throw new Exception("Anzahl der Argumente stimmen nicht");
 		}
 		
 		for (int i = 0; i < args.length; i++) {
@@ -181,15 +180,13 @@ public class AnalyticsServer implements IAnalyticsServer {
 	}
 
 	@Override
-	public void subscribe(INotifyClient client) throws RemoteException {
-		// TODO Auto-generated method stub
+	public void subscribe(INotifyClient client) throws RemoteException {		
 		Debug.printDebug("New Subscription: " + client.getSubscription());
 		clients.add(client);
 	}
 
 	@Override
-	public void unsubscribe(INotifyClient client) throws RemoteException {
-		// TODO Auto-generated method stub
+	public void unsubscribe(INotifyClient client) throws RemoteException {		
 		Debug.printDebug("Remove Subscription: " + client.getSubscription());
 		clients.remove(client);
 	}

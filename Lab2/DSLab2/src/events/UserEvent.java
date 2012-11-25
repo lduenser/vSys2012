@@ -1,7 +1,5 @@
 package events;
 
-import events.BidEvent.types;
-
 public class UserEvent extends Event{
 	
 	String userName;

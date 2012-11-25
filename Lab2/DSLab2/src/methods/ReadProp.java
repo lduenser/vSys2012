@@ -12,11 +12,7 @@ public class ReadProp {
 			Properties regProps = new Properties();
 			try{				
                regProps.load(in);
-               return regProps;  
-               /* beim auslesen dann:
-               String registryHost = regProp.getProperty("registry.host");
-               Integer registryPort = Integer.parseInt(regProp.getProperty("registry.port"));             
-               */
+               return regProps;
 			}
 			catch(IOException io){
 				io.printStackTrace();
@@ -25,7 +21,6 @@ public class ReadProp {
 				try {
 					in.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -41,8 +36,7 @@ public class ReadProp {
 		InputStream in = ClassLoader.getSystemResourceAsStream("user.properties");
 		if (in != null) {
 			Properties userProps = new Properties();
-			try{
-			//	Admin admin;				
+			try{				
                 userProps.load(in);
                 return userProps;                            
 			}
@@ -51,11 +45,28 @@ public class ReadProp {
 			}
 		}
 		else {
-            // user.properties could not be found
             System.out.println("User Properties file could not be found!");
         }
 		
-		//return password
+		return null;
+	}
+	
+	public static Properties readLoadTest(){
+		InputStream in = ClassLoader.getSystemResourceAsStream("loadtest.properties");
+		if (in != null) {
+			Properties loadProps = new Properties();
+			try{				
+                loadProps.load(in);
+                return loadProps;                           
+			}
+			catch(IOException io){
+				io.printStackTrace();
+			}
+		}
+		else {
+            System.out.println("LoadTest Properties file could not be found!");
+        }
+			
 		return null;
 	}
 	

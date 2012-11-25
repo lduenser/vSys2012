@@ -2,6 +2,7 @@ package events;
 
 public class AuctionEvent extends Event{
 
+	
 	long auctionID;
 	int duration;
 	
