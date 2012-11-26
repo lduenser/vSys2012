@@ -17,7 +17,10 @@ public class AuctionList {
 		
 		Event temp = new AuctionEvent(AuctionEvent.types.AUCTION_STARTED, auction.id, auction.getDuration());
 		try {
-			AuctionServer.analytics.processEvent(temp);
+			if(AuctionServer.analytics != null){
+				AuctionServer.analytics.processEvent(temp);
+			}
+			
 		} catch (RemoteException e) {			
 			e.printStackTrace();
 		}

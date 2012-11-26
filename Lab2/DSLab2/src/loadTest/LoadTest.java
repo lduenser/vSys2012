@@ -8,6 +8,7 @@ import debug.Debug;
 
 import loadTest.client.GenericClient;
 import management.ManagementClient;
+import methods.Methods;
 import methods.ReadProp;
 
 public class LoadTest {
@@ -17,12 +18,17 @@ public class LoadTest {
 	int auctionDuration = 0;
 	int updateIntervalSec = 0;
 	int bidsPerMin = 0;
+
+	private static int argCount = 4;
+	static String host = "localhost";
+	static int serverPort = 10290;
+	static String bindingAnalytics = "AnalyticsServer";
+	static String bindingBilling = "BillingServer";
 	
 	String server = null;
 	int port = 0;
 	
-	public static Timestamp startTime = null;
-	
+	public static Timestamp startTime = null;	
 	public static boolean active = true;
 	
 	public LoadTest(String server, int port, int clients, int auctionsPerMin, int auctionDuration, int updateIntervalSec, int bidsPerMin) {
@@ -44,8 +50,10 @@ public class LoadTest {
 		}
 	}
 	
-	public static void main(String args[]) {
+	public static void main(String args[]) throws Exception {
 		System.out.println("hallo");
+		
+	//	checkArguments(args);
 		
 		Properties loadProp = ReadProp.readLoadTest();
 		
@@ -57,7 +65,7 @@ public class LoadTest {
 				Integer updateIntervalSec = Integer.parseInt(loadProp.getProperty("updateIntervalSec"));
 				Integer bidsPerMin = Integer.parseInt(loadProp.getProperty("bidsPerMin"));
 	
-				new LoadTest("localhost", 10290, clients, auctionsPerMin, auctionDuration, updateIntervalSec, bidsPerMin);
+				new LoadTest(host, serverPort, clients, auctionsPerMin, auctionDuration, updateIntervalSec, bidsPerMin);
 				
 			}
 			catch(Exception e){
@@ -66,8 +74,34 @@ public class LoadTest {
 				
 		}else{
 			Debug.printError("could not find loadTest property - starting default LoadTest");
-			 new LoadTest("localhost", 10290, 50, 1, 120, 20, 3); 
+			 new LoadTest(host, serverPort, 50, 1, 120, 20, 3); 
 		}
 		
 	}
+
+	private static void checkArguments(String[] args) throws Exception{
+		if(args.length != argCount){
+			throw new Exception("Anzahl der Argumente stimmen nicht");
+		}
+		
+		for (int i = 0; i < args.length; i++) {
+	            switch (i) {
+	                case 0: host=args[i]; break;
+	                
+	                case 1: 
+	                	try{
+	                		serverPort = Integer.parseInt(args[i]);
+	                	}
+	                	catch(Exception e){
+	                		Debug.printError("serverPort is no Integer");
+	                	}
+	                	serverPort = Methods.setPort(Integer.valueOf(args[1]));
+	                	break;
+	                	
+	                case 2: bindingAnalytics=args[i]; break;
+	      //          case 3: bindingBilling = args[i]; break;
+	            }
+	     }
+	}
+	
 }

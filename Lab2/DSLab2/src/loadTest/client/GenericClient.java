@@ -112,8 +112,7 @@ public class GenericClient implements Runnable {
 	}
 	
 	synchronized void stop() {
-		 Debug.printInfo("Shutdown CommandThread");
-		 		 
+				 		 
 		 try {
 			scanner.close();
 			socketWriter.close();

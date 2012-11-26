@@ -17,6 +17,7 @@
     <property name="analytics.bindingName" value="AnalyticsServer"/><!-- RMI Binding Name of the Analytics Server -->
     <property name="billing.bindingName" value="BillingServer"/><!-- RMI Binding Name of the Billing Server -->
     <property name="server.port" value="10290"/><!-- TCP port -->
+	<property name="load.name" value="loadTest.LoadTest"/> <!-- LoadTest Client's full class name (including the package) -->
 
     <path id="project.classpath">
         <pathelement location="${build.dir}"/>
@@ -98,7 +99,7 @@
     </target>
 
     <target name="run-loadtest" depends="compile" description="Run Load Test.">
-        <java classname="${client.name}" fork="true" classpathref="project.classpath">
+        <java classname="${load.name}" fork="true" classpathref="project.classpath">
             <arg value="${server.host}"/>
             <arg value="${server.port}"/>
             <arg value="${analytics.bindingName}"/>
