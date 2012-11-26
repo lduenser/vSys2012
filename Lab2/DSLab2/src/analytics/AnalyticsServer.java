@@ -1,5 +1,6 @@
 package analytics;
 
+import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -19,7 +20,6 @@ import events.Event;
 import events.StatisticsEvent;
 import events.UserEvent;
 
-// receives events from the system and computes simple statistics/analytics
 public class AnalyticsServer implements IAnalyticsServer {
 	
 	private static int argCount = 1;
@@ -34,8 +34,9 @@ public class AnalyticsServer implements IAnalyticsServer {
 		clients = new ArrayList<INotifyClient>();
 	}
 
-	public static void main(String[] args) throws RemoteException{
-		//checkArguments(args);
+	public static void main(String[] args) throws Exception{
+		
+	//	checkArguments(args);
 		boolean active = true;
 		scanner = new Scanner(System.in);
 		String line;
@@ -71,17 +72,20 @@ public class AnalyticsServer implements IAnalyticsServer {
 	            	line = scanner.nextLine();					
 					if(line.startsWith("!exit")){
 						Debug.printInfo("Shutdown AnalyticsServer");
-						active = false;
+						active = false;							
 						UnicastRemoteObject.unexportObject(engine, true);
-				//		registry.unbind(name); ??
+						registry.unbind(name);
 					}
 					else{
 						Debug.printInfo("unknown command");
 					}
 	            }	            
 	        }
+			catch(ConnectException ce){
+				Debug.printError("connection to server failed");
+			}
 			catch (Exception e) {
-	            Debug.printInfo("Could not start AnalyticsServer");
+	            Debug.printError("Could not start AnalyticsServer");
 	            e.printStackTrace();
 	        }
        }		

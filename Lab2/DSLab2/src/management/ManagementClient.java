@@ -52,9 +52,9 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 	private Status status;
 	private int filterId = 0;
 	
-	public static void main(String args[]) {		
+	public static void main(String args[]) throws Exception {		
 		
-		//checkArguments(args);
+	//	checkArguments(args);
 		
 		scanner = new Scanner(System.in);
 		String line="";
@@ -96,7 +96,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 								String name=""; 
 								String pwd="";
 								if(st.countTokens() < 2){
-									System.out.println("username/password missing");
+									Debug.printError("username/password missing");
 								}
 								else{
 									name = st.nextToken();
@@ -107,7 +107,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 				                    if (ibss==null) {
 				                    	Debug.printError("username/password is not valid!");
 				                    } else{ 
-				                           System.out.println(name+" successfully logged in");
+				                           Debug.printInfo(name+" successfully logged in");
 				                      }                      
 								}
 							}
@@ -140,7 +140,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 						else if(userInput.startsWith("!addStep")){
 							Double start, end, fixed, variable;
 							if(st.countTokens() < 4){
-								System.out.println("start/end/fixed/variable missing");
+								Debug.printError("start/end/fixed/variable missing");
 							}
 							else{
 								try{
@@ -175,7 +175,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 						else if(userInput.startsWith("!removeStep")){										
 							Double start = null, end = null;
 							if(st.countTokens() < 2){
-								System.out.println("start/end missing");
+								Debug.printError("start/end missing");
 							}
 							else{
 								try{
@@ -201,7 +201,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 						else if(userInput.startsWith("!bill")){
 							String username;
 							if(st.countTokens() < 1){
-								System.out.println("username missing");
+								Debug.printError("username is missing");
 							}
 							else{							
 								try{
@@ -268,13 +268,10 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 							else{
 								try{
 									id = Integer.parseInt(st.nextToken());
-
-									self.removeSubscription(id);
-									
+									self.removeSubscription(id);									
 									if(self.subscription.isEmpty()) {
 										analyticsRef.unsubscribe(self);
-									}
-									
+									}									
 									Debug.printInfo("subscription " +id+ " terminated");
 								}
 								catch(Exception e){
@@ -297,12 +294,11 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 							self.printBuffer();							
 						}
 						
-						else if(userInput.startsWith("!exit")){
-							//TODO: shutdown client
+						else if(userInput.startsWith("!exit")){		
+							Debug.printDebug("Shutdown M.Client");
 							ibss = null;
 							active = false;
-							
-							Debug.printDebug("shutdown client");
+							UnicastRemoteObject.unexportObject(self, true);							
 						}
 						
 						else{
@@ -324,7 +320,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 		   			e.printStackTrace();
 		   		}
 			}
-		Debug.printDebug("ende - M.client -");
+		
 		scanner.close();
 	}	
 	

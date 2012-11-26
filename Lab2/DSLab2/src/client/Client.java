@@ -15,9 +15,9 @@ public class Client {
 	static boolean active = true;
 	static Socket socket = null;
 	static int keepAliveTime = 5000;
-	static String host;
-	static int serverPort;
-	static int clientPort;
+	static String host = "localhost";
+	static int serverPort = 10290;
+	static int clientPort = 10291;
 	
 	public Client() {
 		Debug.info = true;
@@ -29,31 +29,27 @@ public class Client {
 		
 		new Client();
 	//	checkArguments(args);
-		String host = args[0];
-		int serverPort = Methods.setPort(Integer.parseInt(args[1]));
-		int clientPort = Methods.setPort(Integer.parseInt(args[2]));
 		
 		socket = null;
 		Debug.printInfo("Client started");
 		
 		InputThread input = null;
 		CommandThread output = null;
-		UDPThread udp = null;
+	//	UDPThread udp = null;
 		 
 		try {
 			socket = new Socket(host, serverPort);
 			
 			input = new InputThread(socket);
 			output = new CommandThread(socket, clientPort);
-			udp = new UDPThread(clientPort);
+	//		udp = new UDPThread(clientPort);
 			
 			new Thread(input).start();
 			new Thread(output).start();
 			/* no UDP in Lab2
-			 * 
+			 * new Thread(udp).start();
 			 */
-			new Thread(udp).start();
-			
+						
 			Debug.printInfo("Client connected to server");
 		}
 		catch(Exception e) {
@@ -66,11 +62,9 @@ public class Client {
 			checkAlive(socket);
 			Thread.sleep(Client.keepAliveTime);
 		}
-		
-		Debug.printInfo("Shutdown client...");
-		 
+				 
 		 try {
-			 if(udp!=null)udp.stop();
+	//		 if(udp!=null)udp.stop();
 			 if(input!=null)input.stop();
 			 if(output!=null)output.stop();
 			 if(socket!=null)socket.close();
@@ -79,7 +73,7 @@ public class Client {
 			Debug.printError("Shutdown - " + e.toString());
 		}
 		 
-		Debug.printInfo("Shutdown completed!");
+		Debug.printInfo("Shutdown Client completed!");
 	}
 	
 	private static void checkArguments(String[] args) throws Exception{

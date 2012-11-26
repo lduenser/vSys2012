@@ -49,8 +49,6 @@ public class InputThread implements Runnable {
 	
 	synchronized void stop() {
 		
-		 Debug.printInfo("Shutdown InputThread");
-		
 		 try {
 			 socketReader.close();
 		} catch (IOException e) {

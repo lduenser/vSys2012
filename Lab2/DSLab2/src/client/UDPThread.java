@@ -43,8 +43,7 @@ public class UDPThread implements Runnable {
 	}
 	
 	synchronized void stop() throws Exception {
-		Debug.printInfo("Shutdown UDPThread");
-		 
+		
 		serverSocket.close();
 		
 		Debug.printInfo("Shutdown UDPThread complete");

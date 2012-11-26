@@ -1,6 +1,7 @@
 package billing;
 
 import java.math.BigInteger;
+import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -26,7 +27,7 @@ public class BillingServer implements IBillingServer {
 		
 	}
 	
-	public static void main(String[] args) throws RemoteException{
+	public static void main(String[] args) throws Exception{
 		
 		//checkArguments(args);
 		boolean active = true;
@@ -69,16 +70,19 @@ public class BillingServer implements IBillingServer {
 	            	line = scanner.nextLine();					
 					if(line.startsWith("!exit")){
 						Debug.printInfo("Shutdown BillingServer");
-						active = false;
-						// registry.unbind() ??
+						active = false;						
 						UnicastRemoteObject.unexportObject(engine, true);
 						UnicastRemoteObject.unexportObject(secureServer, true);
+						registry.unbind(name);
 					}
 					else{
 						Debug.printInfo("unknown command");
 					}
 	            }
 	        }
+			catch(ConnectException ce){
+				Debug.printError("connection to server failed");
+			}
 			catch (Exception e) {
 	            Debug.printInfo("Could not start BillingServerEngine");
 	            e.printStackTrace();
@@ -113,11 +117,8 @@ public class BillingServer implements IBillingServer {
 			e.printStackTrace();
 		}
 		
-	//	Debug.printDebug("secret: "+secret);
-	//	Debug.printDebug("hash: "+hashword);
-		
 		if(hashword.equals(secret)){
-			Debug.printInfo("richtiges pwd");			
+			Debug.printDebug("richtiges pwd");			
 			return secureServer;
 		}
 		else{
@@ -125,7 +126,6 @@ public class BillingServer implements IBillingServer {
 			return null;
 		}
 				
-	//	return secureServer;
     }	
 	
 	private static void checkArguments(String[] args) throws Exception{

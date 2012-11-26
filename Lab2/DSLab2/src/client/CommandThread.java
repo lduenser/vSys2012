@@ -60,9 +60,6 @@ public class CommandThread implements Runnable {
 	}
 	
 	synchronized void stop() {
-		 Debug.printInfo("Shutdown CommandThread");
-		 
-		 
 		 
 		 try {
 			scanner.close();

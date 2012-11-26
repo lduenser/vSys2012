@@ -34,7 +34,7 @@ public class AuctionServer {
 		Debug.debug = true;
 	}
 	
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws Exception {
 		
 		data = new DataHandler();
 		
