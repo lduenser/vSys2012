@@ -3,6 +3,8 @@ package model;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+import debug.Debug;
+
 import events.AuctionEvent;
 import events.Event;
 
@@ -19,6 +21,9 @@ public class AuctionList {
 		try {
 			if(AuctionServer.analytics != null){
 				AuctionServer.analytics.processEvent(temp);
+			}
+			else{
+				Debug.printError("no communication with AnalyticsServer");
 			}
 			
 		} catch (RemoteException e) {			

@@ -117,12 +117,11 @@ public class BillingServer implements IBillingServer {
 			e.printStackTrace();
 		}
 		
-		if(hashword.equals(secret)){
-			Debug.printDebug("richtiges pwd");			
+		if(hashword.equals(secret)){			
 			return secureServer;
 		}
 		else{
-			Debug.printDebug("falsches pwd");			
+			Debug.printDebug("wrong username/password");			
 			return null;
 		}
 				

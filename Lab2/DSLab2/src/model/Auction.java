@@ -79,11 +79,17 @@ public class Auction {
 				
 				if(AuctionServer.analytics != null){
 					AuctionServer.analytics.processEvent(temp);	
-				}				
+				}
+				else{
+					Debug.printError("no communication with AnalyticsServer");
+				}
 			}
 			temp = new AuctionEvent(AuctionEvent.types.AUCTION_ENDED, this.id, 0);
 			if(AuctionServer.analytics != null){
 				AuctionServer.analytics.processEvent(temp);	
+			}
+			else{
+				Debug.printError("no communication with AnalyticsServer");
 			}
 			
 		} catch (RemoteException e) {
@@ -112,8 +118,7 @@ public class Auction {
 				temp = new BidEvent(BidEvent.types.BID_OVERBID, this.highest.getUser().getName(), this.id, this.highest.getMoney());
 				try {
 					AuctionServer.analytics.processEvent(temp);
-				} catch (RemoteException e) {
-					
+				} catch (RemoteException e) {					
 					Debug.printInfo("No connection to Analytics Server");
 				}
 			}
@@ -123,8 +128,7 @@ public class Auction {
 			temp = new BidEvent(BidEvent.types.BID_PLACED, this.highest.getUser().getName(), this.id, this.highest.getMoney());
 			try {
 				AuctionServer.analytics.processEvent(temp);
-			} catch (RemoteException e) {
-				
+			} catch (RemoteException e) {				
 				Debug.printInfo("No connection to Analytics Server");
 			}
 			return true;

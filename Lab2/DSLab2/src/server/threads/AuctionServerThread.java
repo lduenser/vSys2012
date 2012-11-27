@@ -78,6 +78,9 @@ public class AuctionServerThread extends Thread {
 				if(AuctionServer.analytics != null){
 					AuctionServer.analytics.processEvent(temp2);
 				}
+				else{
+					Debug.printError("no communication with AnalyticsServer");
+				}
 				
 		} catch (RemoteException e) {			
 			e.printStackTrace();
@@ -93,7 +96,7 @@ public class AuctionServerThread extends Thread {
 		if(user == null) {
 			if(token.equals("!login")) {
 				if(st.countTokens() < 2) {
-					sendText("Bitte enter your username and a udp-port!");
+					sendText("enter your username and a udp-port!");
 				}
 				else {
 					String name = st.nextToken();
@@ -113,6 +116,9 @@ public class AuctionServerThread extends Thread {
 							try {
 								if(AuctionServer.analytics != null){
 									AuctionServer.analytics.processEvent(temp);
+								}
+								else{
+									Debug.printError("no communication with AnalyticsServer");
 								}
 							} catch (RemoteException e) {
 								e.printStackTrace();
@@ -136,7 +142,10 @@ public class AuctionServerThread extends Thread {
 				try {
 					if(AuctionServer.analytics != null){
 						AuctionServer.analytics.processEvent(temp);
-					}					
+					}
+					else{
+						Debug.printError("no communication with AnalyticsServer");
+					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
