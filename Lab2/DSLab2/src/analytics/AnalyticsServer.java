@@ -158,17 +158,24 @@ public class AnalyticsServer implements IAnalyticsServer {
 	}
 	
 	private void notifyClients(Event event) {
-		for(INotifyClient client:clients) {
-			try {
-				Debug.printDebug("Compare String: " + event.getType() + " with " + client.getSubscription());
-				if(event.getType().matches(client.getSubscription())) {
-					client.eventRecieved(event);
+		
+		try {
+			for(INotifyClient client:clients) {
+				try {
+					Debug.printDebug("Compare String: " + event.getType() + " with " + client.getSubscription());
+					if(event.getType().matches(client.getSubscription())) {
+						client.eventRecieved(event);
+					}
+				}
+				catch(Exception e) {
+					clients.remove(client);
 				}
 			}
-			catch(Exception e) {
-				clients.remove(client);
-			}
 		}
+		catch(Exception e) {
+			
+		}
+		
 	}
 
 	private static void checkArguments(String[] args) throws Exception{

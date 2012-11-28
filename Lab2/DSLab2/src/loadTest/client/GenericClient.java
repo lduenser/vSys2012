@@ -54,10 +54,10 @@ public class GenericClient implements Runnable {
 			e.printStackTrace();
 		}
 		
-		System.out.println(this.id + " started");
+		//System.out.println(this.id + " started");
 	}
  
-	public synchronized void run() {
+	public void run() {
 		
 		this.login();
 		
@@ -69,9 +69,10 @@ public class GenericClient implements Runnable {
 		while(LoadTest.active) {
 			
 			try {
-				
-				activeAuctions = getActiveAuctions();
-				bid.setAuctions(activeAuctions);
+				synchronized(activeAuctions) {
+					activeAuctions = getActiveAuctions();
+					bid.setAuctions(activeAuctions);
+				}
 				Thread.sleep(updateInterval * 1000);
 				//LoadTest.active = false;
 			} catch (InterruptedException e) {
@@ -89,19 +90,27 @@ public class GenericClient implements Runnable {
 		
 		try {
 			BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			boolean reading = true;
 			
 			while(!socketReader.ready()) {
-				Thread.sleep(10);
+				Thread.sleep(1);
 			}
-			while(socketReader.ready()) {
+			while(socketReader.ready() && reading) {
 				
 				String output = socketReader.readLine();
-				temp.add(Integer.parseInt(output.substring(0, output.indexOf("."))));
+				if(output.substring(0, 1).equals("-")) {
+					reading = false;
+				}
+				else {
+					temp.add(Integer.parseInt(output.substring(0, output.indexOf("."))));
+				}
 			}
 		}
 		catch(Exception e) {
 			
 		}
+		
+		//if(temp.size() > 0) Debug.printDebug("User " + this.id + " recieved list - " + temp.size() + " items");
 		
 		return temp;
 	}

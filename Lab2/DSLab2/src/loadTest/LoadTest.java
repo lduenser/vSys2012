@@ -7,6 +7,7 @@ import java.util.Properties;
 import debug.Debug;
 
 import loadTest.client.GenericClient;
+import loadTest.client.threads.StartManagementClient;
 import management.ManagementClient;
 import methods.Methods;
 import methods.ReadProp;
@@ -44,25 +45,29 @@ public class LoadTest {
 		Date date = new java.util.Date();
 		startTime = new Timestamp(date.getTime());
 		
+		try {
+			StartManagementClient management = new StartManagementClient();
+			new Thread(management).start();
+		} catch (Exception e) {
+			Debug.printDebug("could not start Mgmt.Client");			
+		}		
+		
+		
 		for(int i=0; i<clients; i++) {
 			GenericClient temp = new GenericClient(this.server, this.port, i, this.auctionsPerMin, this.auctionDuration, this.updateIntervalSec, this.bidsPerMin);
 			new Thread(temp).start();
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
-		// TODO Mgmt-Client(analytics,billing) starten
-		
-		String[] args = new String[2];
-		args[0]=bindingAnalytics;
-		args[1]=bindingBilling;
-		try {
-			ManagementClient.main(args);
-		} catch (Exception e) {
-			Debug.printDebug("could not start Mgmt.Client");			
-		}				
+				
 	}
 	
 	public static void main(String args[]) throws Exception {
-		System.out.println("hallo");
 		
 	//	checkArguments(args);
 		

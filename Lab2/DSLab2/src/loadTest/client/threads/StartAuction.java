@@ -40,6 +40,6 @@ public class StartAuction implements Runnable {
 		socketWriter.write("!create " + this.duration + " " + this.name + "\r\n");
 		socketWriter.flush();
 		
-		Debug.printDebug("!create " + this.duration + " " + this.name);
+		//Debug.printDebug("!create " + this.duration + " " + this.name);
 	}
 }

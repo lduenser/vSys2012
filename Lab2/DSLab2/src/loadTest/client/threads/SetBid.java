@@ -33,25 +33,27 @@ public class SetBid implements Runnable {
 		
 		while(LoadTest.active) {
 			if(auctions.size() > 0) {
-				try {
-					auctionId = auctions.get(random.nextInt(auctions.size()));
+				auctionId = auctions.get(random.nextInt(auctions.size()));
 					long now = (new Timestamp(new java.util.Date().getTime())).getTime()/1000;
 					
 					bid = now-(LoadTest.startTime.getTime())/1000;
 					
 					this.setBid(auctionId, bid);
-					
-					Thread.sleep((60*1000)/delay);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 			}
+			
+			try {
+				Thread.sleep((60*1000)/delay);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		
 		}
 		 
 	}
 	
-	private void setBid(int auctionId, double bid) {
+	private synchronized void setBid(int auctionId, double bid) {
 		String temp = "!bid " + this.auctionId + " " + this.bid;
 		
 		socketWriter.write(temp + "\r\n");

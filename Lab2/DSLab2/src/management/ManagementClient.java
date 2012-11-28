@@ -54,8 +54,6 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 	
 	public static void main(String args[]) throws Exception {		
 		
-	//	checkArguments(args);
-		
 		scanner = new Scanner(System.in);
 		String line="";
 		IBillingServer billRef = null;
@@ -79,13 +77,31 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 				billRef = (IBillingServer) registry.lookup(bindingBilling);
 				analyticsRef = (IAnalyticsServer) registry.lookup(bindingAnalytics);
 				
+				boolean active = true;
+				
 				System.out.println("hello management client");
+				
+				//Falls generischer Zugriff - Subscription setzen
+				if(args.length > 0) {
+					if(args[0].equals("generic")) {
+						if(self.subscription.isEmpty()) {
+							analyticsRef.subscribe(self);
+						}
+						self.setSubscription("(.*)");
+						
+						while(active) {
+							Thread.sleep(100);
+						}
+						
+						active = false;
+					}
+				}
+				
 				
 				String userInput="";
 				StringTokenizer st;
-				boolean active = true;
-					
-					while(active){
+				
+				while(active){
 					
 						line = scanner.nextLine();
 						st = new StringTokenizer(line);
