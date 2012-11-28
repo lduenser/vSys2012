@@ -24,7 +24,7 @@ public class LoadTest {
 	static int serverPort = 10290;
 	static String bindingAnalytics = "AnalyticsServer";
 	static String bindingBilling = "BillingServer";
-	
+		
 	String server = null;
 	int port = 0;
 	
@@ -48,6 +48,17 @@ public class LoadTest {
 			GenericClient temp = new GenericClient(this.server, this.port, i, this.auctionsPerMin, this.auctionDuration, this.updateIntervalSec, this.bidsPerMin);
 			new Thread(temp).start();
 		}
+		
+		// TODO Mgmt-Client(analytics,billing) starten
+		
+		String[] args = new String[2];
+		args[0]=bindingAnalytics;
+		args[1]=bindingBilling;
+		try {
+			ManagementClient.main(args);
+		} catch (Exception e) {
+			Debug.printDebug("could not start Mgmt.Client");			
+		}				
 	}
 	
 	public static void main(String args[]) throws Exception {
@@ -86,8 +97,7 @@ public class LoadTest {
 		
 		for (int i = 0; i < args.length; i++) {
 	            switch (i) {
-	                case 0: host=args[i]; break;
-	                
+	                case 0: host=args[i]; break;	                
 	                case 1: 
 	                	try{
 	                		serverPort = Integer.parseInt(args[i]);
@@ -96,10 +106,9 @@ public class LoadTest {
 	                		Debug.printError("serverPort is no Integer");
 	                	}
 	                	serverPort = Methods.setPort(Integer.valueOf(args[1]));
-	                	break;
-	                	
+	                	break;	                	
 	                case 2: bindingAnalytics=args[i]; break;
-	      //          case 3: bindingBilling = args[i]; break;
+	                case 3: bindingBilling = args[i]; break;
 	            }
 	     }
 	}
