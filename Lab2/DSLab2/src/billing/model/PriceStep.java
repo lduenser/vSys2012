@@ -92,7 +92,7 @@ public class PriceStep implements Serializable {
 		
 		String end = this.endPrice.toString();
 		if(this.endPrice==0) {
-			end = "°";
+			end = "INFINITY";
 		}
 	
 		temp+=this.startPrice + "\t\t" + end + "\t\t" + this.fixedPrice + "\t\t" + this.variablePricePercent + "%";

@@ -8,7 +8,6 @@ import debug.Debug;
 
 import loadTest.client.GenericClient;
 import loadTest.client.threads.StartManagementClient;
-import management.ManagementClient;
 import methods.Methods;
 import methods.ReadProp;
 
@@ -21,10 +20,10 @@ public class LoadTest {
 	int bidsPerMin = 0;
 
 	private static int argCount = 4;
-	static String host = "localhost";
+	static String host = "";
 	static int serverPort = 10290;
-	static String bindingAnalytics = "AnalyticsServer";
-	static String bindingBilling = "BillingServer";
+	static String bindingAnalytics = "";
+	static String bindingBilling = "";
 		
 	String server = null;
 	int port = 0;
@@ -46,8 +45,9 @@ public class LoadTest {
 		startTime = new Timestamp(date.getTime());
 		
 		try {
-			StartManagementClient management = new StartManagementClient();
+			StartManagementClient management = new StartManagementClient(bindingAnalytics, bindingBilling);
 			new Thread(management).start();
+			
 		} catch (Exception e) {
 			Debug.printDebug("could not start Mgmt.Client");			
 		}		
@@ -59,7 +59,6 @@ public class LoadTest {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -69,7 +68,7 @@ public class LoadTest {
 	
 	public static void main(String args[]) throws Exception {
 		
-	//	checkArguments(args);
+		checkArguments(args);
 		
 		Properties loadProp = ReadProp.readLoadTest();
 		
@@ -95,6 +94,7 @@ public class LoadTest {
 		
 	}
 
+	
 	private static void checkArguments(String[] args) throws Exception{
 		if(args.length != argCount){
 			throw new Exception("Anzahl der Argumente stimmen nicht");

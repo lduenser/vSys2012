@@ -18,8 +18,8 @@ import billing.IBillingServerSecure;
 public class AuctionServer {
 	
 	private static int port = 10290;
-	private static String bindingAnalytics = "AnalyticsServer";
-	private static String bindingBilling = "BillingServer";
+	private static String bindingAnalytics = "";
+	private static String bindingBilling = "";
 	static int maxClients = 10000;
 	static DataHandler data;
 	private static int argCount = 3;
@@ -38,7 +38,7 @@ public class AuctionServer {
 		
 		data = new DataHandler();
 		
-	//	checkArguments(args);		
+		checkArguments(args);		
 		
 		ThreadPooledServer server = null;
 		UpdateThread updater = new UpdateThread();

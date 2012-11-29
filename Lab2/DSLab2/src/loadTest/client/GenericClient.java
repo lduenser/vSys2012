@@ -142,6 +142,6 @@ public class GenericClient implements Runnable {
 			e.printStackTrace();
 		}
 		 
-		 Debug.printInfo("Shutdown CommandThread complete");
+		 Debug.printInfo("Shutdown complete");
 	}
 }

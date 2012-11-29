@@ -17,7 +17,7 @@ import methods.ReadProp;
 public class BillingServer implements IBillingServer {
 
 	private static int argCount = 1;
-	private static String bindingBilling = "BillingServer";
+	private static String bindingBilling = "";
 	private static Scanner scanner;
 	
 	private static IBillingServerSecure secureServer;
@@ -29,7 +29,7 @@ public class BillingServer implements IBillingServer {
 	
 	public static void main(String[] args) throws Exception{
 		
-		//checkArguments(args);
+		checkArguments(args);
 		boolean active = true;
 		scanner = new Scanner(System.in);
 		String line;

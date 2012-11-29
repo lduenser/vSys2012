@@ -43,8 +43,8 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 	private ArrayList<Event> buffer = null;
 
 	private static int argCount = 2;
-	static String bindingAnalytics = "AnalyticsServer";
-	static String bindingBilling = "BillingServer";
+	static String bindingAnalytics = "";
+	static String bindingBilling = "";
 
 	private static Scanner scanner;
 	
@@ -54,6 +54,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 	
 	public static void main(String args[]) throws Exception {		
 		
+		checkArguments(args);
 		scanner = new Scanner(System.in);
 		String line="";
 		IBillingServer billRef = null;
@@ -83,7 +84,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 				
 				//Falls generischer Zugriff - Subscription setzen
 				if(args.length > 0) {
-					if(args[0].equals("generic")) {
+					if(args[2].equals("generic")) {
 						if(self.subscription.isEmpty()) {
 							analyticsRef.subscribe(self);
 						}
@@ -341,7 +342,7 @@ public class ManagementClient extends UnicastRemoteObject implements INotifyClie
 	}	
 	
     private static void checkArguments(String[] args) throws Exception{
-		if(args.length != argCount){
+		if(args.length != argCount+1){
 			throw new Exception("Anzahl der Argumente stimmen nicht");
 		}
 		

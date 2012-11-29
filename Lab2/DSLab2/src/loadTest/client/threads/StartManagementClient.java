@@ -1,27 +1,27 @@
 package loadTest.client.threads;
 
-import java.io.PrintWriter;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Random;
-
-import loadTest.LoadTest;
 import management.ManagementClient;
-
 
 public class StartManagementClient implements Runnable {
 	
-	public StartManagementClient() {
-		
+	String bindingAnalytics = "";
+	String bindingBilling = "";
+	
+	public StartManagementClient(String bindingAnalytics, String bindingBilling) {
+		this.bindingAnalytics = bindingAnalytics;
+		this.bindingBilling = bindingBilling;
 	}
  
 	public void run() {
-		String args[] = new String[1];
-		args[0] = "generic";
+		String args[] = new String[3];
+		args[0] = bindingAnalytics;
+		args[1] = bindingBilling;
+		args[2] = "generic";
+		
 		try {
 			ManagementClient.main(args);
+			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

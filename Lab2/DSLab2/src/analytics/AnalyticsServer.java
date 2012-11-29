@@ -24,7 +24,7 @@ public class AnalyticsServer implements IAnalyticsServer {
 	
 	private static int argCount = 1;
 	public StatisticsEventData statistics;
-	private static String bindingAnalytics = "AnalyticsServer";
+	private static String bindingAnalytics = "";
 	private static Scanner scanner;
 	
 	private ArrayList<INotifyClient> clients;
@@ -36,7 +36,7 @@ public class AnalyticsServer implements IAnalyticsServer {
 
 	public static void main(String[] args) throws Exception{
 		
-	//	checkArguments(args);
+		checkArguments(args);
 		boolean active = true;
 		scanner = new Scanner(System.in);
 		String line;

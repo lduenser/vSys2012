@@ -15,7 +15,7 @@ public class Client {
 	static boolean active = true;
 	static Socket socket = null;
 	static int keepAliveTime = 5000;
-	static String host = "localhost";
+	static String host = "";
 	static int serverPort = 10290;
 	static int clientPort = 10291;
 	
@@ -28,7 +28,7 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		
 		new Client();
-	//	checkArguments(args);
+		checkArguments(args);
 		
 		socket = null;
 		Debug.printInfo("Client started");

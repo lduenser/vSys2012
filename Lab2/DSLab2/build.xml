@@ -81,6 +81,7 @@
         <java classname="${mgmtclient.name}" fork="true" classpathref="project.classpath">
             <arg value="${analytics.bindingName}"/>
             <arg value="${billing.bindingName}"/>
+        	<arg value=""/>
         </java>
     </target>
 
@@ -88,6 +89,7 @@
         <java classname="${mgmtclient.name}" fork="true" classpathref="project.classpath">
             <arg value="${analytics.bindingName}"/>
             <arg value="${billing.bindingName}"/>
+        	<arg value=""/>
         </java>
     </target>
 
@@ -95,6 +97,7 @@
         <java classname="${mgmtclient.name}" fork="true" classpathref="project.classpath">
             <arg value="${analytics.bindingName}"/>
             <arg value="${billing.bindingName}"/>
+        	<arg value=""/>
         </java>
     </target>
 
