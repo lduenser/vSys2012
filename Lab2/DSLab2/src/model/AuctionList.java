@@ -40,7 +40,7 @@ public class AuctionList {
 	}
 	
 	public String listAuctions(boolean all) {
-		String temp = "";
+		String temp = "-List of auctions" + "\r\n";
 		for (Auction auction:auctionList) {
 			if(auction.checkOpen()) temp+=auction.toString() + "\r\n";
 		}

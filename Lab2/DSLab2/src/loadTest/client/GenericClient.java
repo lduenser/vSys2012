@@ -42,6 +42,8 @@ public class GenericClient implements Runnable {
 		this.bidsPerMin = bidsPerMin;
 		this.shortId = id + "";
 		
+		Debug.debug = false;
+		
 		activeAuctions = new ArrayList<Integer>();
 		
 		try {
@@ -79,10 +81,13 @@ public class GenericClient implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		LoadTest.active = false;
 		 
 	}
 	
+	
 	private synchronized ArrayList<Integer> getActiveAuctions() {
+		
 		socketWriter.write("!list\r\n");
 		socketWriter.flush();
 		
@@ -91,13 +96,21 @@ public class GenericClient implements Runnable {
 		try {
 			BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			boolean reading = true;
+			boolean skipped = false;
 			
-			while(!socketReader.ready()) {
-				Thread.sleep(1);
-			}
 			while(socketReader.ready() && reading) {
 				
+				if(!skipped) {
+					while(!socketReader.readLine().equals("-List of auctions")) {
+						Debug.printDebug(this.id + " line skipped");
+					}
+					skipped = true;
+				}
+				
 				String output = socketReader.readLine();
+				
+				Debug.printDebug(this.id + " line read: " + output);
+				
 				if(output.substring(0, 1).equals("-")) {
 					reading = false;
 				}
