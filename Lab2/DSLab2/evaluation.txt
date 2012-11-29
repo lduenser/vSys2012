@@ -1,0 +1,12 @@
+machine characteristics
+- operating system version:
+- number and clock frequency of CPUs:
+- RAM capacity:
+
+the key findings of the evaluation
+(at least the limit values for all configuration parameters)
+- clients = 
+- auctionsPerMin = 
+- auctionDuration = 
+- updateIntervalSec: 
+- bidsPerMin = 
