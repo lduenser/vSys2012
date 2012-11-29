@@ -116,19 +116,31 @@ public class Auction {
 			
 			if(this.highest.getMoney() > 0.00) {
 				temp = new BidEvent(BidEvent.types.BID_OVERBID, this.highest.getUser().getName(), this.id, this.highest.getMoney());
-				try {
-					AuctionServer.analytics.processEvent(temp);
-				} catch (RemoteException e) {					
-					Debug.printInfo("No connection to Analytics Server");
-				}
+				
+					if(AuctionServer.analytics != null){
+						try {
+							AuctionServer.analytics.processEvent(temp);
+						} catch (RemoteException e) {
+							Debug.printDebug("could not communicate with analytics");
+						}
+					}					
+					else{
+						Debug.printInfo("No connection to Analytics Server");
+					}			
 			}
 			
 			this.highest = newBid;
 			
 			temp = new BidEvent(BidEvent.types.BID_PLACED, this.highest.getUser().getName(), this.id, this.highest.getMoney());
-			try {
-				AuctionServer.analytics.processEvent(temp);
-			} catch (RemoteException e) {				
+			
+			if(AuctionServer.analytics != null){
+				try {
+					AuctionServer.analytics.processEvent(temp);
+				} catch (RemoteException e) {
+					Debug.printDebug("could not communicate with analytics");
+				}
+			}					
+			else{
 				Debug.printInfo("No connection to Analytics Server");
 			}
 			return true;
