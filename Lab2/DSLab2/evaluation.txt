@@ -6,11 +6,11 @@ machine characteristics
 
 the key findings of the evaluation
 (at least the limit values for all configuration parameters)
-- clients = 200
-- auctionsPerMin = 20
-- auctionDuration = 120
-- updateIntervalSec: 20
-- bidsPerMin = 40
+- clients = 50
+- auctionsPerMin = 5
+- auctionDuration = 300
+- updateIntervalSec: 30
+- bidsPerMin = 5
 
 2)
 machine characteristics
