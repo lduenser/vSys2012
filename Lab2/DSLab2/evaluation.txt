@@ -1,7 +1,8 @@
+1)
 machine characteristics
-- operating system version:
-- number and clock frequency of CPUs:
-- RAM capacity:
+- Mac OS X Version 10.6.8
+- Prozessor: 2.4 GHz Intel Core i5
+- Speicher: 4 GB 
 
 the key findings of the evaluation
 (at least the limit values for all configuration parameters)
@@ -10,3 +11,16 @@ the key findings of the evaluation
 - auctionDuration = 
 - updateIntervalSec: 
 - bidsPerMin = 
+
+2)
+machine characteristics
+-
+-
+-
+
+the key findings of the evaluation
+- clients = 
+- auctionsPerMin = 
+- auctionDuration = 
+- updateIntervalSec: 
+- bidsPerMin =
