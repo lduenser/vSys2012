@@ -3,6 +3,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,6 +27,7 @@ public class ThreadPooledServer implements Runnable{
     protected ArrayList<Socket> clients = null;
     
     protected ArrayList<User> userList = null;
+    public static PublicKey publickey = null;
 
     public ThreadPooledServer(int port) throws IOException{
         this.port = port;
@@ -80,9 +82,15 @@ public class ThreadPooledServer implements Runnable{
             	Debug.printError("Error accepting client connection");
             }
             if(clientSocket!=null) {
-            	this.threadPool.execute(
-                new AuctionServerThread(clientSocket));
-            	clients.add(clientSocket);
+            	
+            	try {
+					this.threadPool.execute(
+					new AuctionServerThread(clientSocket,publickey));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+                clients.add(clientSocket);
             } 
         }
     }

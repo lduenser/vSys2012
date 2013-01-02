@@ -1,5 +1,9 @@
 package methods;
 
+import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
+import org.bouncycastle.util.encoders.Base64;
+
 public class Methods {
 
 	public static int setPort(int port) {
@@ -14,4 +18,19 @@ public class Methods {
 	public static long getTimeStamp() {
 		return System.currentTimeMillis();
 	}
+	public static String getRandomNumber(int numbersize) {
+	      
+	      SecureRandom secureRandom = new SecureRandom();
+	      final byte[] number = new byte[numbersize];
+	      secureRandom.nextBytes(number);
+	      byte[] base64Message = Base64.encode(number);
+	      String feedback="";
+	          try {
+	                 feedback = new String(base64Message, "UTF8");
+	          } catch (UnsupportedEncodingException ex) {
+	                 System.out.println("random number failed");
+	          }
+	      return feedback;
+
+	    }
 }

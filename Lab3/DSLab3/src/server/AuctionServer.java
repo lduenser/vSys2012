@@ -80,8 +80,8 @@ public class AuctionServer {
 		catch(NotBoundException nbe){
 			Debug.printError("could not bound to billing server");
 		}
-		catch (Exception e) {        	           
-            e.printStackTrace();
+		catch (Exception e) {  
+			e.printStackTrace();            
         }
 		
 		try {
