@@ -1,18 +1,28 @@
 package security;
 
+import org.bouncycastle.util.encoders.Base64;
 
-public class Base64Channel implements Channel{
+public class Base64Channel extends Decorator{
 
-	@Override
-	public void send(byte[] string) {
-		// TODO Auto-generated method stub
+	public Base64Channel(Channel decoratedChannel) {
+		super(decoratedChannel);
 		
 	}
 
-	@Override
 	public byte[] receive() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        byte[] receivedStr= super.receive();
+        if (receivedStr!=null) {
+          byte[] encryptedMessage = Base64.decode(receivedStr);
+          return encryptedMessage;
+        } else {
+            return null;
+        }
+    }
+
+    public void send (byte[] sendBytes) {
+       
+        byte[] base64Message = Base64.encode(sendBytes);
+        super.send(base64Message);
+    }
 
 }
