@@ -3,9 +3,9 @@ package security;
 import java.security.Key;
 
 
-public class Cipher extends Decorator{
+public class CipherChannel extends Decorator{
 
-	 public Cipher(Channel decoratedChannel) {
+	 public CipherChannel(Channel decoratedChannel) {
 		super(decoratedChannel);
 	}
 

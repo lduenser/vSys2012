@@ -1,14 +1,19 @@
 package server.threads;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.rmi.RemoteException;
+import java.security.Key;
 import java.util.StringTokenizer;
 
+import security.CipherChannel;
 import server.AuctionServer;
 import server.DataHandler;
+import security.Base64Channel;
+import security.TCPChannel;
 
 import model.Auction;
 import model.Bid;
@@ -23,12 +28,18 @@ public class AuctionServerThread extends Thread {
 	private Socket s;
 	PrintWriter out = null;
 	BufferedReader in = null;
+	private CipherChannel cipher;
+	
 	
 	User user = null;
 	String username = "";
 	
-	public AuctionServerThread(Socket s) {
+	public AuctionServerThread(Socket s, Key key) throws IOException {
 		this.s = s;
+		
+		this.cipher= new CipherChannel(new Base64Channel(new TCPChannel(s)));
+		cipher.setKey(key);
+		cipher.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
 		
 		try {
 			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
