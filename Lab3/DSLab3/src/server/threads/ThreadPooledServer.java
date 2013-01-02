@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import model.User;
+
 import server.AuctionServer;
 
 import debug.Debug;
@@ -22,11 +24,14 @@ public class ThreadPooledServer implements Runnable{
     protected Thread runningThread = null;
     protected ExecutorService threadPool = Executors.newFixedThreadPool(maxClients);
     protected ArrayList<Socket> clients = null;
+    
+    protected ArrayList<User> userList = null;
 
     public ThreadPooledServer(int port) throws IOException{
         this.port = port;
         openServerSocket();
         clients = new ArrayList<Socket>();
+        userList = new ArrayList<User>();
     }
     
     public ThreadPooledServer(int port, int maxClients) throws IOException{
@@ -34,7 +39,13 @@ public class ThreadPooledServer implements Runnable{
         this.maxClients = maxClients;
         openServerSocket();
         clients = new ArrayList<Socket>();
+        userList = new ArrayList<User>();
     }
+    
+    public void addUser(User user) {
+    	userList.add(user);
+    }
+    
 
     public void run(){
         
@@ -71,7 +82,7 @@ public class ThreadPooledServer implements Runnable{
             if(clientSocket!=null) {
             	this.threadPool.execute(
                 new AuctionServerThread(clientSocket));
-                clients.add(clientSocket);
+            	clients.add(clientSocket);
             } 
         }
     }

@@ -83,5 +83,15 @@ public class UserList {
 	public int size() {
 		return userlist.size();
 	}
+	
+	public String toString() {
+		String temp = "";
+		
+		for(User user:userlist) {
+			if(user.getOnline())temp+="\r\n" + user.toString();
+		}
+		
+		return temp;
+	}
 }
 

@@ -10,4 +10,8 @@ public class Methods {
 		}
 		else return port;
 	}
+	
+	public static long getTimeStamp() {
+		return System.currentTimeMillis();
+	}
 }

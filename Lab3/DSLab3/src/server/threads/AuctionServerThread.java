@@ -42,19 +42,24 @@ public class AuctionServerThread extends Thread {
 		
 		try {
 			while(AuctionServer.active) {
-				String input;
-				
-				input = in.readLine();
-				
-				if(input!=null) {
-					Debug.printDebug(this.username + "Command: " + input);
+				if(AuctionServer.stop) {
+					//Debug.printDebug("No action - Server stopped");
+				}
+				else {
+					String input;
 					
-					try {
-						processInput(input);
-					}
-					catch(Exception e) {
-						sendText("Error while processing your input!");
-						e.printStackTrace();
+					input = in.readLine();
+					
+					if(input!=null) {
+						Debug.printDebug(this.username + "Command: " + input);
+						
+						try {
+							processInput(input);
+						}
+						catch(Exception e) {
+							sendText("Error while processing your input!");
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -223,7 +228,7 @@ public class AuctionServerThread extends Thread {
 				sendText("Open notifications: \r\n" + DataHandler.pendingNotifications.getList());
 			}
 			else if(token.equals("!alive")) {
-				Debug.printDebug("Keep alive message from: " + s.getInetAddress().toString());
+				//Debug.printDebug("Keep alive message from: " + s.getInetAddress().toString());
 			}
 			else {
 				sendText("Unknown command!");
@@ -233,6 +238,11 @@ public class AuctionServerThread extends Thread {
 	}
 	
 	public synchronized void terminateClient() throws IOException {
+		
+		//Logout User
+		synchronized(DataHandler.users) {
+			DataHandler.users.logout(user.getName());
+		}
 		
 		in.close();
 		out.close();

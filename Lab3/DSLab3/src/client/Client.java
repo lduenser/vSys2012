@@ -19,6 +19,8 @@ public class Client {
 	static int serverPort = 10290;
 	static int clientPort = 10291;
 	
+	static boolean serverDisconnect = false;
+	
 	public Client() {
 		Debug.info = true;
 		Debug.error = true;
@@ -36,6 +38,7 @@ public class Client {
 		InputThread input = null;
 		CommandThread output = null;
 	//	UDPThread udp = null;
+		TCPThread tcp = null;
 		 
 		try {
 			socket = new Socket(host, serverPort);
@@ -44,11 +47,16 @@ public class Client {
 			output = new CommandThread(socket, clientPort);
 	//		udp = new UDPThread(clientPort);
 			
+			Debug.printInfo("Client TCP Port: " + clientPort);
+			
+			tcp = new TCPThread(clientPort);
+			
 			new Thread(input).start();
 			new Thread(output).start();
 			/* no UDP in Lab2
 			 * new Thread(udp).start();
 			 */
+			new Thread(tcp).start();
 						
 			Debug.printInfo("Client connected to server");
 		}
@@ -65,6 +73,7 @@ public class Client {
 				 
 		 try {
 	//		 if(udp!=null)udp.stop();
+			 if(tcp!=null)tcp.stop();
 			 if(input!=null)input.stop();
 			 if(output!=null)output.stop();
 			 if(socket!=null)socket.close();
@@ -138,11 +147,17 @@ public class Client {
 	        }
 	    	 
 	    	 if(error) {
-	 	    	Client.active = false;
+	    		 Client.serverDisconnect = true;
+	 	    	//Client.active = false;
 	         	Debug.printDebug("Server Disconnected");
-	         	socketWriter.close();
+	         	//socketWriter.close();
 	            return false;
 	 	    }
+	    	 else {
+	    		 if(Client.serverDisconnect == true)
+	    			 Debug.printDebug("Server online again");
+	    		 Client.serverDisconnect = false;
+	    	 }
 
 	 	    return true;
 	    }

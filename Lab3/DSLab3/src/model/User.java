@@ -49,4 +49,9 @@ public class User {
 		this.online = online;
 	}
 	
+	public String toString() {
+		
+		return this.ip.getHostAddress() + ":" + this.port + " - " + this.name;
+	}
+	
 }

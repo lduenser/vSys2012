@@ -24,9 +24,12 @@ public class AuctionServer {
 	static DataHandler data;
 	private static int argCount = 3;
 	public static boolean active = true;
+	public static boolean stop = false;
 	
 	public static IBillingServerSecure billingServer;
 	public static IAnalyticsServer analytics;
+	
+	public static ThreadPooledServer server = null;
 	
 	public AuctionServer() {
 		Debug.info = true;
@@ -40,7 +43,6 @@ public class AuctionServer {
 		
 	//	checkArguments(args);		
 		
-		ThreadPooledServer server = null;
 		UpdateThread updater = new UpdateThread();
 		ScannerThread scanner = new ScannerThread();
 		Properties regProp= ReadProp.readRegistry();
@@ -65,8 +67,7 @@ public class AuctionServer {
 		
 		try {
             String name = bindingBilling;
-            Registry registry = LocateRegistry.getRegistry(registryPort);            
-      //      Debug.printInfo(registry.toString());            
+            Registry registry = LocateRegistry.getRegistry(registryPort);
             IBillingServer billing = (IBillingServer) registry.lookup(name);
           
             billingServer = billing.login("auctionClientUser", "management");            
