@@ -4,8 +4,14 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import methods.Methods;
+import model.SignedBid;
+import model.SignedBidList;
+import model.User;
+import model.UserList;
 import debug.Debug;
 
 public class Client {
@@ -13,13 +19,22 @@ public class Client {
 	private static int argCount = 3;
 	static int port = 5000;
 	static boolean active = true;
-	static Socket socket = null;
 	static int keepAliveTime = 5000;
 	static String host = "localhost";
 	static int serverPort = 10290;
 	static int clientPort = 10291;
 	
-	static boolean serverDisconnect = false;
+	private UserList users = null;
+	
+	User user = null;
+	boolean serverDisconnect = false;
+	Socket socket = null;
+	
+	CommandThread output = null;
+	InputThread input = null;
+	TCPThread tcp = null;
+	
+	SignedBidList signedBids = null;
 	
 	public Client() {
 		Debug.info = true;
@@ -29,34 +44,24 @@ public class Client {
 	
 	public static void main(String[] args) throws Exception {
 		
-		new Client();
+		Client current = new Client();
 	//	checkArguments(args);
 		
-		socket = null;
+		current.socket = null;
+		current.signedBids = new SignedBidList();
+		
 		Debug.printInfo("Client started");
 		
-		InputThread input = null;
-		CommandThread output = null;
-	//	UDPThread udp = null;
-		TCPThread tcp = null;
-		 
 		try {
-			socket = new Socket(host, serverPort);
+			current.socket = new Socket(host, serverPort);
 			
-			input = new InputThread(socket);
-			output = new CommandThread(socket, clientPort);
-	//		udp = new UDPThread(clientPort);
+			current.input = new InputThread(current.socket, current);
+			current.output = new CommandThread(current.socket, clientPort, current);
+			current.tcp = new TCPThread(clientPort, current);
 			
-			Debug.printInfo("Client TCP Port: " + clientPort);
-			
-			tcp = new TCPThread(clientPort);
-			
-			new Thread(input).start();
-			new Thread(output).start();
-			/* no UDP in Lab2
-			 * new Thread(udp).start();
-			 */
-			new Thread(tcp).start();
+			new Thread(current.input).start();
+			new Thread(current.output).start();
+			new Thread(current.tcp).start();
 						
 			Debug.printInfo("Client connected to server");
 		}
@@ -67,16 +72,15 @@ public class Client {
 		
 		
 		while(active) {
-			checkAlive(socket);
+			checkAlive(current);
 			Thread.sleep(Client.keepAliveTime);
 		}
 				 
 		 try {
-	//		 if(udp!=null)udp.stop();
-			 if(tcp!=null)tcp.stop();
-			 if(input!=null)input.stop();
-			 if(output!=null)output.stop();
-			 if(socket!=null)socket.close();
+			 if(current.tcp!=null)current.tcp.stop();
+			 if(current.input!=null)current.input.stop();
+			 if(current.output!=null)current.output.stop();
+			 if(current.socket!=null)current.socket.close();
 			
 		} catch (Exception e) {
 			Debug.printError("Shutdown - " + e.toString());
@@ -117,50 +121,94 @@ public class Client {
 	     }
 	}	
 	
-	private static boolean checkAlive(Socket socket){
+	public UserList getUserList() {
+		return this.users;
+	}
+	
+	public void setUserList(UserList list) {
+		this.users = list;
+	}
+	
+	private static boolean checkAlive(Client client){
 		
-		Socket s = socket;
+		Socket s = client.socket;
 		PrintWriter socketWriter = null;
-		try {
-			socketWriter = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		boolean error = false;
+
+		//If Server is offline try to open new socket
+		if(client.serverDisconnect) {
+			try {
+				client.socket = new Socket(host, serverPort);
+			} catch (UnknownHostException e) {
+				Debug.printDebug("Server still offline - UnknownHostException");
+				return false;
+			} catch (IOException e) {
+				Debug.printDebug("Server still offline - IOException");
+				return false;
+			}
+			
+			Debug.printDebug("Server back online");
+			
+			client.reconnect();
+			client.serverDisconnect = false;
+			return true;
 		}
 		
-       synchronized (socket) {
-	    	
-	    	boolean error = false;
-
-			if(socketWriter.checkError()) {
-				error = true;
-			}
+		else {
 			try {
-	        	socketWriter.write("!alive\r\n");
+				socketWriter = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
+			} catch (IOException e) {
+				Debug.printDebug("Server offline - IOException");
+			}
+			
+	       synchronized (client.socket) {
+		    	
+		    	if(socketWriter.checkError()) {
+					error = true;
+				}
+				
+	    		socketWriter.write("!alive\r\n");
 				socketWriter.flush();
 				
 				if(socketWriter.checkError()) {
 					error = true;
 				}
 				
-	        } catch (Exception e) {
-	        	
-	        }
-	    	 
-	    	 if(error) {
-	    		 Client.serverDisconnect = true;
-	 	    	//Client.active = false;
-	         	Debug.printDebug("Server Disconnected");
-	         	//socketWriter.close();
-	            return false;
-	 	    }
-	    	 else {
-	    		 if(Client.serverDisconnect == true)
-	    			 Debug.printDebug("Server online again");
-	    		 Client.serverDisconnect = false;
-	    	 }
-
-	 	    return true;
-	    }
+				//Server Offline
+				if(error) {
+		    		client.setOffline(); 
+		    		return false;
+		 	    }
+		 	    return true;
+		    }
+		}
+	}
+	
+	void setUser(String name, int port) {
+		this.user = new User(name, null, port);
+	}
+	
+	void reconnect() {
+		Debug.printDebug("Reconnect Client");
+		
+		output.updateStreams();
+		input.updateStreams();
+		
+		//TODO: Relogin
+		if(user!=null) {
+			output.login(user);
+		}
+		
+		//TODO: Send new Bids
+		if(signedBids!=null) {
+			if(!signedBids.isEmpty())
+			output.sendSignedBids();
+		}		
+	}
+	
+	void setOffline() {
+		serverDisconnect = true;
+	    Debug.printDebug("Server Offline");
 	}
 }
 

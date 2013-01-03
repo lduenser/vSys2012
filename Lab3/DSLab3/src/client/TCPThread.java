@@ -22,12 +22,14 @@ public class TCPThread implements Runnable {
 	
 	ServerSocket tcpSocket = null;
 	private int port;
+	Client parentClient;
 	
 	
 	
-	public TCPThread(int port) {
+	public TCPThread(int port, Client current) {
 		this.port = port;
 		openServerSocket();
+		this.parentClient = current;
 	}
  
 	public void run() {

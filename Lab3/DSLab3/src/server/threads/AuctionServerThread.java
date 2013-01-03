@@ -112,7 +112,7 @@ public class AuctionServerThread extends Thread {
 		if(user == null) {
 			if(token.equals("!login")) {
 				if(st.countTokens() < 2) {
-					sendText("enter your username and a udp-port!");
+					sendText("enter your username and a tcp-port!");
 				}
 				else {
 					String name = st.nextToken();
@@ -240,6 +240,10 @@ public class AuctionServerThread extends Thread {
 			}
 			else if(token.equals("!alive")) {
 				//Debug.printDebug("Keep alive message from: " + s.getInetAddress().toString());
+			}
+			else if(token.equals("!getClientList")) {
+				sendText("!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
+				Debug.printDebug("\r\n!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 			}
 			else {
 				sendText("Unknown command!");

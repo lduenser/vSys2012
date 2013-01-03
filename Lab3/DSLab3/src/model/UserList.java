@@ -84,6 +84,10 @@ public class UserList {
 		return userlist.size();
 	}
 	
+	public ArrayList<User> getAll() {
+		return userlist;
+	}
+	
 	public String toString() {
 		String temp = "";
 		
