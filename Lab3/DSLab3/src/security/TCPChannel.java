@@ -7,16 +7,18 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
+import debug.Debug;
+
 public class TCPChannel implements Channel {
 
 	private Socket socket;
-    private final BufferedReader inFromScheduler;
-    private final DataOutputStream outToServer;
+    private final BufferedReader in;
+    private final DataOutputStream out;
     
     public TCPChannel(Socket socket) throws IOException  {
         this.socket = socket;
-        this.inFromScheduler = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.outToServer = new DataOutputStream(socket.getOutputStream());
+        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.out = new DataOutputStream(socket.getOutputStream());
     }
     
     public void send(byte[] sendBytes) {
@@ -27,22 +29,30 @@ public class TCPChannel implements Channel {
             } catch (UnsupportedEncodingException ex) {
                  System.out.println("encoding failure");
             }
-            outToServer.writeBytes(s+"\n");
-        } catch (IOException ex) {
+            out.writeBytes(s+"\n");
+            out.flush();
+            
+        } catch (IOException io) {
         	System.out.println("io exc");
+        	io.printStackTrace();
         }
 
     }
 
     public byte[] receive()   {
         try {
-           // BufferedReader inFromScheduler = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+           
             String s = null;
-            while ((s==null) && ((s = inFromScheduler.readLine()) == null)) {
+            while ((s==null) && ((s = in.readLine()) == null)) {
             }
+            
+            System.out.println("tcp s bytes"+ s.getBytes());
+            
             return s.getBytes();
+            
+            
         } catch (Exception e) {            
-        	System.out.println("Scheduler is down!");
+        	e.printStackTrace();        	
         }
 
         return null;

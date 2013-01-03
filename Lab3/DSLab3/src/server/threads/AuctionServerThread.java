@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.security.Key;
@@ -29,17 +30,20 @@ public class AuctionServerThread extends Thread {
 	PrintWriter out = null;
 	BufferedReader in = null;
 	private CipherChannel cipher;
+	private String sChallangeBase64;
 	
 	
 	User user = null;
 	String username = "";
 	
-	public AuctionServerThread(Socket s, Key key) throws IOException {
+	public AuctionServerThread(Socket s, Key key, String challange) throws IOException {
 		this.s = s;
 		
 		this.cipher= new CipherChannel(new Base64Channel(new TCPChannel(s)));
 		cipher.setKey(key);
 		cipher.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
+		
+		this.sChallangeBase64=challange;
 		
 		try {
 			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -49,6 +53,7 @@ public class AuctionServerThread extends Thread {
 		}		
 	}
  
+	@SuppressWarnings("unused")
 	public synchronized void run() {
 		
 		try {
@@ -58,11 +63,26 @@ public class AuctionServerThread extends Thread {
 				}
 				else {
 					String input;
+					String msg;
 					
 					input = in.readLine();
 					
+					//byte[] temp= cipher.receive();
+					byte[] temp= null;
+					
+					if(temp != null){
+						try{
+							msg = new String(temp, "UTF8");
+							
+						}
+						catch(UnsupportedEncodingException uns) {
+							uns.printStackTrace();
+						}
+					}
+					
+					
 					if(input!=null) {
-						Debug.printDebug(this.username + "Command: " + input);
+						Debug.printDebug(this.username + " command: " + input);
 						
 						try {
 							processInput(input);

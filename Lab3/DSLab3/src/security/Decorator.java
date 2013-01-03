@@ -1,6 +1,7 @@
 package security;
 
 abstract public class Decorator implements Channel{
+	
     protected final Channel decoratedChannel;
 
     public Decorator(Channel decoratedChannel) {

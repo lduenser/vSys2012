@@ -2,14 +2,25 @@ package server;
 
 import server.threads.*;
 import methods.Methods;
+import methods.ReadKeys;
 import methods.ReadProp;
 import debug.Debug;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Properties;
+
+import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.openssl.PasswordFinder;
 
 import analytics.IAnalyticsServer;
 import billing.IBillingServer;
@@ -31,6 +42,12 @@ public class AuctionServer {
 	
 	public static ThreadPooledServer server = null;
 	
+	public static PublicKey publickey = null;
+	public static PrivateKey privatekey = null;
+
+	 private static String pathToPublicKey = "keys/auction-server.pub.pem";
+	 private static String pathToPrivateKey ="keys/auction-server.pem";
+	
 	public AuctionServer() {
 		Debug.info = true;
 		Debug.error = true;
@@ -47,9 +64,13 @@ public class AuctionServer {
 		ScannerThread scanner = new ScannerThread();
 		Properties regProp= ReadProp.readRegistry();
 		
+		if(getKeysServer()){
+			Debug.printInfo("reading server keys success");
+		}
+		
 		while(server==null) {
 			try {
-				server = new ThreadPooledServer(port, maxClients);
+				server = new ThreadPooledServer(port, maxClients, publickey);
 			}
 			catch(Exception e) {
 				port--;
@@ -116,6 +137,66 @@ public class AuctionServer {
 		
 		Debug.printInfo("Server shutdown complete!");
 	}
+	
+	
+	@SuppressWarnings("finally")
+	public static boolean getKeysServer() {
+        boolean result=false;
+        PEMReader inPrivat=null,inPublic = null;
+        try {
+            //public key from server
+            try {
+              inPublic = new PEMReader(new FileReader(pathToPublicKey));
+            } catch (Exception e) {
+                 System.out.println("Can't read file for public key!");
+                 return false;
+            }
+            publickey= (PublicKey) inPublic.readObject();
+
+            //private key from server   
+            FileReader privateKeyFile=null;
+            try {
+               privateKeyFile=new FileReader(pathToPrivateKey);
+            } catch (Exception e) {
+                 System.out.println("Can't read file for private key!");
+                 return false;
+            }
+            
+            inPrivat = new PEMReader(privateKeyFile, new PasswordFinder() {
+                @Override
+                 public char[] getPassword() {
+                    // reads the password from standard input for decrypting the private key
+                    System.out.println("Enter pass phrase:");
+                    try {
+                        return (new BufferedReader(new InputStreamReader(System.in))).readLine().toCharArray();
+                    } catch (IOException ex) {
+                        return "".toCharArray();
+                    }
+                 }
+            });
+
+           KeyPair keyPair = (KeyPair) inPrivat.readObject();
+           privatekey = keyPair.getPrivate();
+           result=true;
+           System.out.println("Keys successfully initialized!");
+        } catch (IOException ex) {
+            System.out.println("Wrong password!");
+            result=getKeysServer();
+        } finally {
+            try {
+                if (inPublic!=null) {
+                  inPublic.close();
+                }
+                if (inPrivat!=null) {
+                  inPrivat.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            return result;
+        }
+    }
+	
 	
 	private static void checkArguments(String[] args) throws Exception{
 		if(args.length != argCount){

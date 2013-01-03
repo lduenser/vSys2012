@@ -10,6 +10,8 @@ import java.util.StringTokenizer;
 import model.SignedBid;
 import model.User;
 
+import methods.Methods;
+
 import debug.Debug;
 
 public class CommandThread implements Runnable {

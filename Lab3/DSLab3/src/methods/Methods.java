@@ -5,6 +5,8 @@ import java.security.SecureRandom;
 import org.bouncycastle.util.encoders.Base64;
 
 public class Methods {
+	
+	public static final String B64 = "a-zA-Z0-9/+";
 
 	public static int setPort(int port) {
 			
