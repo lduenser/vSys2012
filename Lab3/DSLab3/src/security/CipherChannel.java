@@ -1,19 +1,27 @@
 package security;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.AlgorithmParameterSpec;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 
 public class CipherChannel extends Decorator{
 
-	 public CipherChannel(Channel decoratedChannel) {
-		super(decoratedChannel);
-	}
-
-	private Key key = null;
-	private String algorithm = "";
-	byte[] iv=null;
-	    
-
+		private Key key = null;
+		private String algorithm = "";
+		byte[] iv=null;
+		
+	 	public CipherChannel(Channel decoratedChannel) {
+	 		super(decoratedChannel);
+	 	}
+		
 	    public void setKey(Key key) {
 	        this.key=key;
 	    }
@@ -28,12 +36,67 @@ public class CipherChannel extends Decorator{
 
 	    @Override
 	    public byte[] receive() {
-			return null;
+	    	try {
+	            byte[] receivedStr = super.receive();
+	            
+	            if (receivedStr!=null) {
+	                Cipher crypt = Cipher.getInstance(algorithm);
+	                if (iv!=null) {
+	                  AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
+	                  crypt.init(Cipher.DECRYPT_MODE, key, paramSpec);
+	                } else {
+	                  crypt.init(Cipher.DECRYPT_MODE, key);
+	                }
+	                byte[] decryptedText = crypt.doFinal(receivedStr);
+	                return decryptedText;
+	                
+	            } else {
+	                return null;
+	            }
+	            
+	        } catch (InvalidAlgorithmParameterException invAlgo) {
+	        	invAlgo.printStackTrace();
+	        } catch (IllegalBlockSizeException ill) {
+	            ill.printStackTrace();
+	        } catch (BadPaddingException bad) {
+	        	bad.printStackTrace();
+	        } catch (InvalidKeyException indKey) {
+	        	indKey.printStackTrace();
+	        } catch (NoSuchAlgorithmException noAlgo) {
+	        	noAlgo.printStackTrace();
+	        } catch (NoSuchPaddingException noPadd) {
+	        	noPadd.printStackTrace();
+	        }
+	        return null;
 	    	
 	    }
 	    
 	    @Override
 	    public void send (byte[] sendBytes) {
 	    	
+	    	 try {
+	             Cipher crypt = Cipher.getInstance(algorithm);
+	              if (iv!=null) {
+	               AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
+	               crypt.init(Cipher.ENCRYPT_MODE, key, paramSpec);
+	             } else {
+	               crypt.init(Cipher.ENCRYPT_MODE, key);
+	             }
+	             byte[] encryptedText = crypt.doFinal(sendBytes);
+	             super.send(encryptedText);
+	             
+	         } catch (InvalidAlgorithmParameterException invAlgo) {
+		        	invAlgo.printStackTrace();
+		        } catch (IllegalBlockSizeException ill) {
+		            ill.printStackTrace();
+		        } catch (BadPaddingException bad) {
+		        	bad.printStackTrace();
+		        } catch (InvalidKeyException indKey) {
+		        	indKey.printStackTrace();
+		        } catch (NoSuchAlgorithmException noAlgo) {
+		        	noAlgo.printStackTrace();
+		        } catch (NoSuchPaddingException noPadd) {
+		        	noPadd.printStackTrace();
+		        }    	
 	    }
 }

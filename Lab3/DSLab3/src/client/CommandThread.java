@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+import methods.Methods;
+
 import debug.Debug;
 
 public class CommandThread implements Runnable {
@@ -40,6 +42,8 @@ public class CommandThread implements Runnable {
 					
 					if(output.contains("!login")) {
 						output += (" " + clientPort);
+						
+						
 					}
 					if(output.contains("!end")) {
 						Client.active = false;
