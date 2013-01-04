@@ -50,6 +50,7 @@ public class CipherChannel extends Decorator{
 	    public void setSendEncrypted() {
 	    	this.sendEncrypted = true;
 	    }
+	    
 	    public void unsetSendEncrypted() {
 	    	this.sendEncrypted = false;
 	    }

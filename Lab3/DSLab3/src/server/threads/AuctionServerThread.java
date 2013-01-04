@@ -8,8 +8,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.security.Key;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.StringTokenizer;
 
 import security.CipherChannel;
@@ -31,8 +29,9 @@ public class AuctionServerThread extends Thread {
 	private Socket s;
 	PrintWriter out = null;
 	BufferedReader in = null;
-	private CipherChannel cipherChannel;
+	private CipherChannel cipher;
 	private String sChallangeBase64;
+	
 	
 	User user = null;
 	String username = "";
@@ -40,13 +39,18 @@ public class AuctionServerThread extends Thread {
 	public AuctionServerThread(Socket s) throws IOException {
 		this.s = s;
 		
-		cipherChannel= new CipherChannel(new Base64Channel(new TCPChannel(s)));
-		
-		cipherChannel.setKey(AuctionServer.getPublicKey());
-		cipherChannel.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
-		
+		try {
+			cipher = new CipherChannel(new Base64Channel(new TCPChannel(s)));
+			cipher.setKey(AuctionServer.publickey);
+			cipher.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		try {
+			
+			
 			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			out = new PrintWriter(s.getOutputStream(), true);
 		} catch (IOException e) {
@@ -64,7 +68,7 @@ public class AuctionServerThread extends Thread {
 			else {
 				String input = null;
 				
-				byte[] temp= cipherChannel.receive();
+				byte[] temp = cipher.receive();
 				if(temp != null){
 					try{
 						input = new String(temp, "UTF8");
@@ -122,11 +126,9 @@ public class AuctionServerThread extends Thread {
 		
 		if(user == null) {
 			if(token.equals("!login")) {
-				if(st.countTokens() < 4) {
+				if(st.countTokens() < 2) {
 					sendText("enter your username and a tcp-port!");
 				}
-				
-				//
 				else {
 					String name = st.nextToken();
 					int port = Integer.parseInt(st.nextToken());
@@ -255,7 +257,18 @@ public class AuctionServerThread extends Thread {
 				//Debug.printDebug("Keep alive message from: " + s.getInetAddress().toString());
 			}
 			else if(token.equals("!getClientList")) {
-				sendText("!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
+				
+				try {
+					if(user==null)
+						cipher.unsetSendEncrypted();
+					String temp = "!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd";
+					cipher.send(temp.getBytes("UTF8"));
+					if(user==null)
+						cipher.setSendEncrypted();
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				Debug.printDebug("\r\n!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 			}
 			else {

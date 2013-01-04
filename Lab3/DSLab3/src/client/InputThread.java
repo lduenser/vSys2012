@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.StringTokenizer;
@@ -21,30 +22,18 @@ import debug.Debug;
 public class InputThread implements Runnable {
 	
 	Client parentClient;
-	BufferedReader socketReader = null;
-	PrintWriter socketWriter = null;
 	
 	boolean isRunning = true;
 	
 	public InputThread(Socket s, Client parent) {
 		this.parentClient = parent;
 		
-		try {
-			socketReader = new BufferedReader(new InputStreamReader(parentClient.socket.getInputStream()));
-			socketWriter = new PrintWriter(new OutputStreamWriter(parentClient.socket.getOutputStream()));
-		} catch (IOException e) {
-			 Debug.printError(e.toString());
-		}
+		
 		
 	}
 	
 	public void updateStreams() {
-		try {
-			socketReader = new BufferedReader(new InputStreamReader(parentClient.socket.getInputStream()));
-			socketWriter = new PrintWriter(new OutputStreamWriter(parentClient.socket.getOutputStream()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		
 	}
 	
 	public void run() {
@@ -52,10 +41,22 @@ public class InputThread implements Runnable {
 		 try {
 			 while(Client.active) {
 				
-				if(socketReader.ready()) {
-					String output = socketReader.readLine();
+				String input = null;
+				byte[] temp = parentClient.channel.receive();
+				
+				if(temp != null){
+					try{
+						input = new String(temp, "UTF8");
+						
+					}
+					catch(UnsupportedEncodingException uns) {
+						uns.printStackTrace();
+					}
+				}
+				 
+				if(input!=null) {
 					
-					StringTokenizer st = new StringTokenizer(output);
+					StringTokenizer st = new StringTokenizer(input);
 					String token = null;
 			
 					if(st.hasMoreTokens()){
@@ -88,7 +89,7 @@ public class InputThread implements Runnable {
 	            		}
 						
 	            		else  if(token!=null) {
-							System.out.println(output);
+							System.out.println(input);
 						}
 
 					}
@@ -106,12 +107,6 @@ public class InputThread implements Runnable {
 	
 	synchronized void stop() {
 		
-		 try {
-			 socketReader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		 
 		 Debug.printInfo("Shutdown InputThread complete");
 		 
 	}
@@ -124,12 +119,24 @@ public class InputThread implements Runnable {
 		
 		while(recieveList) {
 			
-			output = socketReader.readLine();
+			String input = null;
+			byte[] temp = parentClient.channel.receive();
 			
-			if(output.trim().equals("")) {
+			if(temp != null){
+				try{
+					input = new String(temp, "UTF8");
+					
+				}
+				catch(UnsupportedEncodingException uns) {
+					uns.printStackTrace();
+				}
+			}
+			else break;
+			
+			if(input.trim().equals("")) {
 				
 			}
-			else if (output.startsWith("!clientListEnd")){
+			else if (input.startsWith("!clientListEnd")){
 				Debug.printDebug("End of List");
 				recieveList = false;
 			}
@@ -138,8 +145,8 @@ public class InputThread implements Runnable {
         		int port = Integer.parseInt(output.substring(output.lastIndexOf(":")+1, output.indexOf(" ")));
         		String name = output.substring(output.indexOf(" - ")+3);
 				
-				User temp = new User(name, inet, port);
-				list.login(temp);
+				User user = new User(name, inet, port);
+				list.login(user);
 			}
 		}
 		

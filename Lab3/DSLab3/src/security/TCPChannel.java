@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.SocketException;
 
 import debug.Debug;
 
@@ -14,6 +15,8 @@ public class TCPChannel implements Channel {
 	private Socket socket;
     private final BufferedReader in;
     private final DataOutputStream out;
+    
+    private boolean error = false;
     
     public TCPChannel(Socket socket) throws IOException  {
         this.socket = socket;
@@ -29,12 +32,11 @@ public class TCPChannel implements Channel {
             } catch (UnsupportedEncodingException ex) {
                  System.out.println("encoding failure");
             }
-            out.writeBytes(s+"\n");
+            out.writeBytes(s+"\r\n");
             out.flush();
             
         } catch (IOException io) {
-        	System.out.println("io exc");
-        	io.printStackTrace();
+        	error = true;
         }
 
     }
@@ -61,4 +63,9 @@ public class TCPChannel implements Channel {
         return null;
     }
 
+	@Override
+	public boolean getError() {
+		// TODO Auto-generated method stub
+		return error;
+	}
 }
