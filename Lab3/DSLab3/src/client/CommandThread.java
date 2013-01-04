@@ -8,6 +8,8 @@ import java.net.SocketException;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+import org.bouncycastle.util.encoders.Base64;
+
 import methods.Methods;
 import model.SignedBid;
 import model.User;
@@ -60,14 +62,17 @@ public class CommandThread implements Runnable {
 
 						if(parentClient.getKeysClient()){
 							Debug.printInfo("reading client keys success");
-							
+							parentClient.createCipherChannel();
 							
 							String sChallangeBase64 = Methods.getRandomNumber(32);
 		                    // !login username tcpPort client-challange
+							
+							
 		                    String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " +sChallangeBase64);
 		                    
 		                    assert firstMessage.matches("!login [a-zA-Z0-9_\\-]+ [0-9]+ ["+Methods.B64+"]{43}=") : "1st message";
-							
+		                    Debug.printDebug("first: "+ firstMessage);
+		                    Debug.printDebug("base64 first: "+Base64.decode(firstMessage.getBytes()).toString());
 		                    parentClient.channel.send(firstMessage.getBytes());							
 
 						}		
