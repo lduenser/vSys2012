@@ -35,6 +35,8 @@ public class CommandThread implements Runnable {
 	PrintWriter socketWriter = null;
 	Scanner scanner;
 
+	private Base64Channel normalChannel = null;
+	
 	public static PublicKey publickey = null;
 	public static PrivateKey privatekey = null;
 
@@ -48,7 +50,11 @@ public class CommandThread implements Runnable {
 		this.clientPort = clientPort;
 		this.parentClient = current;
 		
+		
 		try {
+			normalChannel = new Base64Channel(new TCPChannel(parentClient.socket));
+			
+			
 			socketWriter = new PrintWriter(new OutputStreamWriter(parentClient.socket.getOutputStream()));
 			scanner = new Scanner(System.in);
 		} catch (IOException e) {
@@ -59,6 +65,8 @@ public class CommandThread implements Runnable {
 	public void updateStreams() {
 		try {
 			socketWriter = new PrintWriter(new OutputStreamWriter(parentClient.socket.getOutputStream()));
+			normalChannel = new Base64Channel(new TCPChannel(parentClient.socket));
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -236,8 +244,7 @@ public class CommandThread implements Runnable {
 	}
 	
 	synchronized void getClientList() {
-		socketWriter.write("!getClientList\r\n");
-		socketWriter.flush();
+		normalChannel.send("!getClientList\r\n".getBytes());
 	}
 	
 	boolean obtainTimestamps(String auctionId, String bid) {

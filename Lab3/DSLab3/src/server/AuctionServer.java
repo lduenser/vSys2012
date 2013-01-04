@@ -197,6 +197,13 @@ public class AuctionServer {
         }
     }
 	
+	public static PrivateKey getPrivateKey() {
+		return privatekey;
+	}
+	
+	public static PublicKey getPublicKey(){
+		return publickey;
+	}
 	
 	private static void checkArguments(String[] args) throws Exception{
 		if(args.length != argCount){

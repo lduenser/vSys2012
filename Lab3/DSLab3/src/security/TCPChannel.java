@@ -41,15 +41,18 @@ public class TCPChannel implements Channel {
 
     public byte[] receive()   {
         try {
-           
-            String s = null;
-            while ((s==null) && ((s = in.readLine()) == null)) {
-            }
-            
-            System.out.println("tcp s bytes"+ s.getBytes());
-            
-            return s.getBytes();
-            
+           if(in.ready()){
+        	   String s = null;
+               
+               s = in.readLine();
+        	   
+               Debug.printDebug("recieve: " + s);
+               
+               byte[] buffer = s.getBytes("UTF8");
+               
+               return buffer;
+           }
+        	
             
         } catch (Exception e) {            
         	e.printStackTrace();        	

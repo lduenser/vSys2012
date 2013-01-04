@@ -181,7 +181,7 @@ public class Client {
 					error = true;
 				}
 				
-	    		socketWriter.write("!alive\r\n");
+	    		socketWriter.write("");
 				socketWriter.flush();
 				
 				if(socketWriter.checkError()) {

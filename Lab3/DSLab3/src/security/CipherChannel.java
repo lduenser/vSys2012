@@ -13,6 +13,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 
+import debug.Debug;
+
 public class CipherChannel extends Decorator{
 
 		private Key key = null;
@@ -26,7 +28,7 @@ public class CipherChannel extends Decorator{
 	 		super(decoratedChannel);
 	 		
 	 		//Pattern to match "Standard Commands": !command
-	 		regExPattern = "^\\!(?=[a-z]+).*";
+	 		regExPattern = "^\\!(?=[a-zA-Z]+).*";
 	 	}
 		
 	    public void setKey(Key key) {
@@ -54,13 +56,15 @@ public class CipherChannel extends Decorator{
 
 	    @Override
 	    public byte[] receive() {
+	    	
 	    	try {
 	            byte[] receivedStr = super.receive();
 	            
 	            if (receivedStr!=null) {
 	            	
-	            	//received String not encrypted
-	            	if(new String(receivedStr, "UTF8").matches(regExPattern)) {
+	            	String temp = new String(receivedStr, "UTF8");
+		            
+	            	if(temp.startsWith("!")) {
 	            		return receivedStr;
 	            	}
 	            	

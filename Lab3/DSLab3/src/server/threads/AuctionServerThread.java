@@ -8,6 +8,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.security.Key;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.StringTokenizer;
 
 import security.CipherChannel;
@@ -29,9 +31,8 @@ public class AuctionServerThread extends Thread {
 	private Socket s;
 	PrintWriter out = null;
 	BufferedReader in = null;
-	private CipherChannel cipher;
+	private CipherChannel cipherChannel;
 	private String sChallangeBase64;
-	
 	
 	User user = null;
 	String username = "";
@@ -39,6 +40,10 @@ public class AuctionServerThread extends Thread {
 	public AuctionServerThread(Socket s) throws IOException {
 		this.s = s;
 		
+		cipherChannel= new CipherChannel(new Base64Channel(new TCPChannel(s)));
+		
+		cipherChannel.setKey(AuctionServer.getPublicKey());
+		cipherChannel.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
 		
 		
 		try {
@@ -59,7 +64,7 @@ public class AuctionServerThread extends Thread {
 			else {
 				String input = null;
 				
-				byte[] temp= cipher.receive();
+				byte[] temp= cipherChannel.receive();
 				if(temp != null){
 					try{
 						input = new String(temp, "UTF8");
@@ -117,9 +122,11 @@ public class AuctionServerThread extends Thread {
 		
 		if(user == null) {
 			if(token.equals("!login")) {
-				if(st.countTokens() < 2) {
+				if(st.countTokens() < 4) {
 					sendText("enter your username and a tcp-port!");
 				}
+				
+				//
 				else {
 					String name = st.nextToken();
 					int port = Integer.parseInt(st.nextToken());
