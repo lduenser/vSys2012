@@ -4,14 +4,16 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.ArrayList;
+
+import methods.Methods;
+import model.SignedBidList;
+import model.User;
+import model.UserList;
 
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PasswordFinder;
@@ -20,12 +22,6 @@ import security.Base64Channel;
 import security.Channel;
 import security.CipherChannel;
 import security.TCPChannel;
-
-import methods.Methods;
-import model.SignedBid;
-import model.SignedBidList;
-import model.User;
-import model.UserList;
 import debug.Debug;
 
 public class Client {

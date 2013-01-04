@@ -1,25 +1,19 @@
 package server.threads;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.rmi.RemoteException;
-import java.security.Key;
 import java.util.StringTokenizer;
-
-import security.CipherChannel;
-import server.AuctionServer;
-import server.DataHandler;
-import security.Base64Channel;
-import security.TCPChannel;
 
 import model.Auction;
 import model.Bid;
 import model.User;
-
+import security.Base64Channel;
+import security.CipherChannel;
+import security.TCPChannel;
+import server.AuctionServer;
+import server.DataHandler;
 import debug.Debug;
 import events.Event;
 import events.UserEvent;
@@ -27,11 +21,9 @@ import events.UserEvent;
 
 public class AuctionServerThread extends Thread {
 	private Socket s;
-	PrintWriter out = null;
-	BufferedReader in = null;
+	
 	private CipherChannel cipher;
 	private String sChallangeBase64;
-	
 	
 	User user = null;
 	String username = "";
@@ -46,16 +38,7 @@ public class AuctionServerThread extends Thread {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		try {
-			
-			
-			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-			out = new PrintWriter(s.getOutputStream(), true);
-		} catch (IOException e) {
-			Debug.printError(e.toString());
-		}		
+		}	
 	}
  
 	@SuppressWarnings("unused")
@@ -254,21 +237,12 @@ public class AuctionServerThread extends Thread {
 				sendText("Open notifications: \r\n" + DataHandler.pendingNotifications.getList());
 			}
 			else if(token.equals("!alive")) {
-				//Debug.printDebug("Keep alive message from: " + s.getInetAddress().toString());
+				
 			}
 			else if(token.equals("!getClientList")) {
 				
-				try {
-					if(user==null)
-						cipher.unsetSendEncrypted();
-					String temp = "!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd";
-					cipher.send(temp.getBytes("UTF8"));
-					if(user==null)
-						cipher.setSendEncrypted();
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				sendText("!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
+				
 				Debug.printDebug("\r\n!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 			}
 			else {
@@ -285,13 +259,19 @@ public class AuctionServerThread extends Thread {
 			DataHandler.users.logout(user.getName());
 		}
 		
-		in.close();
-		out.close();
 		s.close();
 	}
 	
 	public void sendText(String text) {
-		out.println(text);
-		out.flush();
+		
+		try {
+			if(user==null) cipher.unsetSendEncrypted();
+			cipher.send(text.getBytes("UTF8"));
+			if(user==null) cipher.setSendEncrypted();
+			
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
