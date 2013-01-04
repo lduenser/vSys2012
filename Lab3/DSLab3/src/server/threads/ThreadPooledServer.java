@@ -41,13 +41,12 @@ public class ThreadPooledServer implements Runnable{
         userList = new ArrayList<User>();
     }
     
-    public ThreadPooledServer(int port, int maxClients, PublicKey publickey) throws IOException{
+    public ThreadPooledServer(int port, int maxClients) throws IOException{
         this.port = port;
         this.maxClients = maxClients;
         openServerSocket();
         clients = new ArrayList<Socket>();
         userList = new ArrayList<User>();
-        this.publickey = publickey;
     }
     
     public void addUser(User user) {
@@ -90,22 +89,9 @@ public class ThreadPooledServer implements Runnable{
             if(clientSocket!=null) {
             	
             	try {
-            		// -> move to CLIENT ?? (CommandThread)
-            		CipherChannel cipherChannel= new CipherChannel(new Base64Channel(new TCPChannel(clientSocket)));
-            		cipherChannel.setKey(publickey);
-            		cipherChannel.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
-
-                    String sChallangeBase64 = Methods.getRandomNumber(32);
-                    String firstMessage=("!login "+sChallangeBase64);
-                    assert firstMessage.matches("!login ["+Methods.B64+"]{43}=") : "1st message is not well-formed";
-                	                   
-                  
-					this.threadPool.execute(new AuctionServerThread(clientSocket,publickey,sChallangeBase64));
-					
-			//		cipherChannel.send(firstMessage.getBytes());
-					
-					System.out.println("first "+ firstMessage.getBytes());
-					
+            		
+					this.threadPool.execute(new AuctionServerThread(clientSocket));
+										
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -56,36 +56,44 @@ public class InputThread implements Runnable {
 					String output = socketReader.readLine();
 					
 					StringTokenizer st = new StringTokenizer(output);
-            		String token = st.nextToken();
+					String token = null;
 					
-            		if(token.equals("!clientListStart")) {
-            			//Obtain Client List
-            			this.getUserList();
-            		}
-            		
-            		else if(token.equals("!timestamp")) {
-            			
-            			double timestamp = Double.parseDouble(st.nextToken());
-            			int auction = Integer.parseInt(st.nextToken());
-            			double bid = Double.parseDouble(st.nextToken());
-            			String hash = st.nextToken();
-            			
-            			Timestamp stamp = new Timestamp(timestamp, auction, bid, hash);
-            			
-            			SignedBid signedBid = parentClient.signedBids.getBidByBid(auction, bid);
-            			
-            			//Auction not in List
-            			if(signedBid==null) {
-            				signedBid = new SignedBid(null, bid, auction);
-            				parentClient.signedBids.addBid(signedBid);
-            			}
-            			
-            			signedBid.addTimestamp(stamp);
-            			parentClient.signedBids.updateBid(signedBid);
-            		}
-            		else if(token!=null) {
-						System.out.println(output);
+					if(st.hasMoreTokens()){
+						token = st.nextToken();
+						
+						if(token.equals("!clientListStart")) {
+	            			//Obtain Client List
+	            			this.getUserList();
+	            		}
+	            		
+	            		else if(token.equals("!timestamp")) {
+	            			
+	            			double timestamp = Double.parseDouble(st.nextToken());
+	            			int auction = Integer.parseInt(st.nextToken());
+	            			double bid = Double.parseDouble(st.nextToken());
+	            			String hash = st.nextToken();
+	            			
+	            			Timestamp stamp = new Timestamp(timestamp, auction, bid, hash);
+	            			
+	            			SignedBid signedBid = parentClient.signedBids.getBidByBid(auction, bid);
+	            			
+	            			//Auction not in List
+	            			if(signedBid==null) {
+	            				signedBid = new SignedBid(null, bid, auction);
+	            				parentClient.signedBids.addBid(signedBid);
+	            			}
+	            			
+	            			signedBid.addTimestamp(stamp);
+	            			parentClient.signedBids.updateBid(signedBid);
+	            		}
+						
+	            		else  if(token!=null) {
+							System.out.println(output);
+						}
+						
 					}
+										
+            		
 				 }
 				Thread.sleep(100);
 			}

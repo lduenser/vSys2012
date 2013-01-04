@@ -1,11 +1,24 @@
 package client;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+
+import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.openssl.PasswordFinder;
+
+import security.Base64Channel;
+import security.CipherChannel;
+import security.TCPChannel;
 
 import model.SignedBid;
 import model.User;
@@ -21,6 +34,13 @@ public class CommandThread implements Runnable {
 	int clientPort;
 	PrintWriter socketWriter = null;
 	Scanner scanner;
+
+	public static PublicKey publickey = null;
+	public static PrivateKey privatekey = null;
+
+	 private static String pathToPublicKeyServer = "keys/auction-server.pub.pem";
+	 private static String pathToPrivateKeyUser ="keys/alice.pem";
+	
 	
 	boolean isRunning = true;
 	
@@ -67,6 +87,25 @@ public class CommandThread implements Runnable {
 						}	            		
 						
 						this.parentClient.setUser(name, clientPort);
+						
+						if(getKeysClient()){
+								Debug.printInfo("reading client keys success");
+								
+								CipherChannel cipherChannel= new CipherChannel(new Base64Channel(new TCPChannel(parentClient.socket)));
+			            		cipherChannel.setKey(publickey);
+			            		cipherChannel.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
+	
+			            		// login request send from the client to the auction server
+			            		
+			                    String sChallangeBase64 = Methods.getRandomNumber(32);
+			                    // !login username tcpPort client-challange
+			                    String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " +sChallangeBase64);
+			                    
+			                    assert firstMessage.matches("!login [a-zA-Z0-9_\\-]+ [0-9]+ ["+Methods.B64+"]{43}=") : "1st message";
+								
+								cipherChannel.send(firstMessage.getBytes());							
+						}		
+						
 					}
 					else if(output.contains("!end")) {
 						Client.active = false;
@@ -112,6 +151,65 @@ public class CommandThread implements Runnable {
 		} 
 		 
 	}
+	
+	
+	@SuppressWarnings("finally")
+	public static boolean getKeysClient() {
+        boolean result=false;
+        PEMReader inPrivat=null,inPublic = null;
+        try {
+            //public key from client
+            try {
+              inPublic = new PEMReader(new FileReader(pathToPublicKeyServer));
+            } catch (Exception e) {
+                 System.out.println("Can't read file for public key!");
+                 return false;
+            }
+            publickey= (PublicKey) inPublic.readObject();
+
+            //private key from client    
+            FileReader privateKeyFile=null;
+            try {
+               privateKeyFile=new FileReader(pathToPrivateKeyUser);
+            } catch (Exception e) {
+                 System.out.println("Can't read file for private key!");
+                 return false;
+            }
+            
+            inPrivat = new PEMReader(privateKeyFile, new PasswordFinder() {
+                @Override
+                 public char[] getPassword() {
+                    // reads the password from standard input for decrypting the private key
+                    System.out.println("Enter pass phrase:");
+                    try {
+                        return (new BufferedReader(new InputStreamReader(System.in))).readLine().toCharArray();
+                    } catch (IOException ex) {
+                        return "".toCharArray();
+                    }
+                 }
+            });
+
+           KeyPair keyPair = (KeyPair) inPrivat.readObject();
+           privatekey = keyPair.getPrivate();
+           result=true;
+           System.out.println("Keys successfully initialized!");
+        } catch (IOException ex) {
+            System.out.println("Wrong password!");
+            result=getKeysClient();
+        } finally {
+            try {
+                if (inPublic!=null) {
+                  inPublic.close();
+                }
+                if (inPrivat!=null) {
+                  inPrivat.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            return result;
+        }
+    }
 	
 	synchronized void sendSignedBids() {
 		SignedBid signedBid = null;

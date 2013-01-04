@@ -45,8 +45,8 @@ public class AuctionServer {
 	public static PublicKey publickey = null;
 	public static PrivateKey privatekey = null;
 
-	 private static String pathToPublicKey = "keys/auction-server.pub.pem";
-	 private static String pathToPrivateKey ="keys/auction-server.pem";
+	 private static String pathToPublicKeyUser = "keys/alice.pub.pem";
+	 private static String pathToPrivateKeyServer ="keys/auction-server.pem";
 	
 	public AuctionServer() {
 		Debug.info = true;
@@ -70,7 +70,7 @@ public class AuctionServer {
 		
 		while(server==null) {
 			try {
-				server = new ThreadPooledServer(port, maxClients, publickey);
+				server = new ThreadPooledServer(port, maxClients);
 			}
 			catch(Exception e) {
 				port--;
@@ -146,7 +146,7 @@ public class AuctionServer {
         try {
             //public key from server
             try {
-              inPublic = new PEMReader(new FileReader(pathToPublicKey));
+              inPublic = new PEMReader(new FileReader(pathToPublicKeyUser));
             } catch (Exception e) {
                  System.out.println("Can't read file for public key!");
                  return false;
@@ -156,7 +156,7 @@ public class AuctionServer {
             //private key from server   
             FileReader privateKeyFile=null;
             try {
-               privateKeyFile=new FileReader(pathToPrivateKey);
+               privateKeyFile=new FileReader(pathToPrivateKeyServer);
             } catch (Exception e) {
                  System.out.println("Can't read file for private key!");
                  return false;

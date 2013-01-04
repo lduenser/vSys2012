@@ -9,12 +9,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-
-import org.bouncycastle.openssl.PEMReader;
-import org.bouncycastle.openssl.PasswordFinder;
 
 import methods.Methods;
 import model.SignedBid;
@@ -45,11 +39,6 @@ public class Client {
 	
 	SignedBidList signedBids = null;
 	
-	public static PublicKey publickey = null;
-	public static PrivateKey privatekey = null;
-
-	 private static String pathToPublicKey = "keys/alice.pub.pem";
-	 private static String pathToPrivateKey ="keys/alice.pem";
 	
 	public Client() {
 		Debug.info = true;
@@ -67,9 +56,6 @@ public class Client {
 		
 		Debug.printInfo("Client started");
 		
-		if(getKeysClient()){
-			Debug.printInfo("reading client keys success");
-		}
 		
 		InputThread input = null;
 		CommandThread output = null;
@@ -113,63 +99,7 @@ public class Client {
 		Debug.printInfo("Shutdown Client completed!");
 	}
 	
-	@SuppressWarnings("finally")
-	public static boolean getKeysClient() {
-        boolean result=false;
-        PEMReader inPrivat=null,inPublic = null;
-        try {
-            //public key from client
-            try {
-              inPublic = new PEMReader(new FileReader(pathToPublicKey));
-            } catch (Exception e) {
-                 System.out.println("Can't read file for public key!");
-                 return false;
-            }
-            publickey= (PublicKey) inPublic.readObject();
-
-            //private key from client    
-            FileReader privateKeyFile=null;
-            try {
-               privateKeyFile=new FileReader(pathToPrivateKey);
-            } catch (Exception e) {
-                 System.out.println("Can't read file for private key!");
-                 return false;
-            }
-            
-            inPrivat = new PEMReader(privateKeyFile, new PasswordFinder() {
-                @Override
-                 public char[] getPassword() {
-                    // reads the password from standard input for decrypting the private key
-                    System.out.println("Enter pass phrase:");
-                    try {
-                        return (new BufferedReader(new InputStreamReader(System.in))).readLine().toCharArray();
-                    } catch (IOException ex) {
-                        return "".toCharArray();
-                    }
-                 }
-            });
-
-           KeyPair keyPair = (KeyPair) inPrivat.readObject();
-           privatekey = keyPair.getPrivate();
-           result=true;
-           System.out.println("Keys successfully initialized!");
-        } catch (IOException ex) {
-            System.out.println("Wrong password!");
-            result=getKeysClient();
-        } finally {
-            try {
-                if (inPublic!=null) {
-                  inPublic.close();
-                }
-                if (inPrivat!=null) {
-                  inPrivat.close();
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            return result;
-        }
-    }
+	
 	
 	
 	

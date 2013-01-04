@@ -36,14 +36,10 @@ public class AuctionServerThread extends Thread {
 	User user = null;
 	String username = "";
 	
-	public AuctionServerThread(Socket s, Key key, String challange) throws IOException {
+	public AuctionServerThread(Socket s) throws IOException {
 		this.s = s;
 		
-		this.cipher= new CipherChannel(new Base64Channel(new TCPChannel(s)));
-		cipher.setKey(key);
-		cipher.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
 		
-		this.sChallangeBase64=challange;
 		
 		try {
 			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -66,7 +62,7 @@ public class AuctionServerThread extends Thread {
 					String msg;
 					
 					input = in.readLine();
-					
+				
 					//byte[] temp= cipher.receive();
 					byte[] temp= null;
 					
