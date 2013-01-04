@@ -64,7 +64,7 @@ public class CipherChannel extends Decorator{
 	            if (receivedStr!=null) {
 	            	
 	            	String temp = new String(receivedStr, "UTF8");
-		            
+		            Debug.printDebug("cipherChannel Receive: "+temp);
 	            	if(temp.startsWith("!")) {
 	            		return receivedStr;
 	            	}

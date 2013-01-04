@@ -57,6 +57,7 @@ public class CommandThread implements Runnable {
 						
 						this.parentClient.setUser(name, clientPort);
 						
+
 						if(parentClient.getKeysClient()){
 							Debug.printInfo("reading client keys success");
 							
@@ -68,6 +69,7 @@ public class CommandThread implements Runnable {
 		                    assert firstMessage.matches("!login [a-zA-Z0-9_\\-]+ [0-9]+ ["+Methods.B64+"]{43}=") : "1st message";
 							
 		                    parentClient.channel.send(firstMessage.getBytes());							
+
 						}		
 						
 					}
@@ -76,8 +78,10 @@ public class CommandThread implements Runnable {
 					}
 					else parentClient.channel.send(output.getBytes());
 					
+
 					//Wenn Fehler bei der †bertragung aufgetreten ist
 					if(parentClient.channel.getError()) {
+
 						parentClient.setOffline();
 						
 						if(output.contains("!bid") && parentClient.user!=null) {

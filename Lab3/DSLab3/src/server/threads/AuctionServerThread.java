@@ -41,7 +41,6 @@ public class AuctionServerThread extends Thread {
 		}	
 	}
  
-	@SuppressWarnings("unused")
 	public synchronized void run() {
 		
 		while(AuctionServer.active) {
@@ -55,7 +54,7 @@ public class AuctionServerThread extends Thread {
 				if(temp != null){
 					try{
 						input = new String(temp, "UTF8");
-						
+						Debug.printDebug("input: "+input);
 					}
 					catch(UnsupportedEncodingException uns) {
 						uns.printStackTrace();
@@ -109,9 +108,31 @@ public class AuctionServerThread extends Thread {
 		
 		if(user == null) {
 			if(token.equals("!login")) {
+
+				String name = st.nextToken();
+				int port = Integer.parseInt(st.nextToken());
+				String clientChallange = st.nextToken();
+				Debug.printDebug("N:"+ name + " P: " + port + " C: " + clientChallange);
+				
+				
+				
+				if(st.countTokens() < 4) {
+					sendText("enter your username and a tcp-port!");
+				}
+				else{
+					
+				
+				}
+				
+						
+				
+			/*	
+				// after receiving the server challange from the client (3rd msg)
+
 				if(st.countTokens() < 2) {
 					sendText("enter your username and a tcp-port!");
 				}
+
 				else {
 					String name = st.nextToken();
 					int port = Integer.parseInt(st.nextToken());
@@ -142,8 +163,12 @@ public class AuctionServerThread extends Thread {
 						}
 					}
 				}
+				*/
+				
 				completed = true;
 			}
+				
+				
 		} 
 		
 		else {
