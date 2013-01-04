@@ -72,7 +72,7 @@ public class CommandThread implements Runnable {
 		                    
 		                    assert firstMessage.matches("!login [a-zA-Z0-9_\\-]+ [0-9]+ ["+Methods.B64+"]{43}=") : "1st message";
 		                    Debug.printDebug("first: "+ firstMessage);
-		                    Debug.printDebug("base64 first: "+Base64.decode(firstMessage.getBytes()).toString());
+		                    Debug.printDebug("base64 encoded first: "+Base64.encode(firstMessage.getBytes()).toString());
 		                    parentClient.channel.send(firstMessage.getBytes());							
 
 						}		

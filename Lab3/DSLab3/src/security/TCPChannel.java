@@ -45,14 +45,24 @@ public class TCPChannel implements Channel {
         try {
            if(in.ready()){
         	   String s = null;
-               
-               s = in.readLine();
+               String complete = "";
         	   
-               Debug.printDebug("recieve: " + s);
+        	   boolean recieveLines = true;
                
-               byte[] buffer = s.getBytes("UTF8");
-               
-               return buffer;
+               while(recieveLines) {
+            	   s = in.readLine();
+            	   complete = complete + s;
+            	   if(s==null || s.equals("") || s.endsWith("=")) {
+            		   recieveLines = false;
+            	   }
+            	   else {
+            		 //  Debug.printDebug("recieve: " + s);
+            		   
+            	   }
+               }
+              
+               return complete.getBytes("UTF8");
+        	 //  return in.readLine().getBytes("UTF8");
            }
         	
             

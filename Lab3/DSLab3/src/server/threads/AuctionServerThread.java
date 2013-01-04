@@ -33,7 +33,7 @@ public class AuctionServerThread extends Thread {
 		
 		try {
 			cipher = new CipherChannel(new Base64Channel(new TCPChannel(s)));
-			cipher.setKey(AuctionServer.publickey);
+			cipher.setKey(AuctionServer.privatekey);
 			cipher.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -117,7 +117,7 @@ public class AuctionServerThread extends Thread {
 				
 				
 				if(st.countTokens() < 4) {
-					sendText("enter your username and a tcp-port!");
+					//sendText("enter your username and a tcp-port!");
 				}
 				else{
 					

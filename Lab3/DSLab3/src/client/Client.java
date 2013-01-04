@@ -189,7 +189,7 @@ public class Client {
 					error = true;
 				}
 				
-		    	client.channel.send("!alive".getBytes());
+		    	//client.channel.send("!alive".getBytes());
 	    		
 		    	if(client.channel.getError()) {
 					error = true;
