@@ -1,5 +1,6 @@
 package security;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -16,10 +17,16 @@ public class CipherChannel extends Decorator{
 
 		private Key key = null;
 		private String algorithm = "";
+		private String regExPattern = null;
 		byte[] iv=null;
+		
+		private boolean sendEncrypted = true;
 		
 	 	public CipherChannel(Channel decoratedChannel) {
 	 		super(decoratedChannel);
+	 		
+	 		//Pattern to match "Standard Commands": !command
+	 		regExPattern = "^\\!(?=[a-z]+).*";
 	 	}
 		
 	    public void setKey(Key key) {
@@ -33,6 +40,17 @@ public class CipherChannel extends Decorator{
 	    public void setInitVector(byte[] iv) {
 	        this.iv=iv;
 	    }
+	    
+	    public void setPattern(String pattern) {
+	    	this.regExPattern = pattern;
+	    }
+	    
+	    public void setSendEncrypted() {
+	    	this.sendEncrypted = true;
+	    }
+	    public void unsetSendEncrypted() {
+	    	this.sendEncrypted = false;
+	    }
 
 	    @Override
 	    public byte[] receive() {
@@ -40,6 +58,12 @@ public class CipherChannel extends Decorator{
 	            byte[] receivedStr = super.receive();
 	            
 	            if (receivedStr!=null) {
+	            	
+	            	//received String not encrypted
+	            	if(new String(receivedStr, "UTF8").matches(regExPattern)) {
+	            		return receivedStr;
+	            	}
+	            	
 	                Cipher crypt = Cipher.getInstance(algorithm);
 	                if (iv!=null) {
 	                  AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
@@ -66,7 +90,9 @@ public class CipherChannel extends Decorator{
 	        	noAlgo.printStackTrace();
 	        } catch (NoSuchPaddingException noPadd) {
 	        	noPadd.printStackTrace();
-	        }
+	        } catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 	        return null;
 	    	
 	    }
@@ -74,17 +100,21 @@ public class CipherChannel extends Decorator{
 	    @Override
 	    public void send (byte[] sendBytes) {
 	    	
-	    	 try {
-	             Cipher crypt = Cipher.getInstance(algorithm);
-	              if (iv!=null) {
-	               AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
-	               crypt.init(Cipher.ENCRYPT_MODE, key, paramSpec);
-	             } else {
-	               crypt.init(Cipher.ENCRYPT_MODE, key);
-	             }
-	             byte[] encryptedText = crypt.doFinal(sendBytes);
-	             super.send(encryptedText);
-	             
+	    	try {
+	    		if(!this.sendEncrypted) {
+		    		super.send(sendBytes);
+		    	}
+		    	else {
+		    		Cipher crypt = Cipher.getInstance(algorithm);
+		              if (iv!=null) {
+		               AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
+		               crypt.init(Cipher.ENCRYPT_MODE, key, paramSpec);
+		             } else {
+		               crypt.init(Cipher.ENCRYPT_MODE, key);
+		             }
+		             byte[] encryptedText = crypt.doFinal(sendBytes);
+		             super.send(encryptedText);
+		    	}
 	         } catch (InvalidAlgorithmParameterException invAlgo) {
 		        	invAlgo.printStackTrace();
 		        } catch (IllegalBlockSizeException ill) {

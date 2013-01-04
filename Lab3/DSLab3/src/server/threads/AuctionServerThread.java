@@ -52,50 +52,40 @@ public class AuctionServerThread extends Thread {
 	@SuppressWarnings("unused")
 	public synchronized void run() {
 		
-		try {
-			while(AuctionServer.active) {
-				if(AuctionServer.stop) {
-					//Debug.printDebug("No action - Server stopped");
-				}
-				else {
-					String input;
-					String msg;
-					
-					input = in.readLine();
+		while(AuctionServer.active) {
+			if(AuctionServer.stop) {
+				//Debug.printDebug("No action - Server stopped");
+			}
+			else {
+				String input = null;
 				
-					//byte[] temp= cipher.receive();
-					byte[] temp= null;
-					
-					if(temp != null){
-						try{
-							msg = new String(temp, "UTF8");
-							
-						}
-						catch(UnsupportedEncodingException uns) {
-							uns.printStackTrace();
-						}
-					}
-					
-					
-					if(input!=null) {
-						Debug.printDebug(this.username + " command: " + input);
+				byte[] temp= cipher.receive();
+				if(temp != null){
+					try{
+						input = new String(temp, "UTF8");
 						
-						try {
-							processInput(input);
-						}
-						catch(Exception e) {
-							sendText("Error while processing your input!");
-							e.printStackTrace();
-						}
+					}
+					catch(UnsupportedEncodingException uns) {
+						uns.printStackTrace();
+					}
+				}
+
+				if(input!=null) {
+					Debug.printDebug(this.username + " command: " + input);
+
+					
+					try {
+						processInput(input);
+					}
+					catch(Exception e) {
+						sendText("Error while processing your input!");
+						e.printStackTrace();
 					}
 				}
 			}
-			
-			Debug.printInfo("Client " + s.toString() + " disconnected");
-
-		} catch (IOException e) {
-			Debug.printError(e.toString());
 		}
+		
+		Debug.printInfo("Client " + s.toString() + " disconnected");
 		
 		try {
 			terminateClient();

@@ -57,7 +57,7 @@ public class InputThread implements Runnable {
 					
 					StringTokenizer st = new StringTokenizer(output);
 					String token = null;
-					
+			
 					if(st.hasMoreTokens()){
 						token = st.nextToken();
 						
@@ -90,7 +90,7 @@ public class InputThread implements Runnable {
 	            		else  if(token!=null) {
 							System.out.println(output);
 						}
-						
+
 					}
 										
             		

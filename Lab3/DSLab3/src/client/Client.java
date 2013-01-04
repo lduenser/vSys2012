@@ -208,12 +208,10 @@ public class Client {
 		output.updateStreams();
 		input.updateStreams();
 		
-		//TODO: Relogin
 		if(user!=null) {
 			output.login(user);
 		}
 		
-		//TODO: Send new Bids
 		if(signedBids!=null) {
 			if(!signedBids.isEmpty())
 			output.sendSignedBids();
