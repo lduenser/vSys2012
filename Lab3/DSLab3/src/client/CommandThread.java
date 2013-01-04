@@ -107,7 +107,8 @@ public class CommandThread implements Runnable {
 			            		
 			                    String sChallangeBase64 = Methods.getRandomNumber(32);
 			                    // !login username tcpPort client-challange
-			                    String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " +sChallangeBase64);
+			                    Debug.printDebug("challange vorm abschicken :" +sChallangeBase64);
+			                    String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " + sChallangeBase64);
 			                    
 			                    assert firstMessage.matches("!login [a-zA-Z0-9_\\-]+ [0-9]+ ["+Methods.B64+"]{43}=") : "1st message";
 								
@@ -120,8 +121,8 @@ public class CommandThread implements Runnable {
 					}
 					output+= "\r\n";
 					
-					socketWriter.write(output);
-					socketWriter.flush();
+					normalChannel.send(output.getBytes());
+				//	socketWriter.flush();
 					
 					if(socketWriter.checkError()) {
 						parentClient.setOffline();
