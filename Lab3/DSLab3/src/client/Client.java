@@ -8,7 +8,18 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
+
+import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.openssl.PasswordFinder;
+
+import security.Base64Channel;
+import security.Channel;
+import security.CipherChannel;
+import security.TCPChannel;
 
 import methods.Methods;
 import model.SignedBid;
@@ -39,6 +50,14 @@ public class Client {
 	
 	SignedBidList signedBids = null;
 	
+	public Channel channel = null;
+	
+	public PublicKey publickey = null;
+	public PrivateKey privatekey = null;
+
+	private String pathToPublicKeyServer = "keys/auction-server.pub.pem";
+	private String pathToPrivateKeyUser ="keys/alice.pem";
+	
 	
 	public Client() {
 		Debug.info = true;
@@ -49,21 +68,22 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		
 		Client current = new Client();
-	//	checkArguments(args);
 		
 		current.socket = null;
 		current.signedBids = new SignedBidList();
 		
 		Debug.printInfo("Client started");
 		
-		
-		InputThread input = null;
-		CommandThread output = null;
-	//	UDPThread udp = null;
-		TCPThread tcp = null;
-		 
 		try {
 			current.socket = new Socket(host, serverPort);
+			
+			//Create unencrypted Channel
+			try {
+				current.channel = new Base64Channel(new TCPChannel(current.socket));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			current.input = new InputThread(current.socket, current);
 			current.output = new CommandThread(current.socket, clientPort, current);
@@ -145,8 +165,6 @@ public class Client {
 	
 	private static boolean checkAlive(Client client){
 		
-		Socket s = client.socket;
-		PrintWriter socketWriter = null;
 		boolean error = false;
 
 		//If Server is offline try to open new socket
@@ -169,22 +187,15 @@ public class Client {
 		}
 		
 		else {
-			try {
-				socketWriter = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
-			} catch (IOException e) {
-				Debug.printDebug("Server offline - IOException");
-			}
-			
-	       synchronized (client.socket) {
+			synchronized (client.socket) {
 		    	
-		    	if(socketWriter.checkError()) {
+		    	if(client.channel.getError()) {
 					error = true;
 				}
 				
-	    		socketWriter.write("");
-				socketWriter.flush();
-				
-				if(socketWriter.checkError()) {
+		    	client.channel.send("!alive".getBytes());
+	    		
+		    	if(client.channel.getError()) {
 					error = true;
 				}
 				
@@ -205,6 +216,13 @@ public class Client {
 	void reconnect() {
 		Debug.printDebug("Reconnect Client");
 		
+		try {
+			channel = new Base64Channel(new TCPChannel(this.socket));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		output.updateStreams();
 		input.updateStreams();
 		
@@ -222,6 +240,79 @@ public class Client {
 		serverDisconnect = true;
 	    Debug.printDebug("Server Offline");
 	}
+	
+	void createCipherChannel() {
+		CipherChannel cipherChannel;
+		try {
+			cipherChannel = new CipherChannel(new Base64Channel(new TCPChannel(socket)));
+			cipherChannel.setKey(publickey);
+			cipherChannel.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
+
+			channel = cipherChannel;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	
+	@SuppressWarnings("finally")
+	public boolean getKeysClient() {
+        boolean result=false;
+        PEMReader inPrivat=null,inPublic = null;
+        try {
+            //public key from client
+            try {
+              inPublic = new PEMReader(new FileReader(pathToPublicKeyServer));
+            } catch (Exception e) {
+                 System.out.println("Can't read file for public key!");
+                 return false;
+            }
+            publickey= (PublicKey) inPublic.readObject();
+
+            //private key from client    
+            FileReader privateKeyFile=null;
+            try {
+               privateKeyFile=new FileReader(pathToPrivateKeyUser);
+            } catch (Exception e) {
+                 System.out.println("Can't read file for private key!");
+                 return false;
+            }
+            
+            inPrivat = new PEMReader(privateKeyFile, new PasswordFinder() {
+                @Override
+                 public char[] getPassword() {
+                    // reads the password from standard input for decrypting the private key
+                    System.out.println("Enter pass phrase:");
+                    try {
+                        return (new BufferedReader(new InputStreamReader(System.in))).readLine().toCharArray();
+                    } catch (IOException ex) {
+                        return "".toCharArray();
+                    }
+                 }
+            });
+
+           KeyPair keyPair = (KeyPair) inPrivat.readObject();
+           privatekey = keyPair.getPrivate();
+           result=true;
+           System.out.println("Keys successfully initialized!");
+        } catch (IOException ex) {
+            System.out.println("Wrong password!");
+            result=getKeysClient();
+        } finally {
+            try {
+                if (inPublic!=null) {
+                  inPublic.close();
+                }
+                if (inPrivat!=null) {
+                  inPrivat.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            return result;
+        }
+    }
 }
 
 

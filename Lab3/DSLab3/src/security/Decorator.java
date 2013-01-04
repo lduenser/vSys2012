@@ -14,5 +14,10 @@ abstract public class Decorator implements Channel{
     public void  send (byte[] sendStr) {
         decoratedChannel.send(sendStr);
     }
+    
+    public boolean getError() {
+		// TODO Auto-generated method stub
+		return decoratedChannel.getError();
+	}
 
 }
