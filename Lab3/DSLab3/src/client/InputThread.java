@@ -56,8 +56,12 @@ public class InputThread implements Runnable {
 					String output = socketReader.readLine();
 					
 					StringTokenizer st = new StringTokenizer(output);
-            		String token = st.nextToken();
+					String token = null;
 					
+					if(st.hasMoreElements()) {
+						token = st.nextToken();
+					}
+            		
             		if(token.equals("!clientListStart")) {
             			//Obtain Client List
             			this.getUserList();

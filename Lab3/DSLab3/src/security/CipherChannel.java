@@ -16,10 +16,14 @@ public class CipherChannel extends Decorator{
 
 		private Key key = null;
 		private String algorithm = "";
+		private String regExPattern = null;
 		byte[] iv=null;
 		
 	 	public CipherChannel(Channel decoratedChannel) {
 	 		super(decoratedChannel);
+	 		
+	 		//Pattern to match "Standard Commands": !command
+	 		regExPattern = "^\\!(?=[a-z]+).*";
 	 	}
 		
 	    public void setKey(Key key) {
@@ -33,6 +37,10 @@ public class CipherChannel extends Decorator{
 	    public void setInitVector(byte[] iv) {
 	        this.iv=iv;
 	    }
+	    
+	    public void setPattern(String pattern) {
+	    	this.regExPattern = pattern;
+	    }
 
 	    @Override
 	    public byte[] receive() {
@@ -40,6 +48,11 @@ public class CipherChannel extends Decorator{
 	            byte[] receivedStr = super.receive();
 	            
 	            if (receivedStr!=null) {
+	            	
+	            	if(new String(receivedStr).matches(regExPattern)) {
+	            		return receivedStr;
+	            	}
+	            	
 	                Cipher crypt = Cipher.getInstance(algorithm);
 	                if (iv!=null) {
 	                  AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
