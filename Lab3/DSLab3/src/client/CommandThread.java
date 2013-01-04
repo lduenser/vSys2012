@@ -148,7 +148,7 @@ public class CommandThread implements Runnable {
 	}
 	
 	synchronized void getClientList() {
-		parentClient.channel.send("!getClientList\r\n".getBytes());
+		parentClient.channel.send("!getClientList".getBytes());
 	}
 	
 	boolean obtainTimestamps(String auctionId, String bid) {
@@ -184,7 +184,6 @@ public class CommandThread implements Runnable {
 				socketWriter2.flush();
 				
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				Debug.printError("Couldn't send timestamp requests");
 			}
 			 
