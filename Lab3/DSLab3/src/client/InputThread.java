@@ -1,23 +1,20 @@
 package client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.security.Key;
 import java.util.StringTokenizer;
 
+import org.bouncycastle.util.encoders.Base64;
+
+import methods.Methods;
 import model.SignedBid;
 import model.Timestamp;
 import model.User;
 import model.UserList;
-
 import debug.Debug;
-
-
 
 public class InputThread implements Runnable {
 	
@@ -26,10 +23,7 @@ public class InputThread implements Runnable {
 	boolean isRunning = true;
 	
 	public InputThread(Socket s, Client parent) {
-		this.parentClient = parent;
-		
-		
-		
+		this.parentClient = parent;		
 	}
 	
 	public void updateStreams() {
@@ -46,8 +40,7 @@ public class InputThread implements Runnable {
 				
 				if(temp != null){
 					try{
-						input = new String(temp, "UTF8");
-						
+						input = new String(temp, "UTF8");						
 					}
 					catch(UnsupportedEncodingException uns) {
 						uns.printStackTrace();
@@ -88,12 +81,42 @@ public class InputThread implements Runnable {
 	            			parentClient.signedBids.updateBid(signedBid);
 	            		}
 						
+	            		if(token.equals("!ok")) {
+	            			
+							String clientChallange = st.nextToken();
+							String serverChallange = st.nextToken();							
+							byte[] secretKey = Base64.decode(st.nextToken().getBytes());
+							Key key = new javax.crypto.spec.SecretKeySpec(secretKey, "AES");							
+			                byte[] iv=  Base64.decode(st.nextToken().getBytes());
+							
+			                
+			                // TODO clientChallanges vergleichen mit versendetem ! ok? -> send 3rd msg
+							Debug.printDebug("cc: "+ clientChallange);
+							Debug.printDebug("sc: "+ serverChallange);
+							Debug.printDebug("key: "+ key);
+							Debug.printDebug("iv: "+ iv);
+							
+							// send 3rd msg							
+							Debug.printInfo("send 3rd msg: serverChallange");
+							
+							/*
+							 // --> move to CommandThread ??
+							 // AES !
+							cipher.setalgorithm("AES/CTR/NoPadding");
+                			cipher.setInitVector(iv);
+                			cipher.setKey(key);
+                			
+                			String thirdMessage= serverChallange;
+                    		assert thirdMessage.matches("["+Methods.B64+"]{43}=") : "3rd message";
+                    		parentClient.channel.send(thirdMessage.getBytes());
+                			*/
+							
+						}
 	            		else  if(token!=null) {
 							System.out.println(input);
 						}
-
-					}
-										
+						
+					}			
             		
 				 }
 				Thread.sleep(100);
@@ -105,10 +128,8 @@ public class InputThread implements Runnable {
 		} 
 	}
 	
-	synchronized void stop() {
-		
-		 Debug.printInfo("Shutdown InputThread complete");
-		 
+	synchronized void stop() {		
+		 Debug.printInfo("Shutdown InputThread complete");		 
 	}
 	
 	void getUserList() throws IOException {

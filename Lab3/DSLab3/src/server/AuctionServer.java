@@ -45,8 +45,8 @@ public class AuctionServer {
 	public static PublicKey publickey = null;
 	public static PrivateKey privatekey = null;
 
-	 private static String pathToPublicKeyUser = "keys/alice.pub.pem";
-	 private static String pathToPrivateKeyServer ="keys/auction-server.pem";
+	private static String pathToPublicKeyUser = "keys/alice.pub.pem";
+	private static String pathToPrivateKeyServer ="keys/auction-server.pem";
 	
 	public AuctionServer() {
 		Debug.info = true;

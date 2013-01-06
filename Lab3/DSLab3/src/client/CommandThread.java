@@ -64,16 +64,17 @@ public class CommandThread implements Runnable {
 							Debug.printInfo("reading client keys success");
 							parentClient.createCipherChannel();
 							
-							String sChallangeBase64 = Methods.getRandomNumber(32);
-		                    // !login username tcpPort client-challange
+							String clientChallangeBase64 = Methods.getRandomNumber(32);
+		                    // !login <username> <tcpPort> <client-challange>
 							
-							
-		                    String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " +sChallangeBase64);
+		                    String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " +clientChallangeBase64);
 		                    
 		                    assert firstMessage.matches("!login [a-zA-Z0-9_\\-]+ [0-9]+ ["+Methods.B64+"]{43}=") : "1st message";
 		                    Debug.printDebug("first: "+ firstMessage);
-		                    Debug.printDebug("base64 encoded first: "+Base64.encode(firstMessage.getBytes()).toString());
-		                    parentClient.channel.send(firstMessage.getBytes());							
+		                    
+		                    parentClient.channel.send(firstMessage.getBytes());	
+		                    
+		                    // TODO: receive hier von InputThread ??
 
 						}		
 						

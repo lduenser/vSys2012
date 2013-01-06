@@ -4,8 +4,15 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.rmi.RemoteException;
+import java.security.NoSuchAlgorithmException;
 import java.util.StringTokenizer;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+import org.bouncycastle.util.encoders.Base64;
+
+import methods.Methods;
 import model.Auction;
 import model.Bid;
 import model.User;
@@ -23,7 +30,6 @@ public class AuctionServerThread extends Thread {
 	private Socket s;
 	
 	private CipherChannel cipher;
-	private String sChallangeBase64;
 	
 	User user = null;
 	String username = "";
@@ -54,7 +60,6 @@ public class AuctionServerThread extends Thread {
 				if(temp != null){
 					try{
 						input = new String(temp, "UTF8");
-						Debug.printDebug("input: "+input);
 					}
 					catch(UnsupportedEncodingException uns) {
 						uns.printStackTrace();
@@ -100,7 +105,7 @@ public class AuctionServerThread extends Thread {
 		}
 	}
 	
-	synchronized void processInput(String input) {
+	synchronized void processInput(String input) throws UnsupportedEncodingException {
 		
 		StringTokenizer st = new StringTokenizer(input);
 		String token = st.nextToken();
@@ -108,22 +113,47 @@ public class AuctionServerThread extends Thread {
 		
 		if(user == null) {
 			if(token.equals("!login")) {
-
-				String name = st.nextToken();
-				int port = Integer.parseInt(st.nextToken());
-				String clientChallange = st.nextToken();
-				Debug.printDebug("N:"+ name + " P: " + port + " C: " + clientChallange);
 				
-				
-				
-				if(st.countTokens() < 4) {
-					//sendText("enter your username and a tcp-port!");
+				if(!st.hasMoreTokens()) {
+					//sendText("enter your username!");
+					Debug.printDebug("username is missing");
 				}
+				
 				else{
 					
+					String name = st.nextToken();
+					int port = Integer.parseInt(st.nextToken());
+					String clientChallange = st.nextToken();
+					
+					
+					// send 2nd Message: !ok <client-challenge> <server-challenge> <secret-key> <iv-parameter>.
+					 String serverChallange= Methods.getRandomNumber(32);
+					 
+					 SecretKey secretKey=null;
+                     try {
+                       KeyGenerator generator;
+                       generator = KeyGenerator.getInstance("AES");
+                       generator.init(256);// KEYSIZE is in bits
+                       secretKey = generator.generateKey();
+                     } catch (NoSuchAlgorithmException ex) {
+                       ex.printStackTrace();
+                     }
+					 
+					 String ivParam= Methods.getRandomNumber(16);
+					 
+                     String secondMessage=("!ok "+clientChallange+" "+serverChallange+" "+new String(Base64.encode(secretKey.getEncoded()),"UTF8")+" "+ivParam);
+                     assert secondMessage.matches("!ok ["+Methods.B64+"]{43}= ["+Methods.B64+"]{43}= ["+Methods.B64+"]{43}= ["+Methods.B64+"]{22}==") : "2nd message";
+                                          
+                     Debug.printDebug("second: "+ secondMessage);
+                     
+                     cipher.send(secondMessage.getBytes());
+                     
+                     
+                     // TODO: receive 3rd msg -> serverChallange -> vergleichen! ok? -> verbindung akzeptieren!
+                     
+                    //  cipher.receive();
 				
-				}
-				
+				}				
 						
 				
 			/*	
