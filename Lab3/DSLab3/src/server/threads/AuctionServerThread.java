@@ -152,9 +152,7 @@ public class AuctionServerThread extends Thread {
                      cipher.setalgorithm("AES/CTR/NoPadding");
                      cipher.setKey(secretKey);
                      cipher.setInitVector(Base64.decode(ivParam.getBytes()));
-                     
-                     // TODO: receive 3rd msg -> serverChallange -> vergleichen! ok? -> verbindung akzeptieren!
-                     
+                                          
 				}				
 						
 				
@@ -301,13 +299,10 @@ public class AuctionServerThread extends Thread {
 				Debug.printDebug("Unknown command from " + s.toString());
 			}
 			
-			else {
-				
-					// TODO: receive 3rd msg -> serverChallange -> vergleichen! ok? -> verbindung akzeptieren!
-                    
-					Debug.printDebug("User tries to Log In !");
-					Debug.printDebug("3rd msg from Client: "+ token);
-				
+			else {				
+					// TODO: receive 3rd msg -> serverChallange -> vergleichen! ok? -> verbindung akzeptieren!                    
+					Debug.printDebug("User tries to Log In and sent 3rd Msg");
+					Debug.printDebug("3rd msg from Client: "+ token);				
 			}
 		}
 	}
