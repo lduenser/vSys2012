@@ -69,7 +69,6 @@ public class AuctionServerThread extends Thread {
 				if(input!=null) {
 					Debug.printDebug(this.username + " command: " + input);
 
-					
 					try {
 						processInput(input);
 					}
@@ -114,6 +113,9 @@ public class AuctionServerThread extends Thread {
 		if(user == null) {
 			if(token.equals("!login")) {
 				
+				String name = null;
+				int port;
+				
 				if(!st.hasMoreTokens()) {
 					//sendText("enter your username!");
 					Debug.printDebug("username is missing");
@@ -121,10 +123,9 @@ public class AuctionServerThread extends Thread {
 				
 				else{
 					
-					String name = st.nextToken();
-					int port = Integer.parseInt(st.nextToken());
+					name = st.nextToken();
+					port = Integer.parseInt(st.nextToken());
 					String clientChallange = st.nextToken();
-					
 					
 					// send 2nd Message: !ok <client-challenge> <server-challenge> <secret-key> <iv-parameter>.
 					 String serverChallange= Methods.getRandomNumber(32);
@@ -148,25 +149,20 @@ public class AuctionServerThread extends Thread {
                      
                      cipher.send(secondMessage.getBytes());
                      
+                     cipher.setalgorithm("AES/CTR/NoPadding");
+                     cipher.setKey(secretKey);
+                     cipher.setInitVector(Base64.decode(ivParam.getBytes()));
                      
                      // TODO: receive 3rd msg -> serverChallange -> vergleichen! ok? -> verbindung akzeptieren!
                      
-                    //  cipher.receive();
-				
 				}				
 						
 				
 			/*	
 				// after receiving the server challange from the client (3rd msg)
 
-				if(st.countTokens() < 2) {
-					sendText("enter your username and a tcp-port!");
-				}
-
 				else {
-					String name = st.nextToken();
-					int port = Integer.parseInt(st.nextToken());
-					
+										
 					Debug.printInfo("Login User " + name + " - " + s.toString());
 					
 					user = new User(name, s.getInetAddress(), port);
@@ -300,9 +296,18 @@ public class AuctionServerThread extends Thread {
 				
 				Debug.printDebug("\r\n!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 			}
-			else {
+			else if(token.startsWith("!")){
 				sendText("Unknown command!");
 				Debug.printDebug("Unknown command from " + s.toString());
+			}
+			
+			else {
+				
+					// TODO: receive 3rd msg -> serverChallange -> vergleichen! ok? -> verbindung akzeptieren!
+                    
+					Debug.printDebug("User tries to Log In !");
+					Debug.printDebug("3rd msg from Client: "+ token);
+				
 			}
 		}
 	}

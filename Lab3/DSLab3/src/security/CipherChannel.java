@@ -34,6 +34,10 @@ public class CipherChannel extends Decorator{
 	    public void setKey(Key key) {
 	        this.key=key;
 	    }
+	    
+	    public Key getKey(){
+	    	return key;
+	    }
 
 	    public void setalgorithm(String algorithm) {
 	        this.algorithm=algorithm;
@@ -70,8 +74,10 @@ public class CipherChannel extends Decorator{
 	            	}
 	            	
 	                Cipher crypt = Cipher.getInstance(algorithm);
+	                
 	                if (iv!=null) {
 	                  AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
+	                  	                  
 	                  crypt.init(Cipher.DECRYPT_MODE, key, paramSpec);
 	                } else {
 	                  crypt.init(Cipher.DECRYPT_MODE, key);

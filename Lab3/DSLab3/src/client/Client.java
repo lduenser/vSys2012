@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -47,6 +48,7 @@ public class Client {
 	SignedBidList signedBids = null;
 	
 	public Channel channel = null;
+	public String random = null;
 	
 	public PublicKey publickey = null;
 	public PrivateKey privatekey = null;
@@ -76,6 +78,7 @@ public class Client {
 			//Create unencrypted Channel
 			try {
 				current.channel = new Base64Channel(new TCPChannel(current.socket));
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -114,9 +117,6 @@ public class Client {
 		 
 		Debug.printInfo("Shutdown Client completed!");
 	}
-	
-	
-	
 	
 	
 	private static void checkArguments(String[] args) throws Exception{
@@ -251,6 +251,27 @@ public class Client {
 		}
 	}
 
+	void createAESChannel(byte[] iv, Key key){
+		CipherChannel cipher = (CipherChannel) channel;
+		try{
+			cipher.setalgorithm("AES/CTR/NoPadding");
+			cipher.setInitVector(iv);
+			cipher.setKey(key);
+			
+			channel = cipher;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}		
+	}
+	
+	String createRandom(int size){
+		String randomNumber = null;
+		randomNumber = Methods.getRandomNumber(size);
+		
+		random = randomNumber;
+		return random;
+	}
 	
 	@SuppressWarnings("finally")
 	public boolean getKeysClient() {

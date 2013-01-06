@@ -83,41 +83,34 @@ public class InputThread implements Runnable {
 						
 	            		if(token.equals("!ok")) {
 	            			
-							String clientChallange = st.nextToken();
+	            			String clientChallange = st.nextToken();
 							String serverChallange = st.nextToken();							
 							byte[] secretKey = Base64.decode(st.nextToken().getBytes());
 							Key key = new javax.crypto.spec.SecretKeySpec(secretKey, "AES");							
 			                byte[] iv=  Base64.decode(st.nextToken().getBytes());
-							
-			                
-			                // TODO clientChallanges vergleichen mit versendetem ! ok? -> send 3rd msg
+										                
 							Debug.printDebug("cc: "+ clientChallange);
 							Debug.printDebug("sc: "+ serverChallange);
 							Debug.printDebug("key: "+ key);
 							Debug.printDebug("iv: "+ iv);
-							
-							// send 3rd msg							
-							Debug.printInfo("send 3rd msg: serverChallange");
-							
-							/*
-							 // --> move to CommandThread ??
-							 // AES !
-							cipher.setalgorithm("AES/CTR/NoPadding");
-                			cipher.setInitVector(iv);
-                			cipher.setKey(key);
-                			
-                			String thirdMessage= serverChallange;
-                    		assert thirdMessage.matches("["+Methods.B64+"]{43}=") : "3rd message";
-                    		parentClient.channel.send(thirdMessage.getBytes());
-                			*/
-							
+						
+							// clientChallanges vergleichen mit versendetem ! ok? -> send 3rd msg							
+							if(!clientChallange.equals(parentClient.random)){
+								Debug.printInfo("clientCh nicht ident!");
+								Debug.printDebug("pr: "+parentClient.random);
+							}
+							else{ // send 3rd msg														
+								parentClient.createAESChannel(iv, key);															
+								String thirdMessage= serverChallange;
+	                    		assert thirdMessage.matches("["+Methods.B64+"]{43}=") : "3rd message";	                    		
+	                    		Debug.printDebug("third: "+thirdMessage);	                    		
+	                    		parentClient.channel.send(thirdMessage.getBytes());
+							}
 						}
 	            		else  if(token!=null) {
 							System.out.println(input);
-						}
-						
-					}			
-            		
+						}						
+					}            		
 				 }
 				Thread.sleep(100);
 			}

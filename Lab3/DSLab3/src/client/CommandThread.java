@@ -3,8 +3,10 @@ package client;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.security.Key;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -64,7 +66,8 @@ public class CommandThread implements Runnable {
 							Debug.printInfo("reading client keys success");
 							parentClient.createCipherChannel();
 							
-							String clientChallangeBase64 = Methods.getRandomNumber(32);
+							String clientChallangeBase64 = parentClient.createRandom(32);
+						//	String clientChallangeBase64 = Methods.getRandomNumber(32);
 		                    // !login <username> <tcpPort> <client-challange>
 							
 		                    String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " +clientChallangeBase64);
@@ -75,7 +78,9 @@ public class CommandThread implements Runnable {
 		                    parentClient.channel.send(firstMessage.getBytes());	
 		                    
 		                    // TODO: receive hier von InputThread ??
-
+		                    
+		                    
+		                    
 						}		
 						
 					}
