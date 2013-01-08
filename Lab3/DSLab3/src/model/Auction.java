@@ -121,6 +121,9 @@ public class Auction {
 				} catch (RemoteException e) {					
 					Debug.printInfo("No connection to Analytics Server");
 				}
+				catch(NullPointerException nl){
+					Debug.printDebug("null pointer 1");
+				}
 			}
 			
 			this.highest = newBid;
@@ -130,6 +133,9 @@ public class Auction {
 				AuctionServer.analytics.processEvent(temp);
 			} catch (RemoteException e) {				
 				Debug.printInfo("No connection to Analytics Server");
+			}
+			catch(NullPointerException nl){
+				Debug.printDebug("null pointer 2");
 			}
 			return true;
 		}

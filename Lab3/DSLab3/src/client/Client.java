@@ -75,13 +75,7 @@ public class Client {
 			current.socket = new Socket(host, serverPort);
 			
 			//Create unencrypted Channel
-			try {
-				current.channel = new Base64Channel(new TCPChannel(current.socket));
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			current.createTCPChannel();
 			
 			current.input = new InputThread(current.socket, current);
 			current.output = new CommandThread(current.socket, clientPort, current);
@@ -253,6 +247,15 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
+	
+	void createTCPChannel() {
+		try {
+			channel = new Base64Channel(new TCPChannel(socket));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	void createAESChannel(byte[] iv, Key key){
 		CipherChannel cipher = (CipherChannel) channel;
@@ -293,6 +296,7 @@ public class Client {
             FileReader privateKeyFile=null;
             try {
             	String path = ("keys/"+ getUser() + ".pem");
+            	Debug.printDebug("private key from user: "+getUser());
                privateKeyFile=new FileReader(path);
           //     privateKeyFile=new FileReader(pathToPrivateKeyUser);
            	

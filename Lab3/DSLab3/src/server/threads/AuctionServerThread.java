@@ -39,14 +39,7 @@ public class AuctionServerThread extends Thread {
 	public AuctionServerThread(Socket s) throws IOException {
 		this.s = s;
 		
-		try {
-			cipher = new CipherChannel(new Base64Channel(new TCPChannel(s)));
-			cipher.setKey(AuctionServer.privatekey);
-			cipher.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+		initCipher();
 	}
  
 	public synchronized void run() {
@@ -167,7 +160,7 @@ public class AuctionServerThread extends Thread {
 				synchronized(DataHandler.users) {
 					DataHandler.users.logout(user.getName());
 				}
-				sendText("Successfully logged out as "+user.getName()+"!");
+				
 				Event temp = new UserEvent(UserEvent.types.USER_LOGOUT, user.getName());
 				try {
 					if(AuctionServer.analytics != null){
@@ -179,8 +172,10 @@ public class AuctionServerThread extends Thread {
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
+				String name = user.getName();
 				user = null;
-				
+				sendText("Successfully logged out as "+name+"!");
+				initCipher();
 				completed = true;
 			}
 			else if(token.equals("!create")) {
@@ -258,12 +253,12 @@ public class AuctionServerThread extends Thread {
 			}
 			else if(token.equals("!getClientList")) {
 				
-	//			sendText("!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
+				sendText("!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 				
 				Debug.printDebug("\r\n!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 			}
 			else if(token.startsWith("!")){
-		//		sendText("Unknown command! - test");
+				sendText("Unknown command! - test");
 				Debug.printDebug("Unknown command from " + s.toString());
 			}
 			
@@ -282,8 +277,7 @@ public class AuctionServerThread extends Thread {
 							
 							synchronized(DataHandler.users) {
 								if(!DataHandler.users.login(user)) {
-						//			sendText("You're already logged in on another machine!");
-									Debug.printDebug(user.getName()+ ": You're already logged in on another machine!");
+									sendText("You're already logged in on another machine!");
 									user = null;
 								}
 								else {
@@ -299,8 +293,7 @@ public class AuctionServerThread extends Thread {
 										e.printStackTrace();
 									}
 									username = user.getName();
-							//		sendText("Successfully logged in as " + user.getName());
-									Debug.printDebug("Successfully logged in as " + user.getName());
+									sendText("Successfully logged in as " + user.getName());
 								}
 							}
 						
@@ -323,6 +316,18 @@ public class AuctionServerThread extends Thread {
 		}
 		
 		s.close();
+	}
+	
+	public void initCipher(){
+		try {
+			
+			cipher = new CipherChannel(new Base64Channel(new TCPChannel(s)));
+			cipher.setKey(AuctionServer.privatekey);
+			cipher.setalgorithm("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 	}
 	
 	public void sendText(String text) {

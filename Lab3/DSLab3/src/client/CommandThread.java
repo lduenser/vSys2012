@@ -48,6 +48,11 @@ public class CommandThread implements Runnable {
 				if(System.in.available()>0) {
 					String output = scanner.nextLine();
 					
+					if(output.contains("!logout")){
+						this.parentClient.createTCPChannel();
+						this.parentClient.user = null;
+					}
+					
 					if(output.contains("!login")) {
 						output += (" " + clientPort);
 						
