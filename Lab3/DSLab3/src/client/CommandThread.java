@@ -63,20 +63,7 @@ public class CommandThread implements Runnable {
 						
 
 						if(parentClient.getKeysClient()){
-							Debug.printInfo("reading client keys success");
-							parentClient.createCipherChannel();
-							
-							String clientChallangeBase64 = parentClient.createRandom(32);
-						//	String clientChallangeBase64 = Methods.getRandomNumber(32);
-		                    
-							// !login <username> <tcpPort> <client-challange>							
-		                    String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " +clientChallangeBase64);
-		                    
-		                    assert firstMessage.matches("!login [a-zA-Z0-9_\\-]+ [0-9]+ ["+Methods.B64+"]{43}=") : "1st message";
-		                    Debug.printDebug("first: "+ firstMessage);
-		                    
-		                    parentClient.channel.send(firstMessage.getBytes());	
-		                    
+							this.createLoginCommand();
 						}		
 						
 					}
@@ -144,9 +131,21 @@ public class CommandThread implements Runnable {
 		}
 	} 
 	
+	synchronized void createLoginCommand() {
+		Debug.printInfo("reading client keys success");
+		parentClient.createCipherChannel();
+		
+		String clientChallangeBase64 = parentClient.createRandom(32);
+        String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " +clientChallangeBase64);
+        
+        assert firstMessage.matches("!login [a-zA-Z0-9_\\-]+ [0-9]+ ["+Methods.B64+"]{43}=") : "1st message";
+        Debug.printDebug("first: "+ firstMessage);
+        
+        parentClient.channel.send(firstMessage.getBytes());	
+	}
+	
 	synchronized void login(User user) {
-		socketWriter.write("!login " + user.getName() + " " + user.getPort() + "\r\n");
-		socketWriter.flush();
+		createLoginCommand();
 	}
 	
 	synchronized void getClientList() {
