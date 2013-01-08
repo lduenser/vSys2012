@@ -146,6 +146,7 @@ public class AuctionServer {
         try {
             //public key from user
             try {
+            	
               inPublic = new PEMReader(new FileReader(pathToPublicKeyUser));
             } catch (Exception e) {
                  System.out.println("Can't read file for public key!");

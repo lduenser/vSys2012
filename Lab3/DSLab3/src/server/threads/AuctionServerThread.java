@@ -184,7 +184,8 @@ public class AuctionServerThread extends Thread {
 				completed = true;
 			}
 			else if(token.equals("!create")) {
-				
+				String algo = cipher.getalgorithm();
+				Debug.printDebug("algo is: "+algo);
 				if(st.countTokens() < 2) {
 					sendText("Please enter duration and a name for your auction!");
 				}
@@ -257,12 +258,12 @@ public class AuctionServerThread extends Thread {
 			}
 			else if(token.equals("!getClientList")) {
 				
-				sendText("!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
+	//			sendText("!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 				
 				Debug.printDebug("\r\n!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 			}
 			else if(token.startsWith("!")){
-				sendText("Unknown command! - test");
+		//		sendText("Unknown command! - test");
 				Debug.printDebug("Unknown command from " + s.toString());
 			}
 			
@@ -298,8 +299,8 @@ public class AuctionServerThread extends Thread {
 										e.printStackTrace();
 									}
 									username = user.getName();
-									sendText("Successfully logged in as " + user.getName());
-							//		Debug.printDebug("Successfully logged in as " + user.getName());
+							//		sendText("Successfully logged in as " + user.getName());
+									Debug.printDebug("Successfully logged in as " + user.getName());
 								}
 							}
 						
@@ -327,10 +328,9 @@ public class AuctionServerThread extends Thread {
 	public void sendText(String text) {
 		
 		try {
-		//	cipher.unsetSendEncrypted();
-			cipher.setSendEncrypted();
+			if(user==null) cipher.unsetSendEncrypted();
 			cipher.send(text.getBytes("UTF8"));
-		//	if(user==null) cipher.setSendEncrypted();
+			if(user==null) cipher.setSendEncrypted();
 			
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

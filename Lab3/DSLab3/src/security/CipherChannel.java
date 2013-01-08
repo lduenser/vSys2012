@@ -42,6 +42,10 @@ public class CipherChannel extends Decorator{
 	    public void setalgorithm(String algorithm) {
 	        this.algorithm=algorithm;
 	    }
+	    
+	    public String getalgorithm(){
+	    	return algorithm;
+	    }
 
 	    public void setInitVector(byte[] iv) {
 	        this.iv=iv;

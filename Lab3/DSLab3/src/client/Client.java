@@ -280,7 +280,7 @@ public class Client {
         boolean result=false;
         PEMReader inPrivat=null,inPublic = null;
         try {
-            //public key from client
+            //public key from server
             try {
               inPublic = new PEMReader(new FileReader(pathToPublicKeyServer));
             } catch (Exception e) {
