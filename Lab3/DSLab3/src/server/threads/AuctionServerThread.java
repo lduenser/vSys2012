@@ -262,7 +262,7 @@ public class AuctionServerThread extends Thread {
 				Debug.printDebug("\r\n!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 			}
 			else if(token.startsWith("!")){
-				sendText("Unknown command!");
+				sendText("Unknown command! - test");
 				Debug.printDebug("Unknown command from " + s.toString());
 			}
 			
@@ -298,8 +298,8 @@ public class AuctionServerThread extends Thread {
 										e.printStackTrace();
 									}
 									username = user.getName();
-				//					sendText("Successfully logged in as " + user.getName());
-									Debug.printDebug("Successfully logged in as " + user.getName());
+									sendText("Successfully logged in as " + user.getName());
+							//		Debug.printDebug("Successfully logged in as " + user.getName());
 								}
 							}
 						
@@ -327,9 +327,10 @@ public class AuctionServerThread extends Thread {
 	public void sendText(String text) {
 		
 		try {
-			if(user==null) cipher.unsetSendEncrypted();
+		//	cipher.unsetSendEncrypted();
+			cipher.setSendEncrypted();
 			cipher.send(text.getBytes("UTF8"));
-			if(user==null) cipher.setSendEncrypted();
+		//	if(user==null) cipher.setSendEncrypted();
 			
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
