@@ -144,7 +144,7 @@ public class AuctionServer {
         boolean result=false;
         PEMReader inPrivat=null,inPublic = null;
         try {
-            //public key from server
+            //public key from user
             try {
               inPublic = new PEMReader(new FileReader(pathToPublicKeyUser));
             } catch (Exception e) {

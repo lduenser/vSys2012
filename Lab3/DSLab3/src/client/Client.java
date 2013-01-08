@@ -54,7 +54,6 @@ public class Client {
 	public PrivateKey privatekey = null;
 
 	private String pathToPublicKeyServer = "keys/auction-server.pub.pem";
-	private String pathToPrivateKeyUser ="keys/alice.pem";
 	
 	
 	public Client() {
@@ -157,6 +156,10 @@ public class Client {
 	
 	public void setUserList(UserList list) {
 		this.users = list;
+	}
+	
+	public String getUser(){
+		return this.user.getName();
 	}
 	
 	private static boolean checkAlive(Client client){
@@ -267,8 +270,7 @@ public class Client {
 	
 	String createRandom(int size){
 		String randomNumber = null;
-		randomNumber = Methods.getRandomNumber(size);
-		
+		randomNumber = Methods.getRandomNumber(size);		
 		random = randomNumber;
 		return random;
 	}
@@ -290,7 +292,10 @@ public class Client {
             //private key from client    
             FileReader privateKeyFile=null;
             try {
-               privateKeyFile=new FileReader(pathToPrivateKeyUser);
+            	String path = ("keys/"+ getUser() + ".pem");
+               privateKeyFile=new FileReader(path);
+          //     privateKeyFile=new FileReader(pathToPrivateKeyUser);
+           	
             } catch (Exception e) {
                  System.out.println("Can't read file for private key!");
                  return false;

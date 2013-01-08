@@ -30,9 +30,11 @@ public class AuctionServerThread extends Thread {
 	private Socket s;
 	
 	private CipherChannel cipher;
-	
+	private String challange = null;
+		
 	User user = null;
 	String username = "";
+	int port;
 	
 	public AuctionServerThread(Socket s) throws IOException {
 		this.s = s;
@@ -114,7 +116,7 @@ public class AuctionServerThread extends Thread {
 			if(token.equals("!login")) {
 				
 				String name = null;
-				int port;
+				int portUser;
 				
 				if(!st.hasMoreTokens()) {
 					//sendText("enter your username!");
@@ -124,11 +126,14 @@ public class AuctionServerThread extends Thread {
 				else{
 					
 					name = st.nextToken();
-					port = Integer.parseInt(st.nextToken());
+					username = name;
+					portUser = Integer.parseInt(st.nextToken());
+					port = portUser;
 					String clientChallange = st.nextToken();
 					
 					// send 2nd Message: !ok <client-challenge> <server-challenge> <secret-key> <iv-parameter>.
-					 String serverChallange= Methods.getRandomNumber(32);
+					String serverChallange= Methods.getRandomNumber(32);
+					 challange = serverChallange;
 					 
 					 SecretKey secretKey=null;
                      try {
@@ -154,45 +159,7 @@ public class AuctionServerThread extends Thread {
                      cipher.setInitVector(Base64.decode(ivParam.getBytes()));
                                           
 				}				
-						
-				
-			/*	
-				// after receiving the server challange from the client (3rd msg)
-
-				else {
-										
-					Debug.printInfo("Login User " + name + " - " + s.toString());
-					
-					user = new User(name, s.getInetAddress(), port);
-					
-					synchronized(DataHandler.users) {
-						if(!DataHandler.users.login(user)) {
-							sendText("You're already logged in on another machine!");
-							user = null;
-						}
-						else {
-							Event temp = new UserEvent(UserEvent.types.USER_LOGIN, name);
-							try {
-								if(AuctionServer.analytics != null){
-									AuctionServer.analytics.processEvent(temp);
-								}
-								else{
-									Debug.printError("no communication with AnalyticsServer");
-								}
-							} catch (RemoteException e) {
-								e.printStackTrace();
-							}
-							username = user.getName();
-							sendText("Successfully logged in as " + user.getName());
-						}
-					}
-				}
-				*/
-				
-				completed = true;
-			}
-				
-				
+			}				
 		} 
 		
 		else {
@@ -299,10 +266,50 @@ public class AuctionServerThread extends Thread {
 				Debug.printDebug("Unknown command from " + s.toString());
 			}
 			
-			else {				
-					// TODO: receive 3rd msg -> serverChallange -> vergleichen! ok? -> verbindung akzeptieren!                    
-					Debug.printDebug("User tries to Log In and sent 3rd Msg");
-					Debug.printDebug("3rd msg from Client: "+ token);				
+			else {			
+				String serverChallangefromClient = token;
+					                   
+					Debug.printDebug("User tries to Log In");
+					Debug.printDebug("3rd msg from Client: "+ serverChallangefromClient);
+					
+					if(challange.equals(serverChallangefromClient)){
+						Debug.printDebug("3rd msg is ok !");
+					
+							Debug.printInfo("Login User " + username + " - " + s.toString());
+							
+							user = new User(username, s.getInetAddress(), port);
+							
+							synchronized(DataHandler.users) {
+								if(!DataHandler.users.login(user)) {
+						//			sendText("You're already logged in on another machine!");
+									Debug.printDebug(user.getName()+ ": You're already logged in on another machine!");
+									user = null;
+								}
+								else {
+									Event temp = new UserEvent(UserEvent.types.USER_LOGIN, username);
+									try {
+										if(AuctionServer.analytics != null){
+											AuctionServer.analytics.processEvent(temp);
+										}
+										else{
+											Debug.printError("no communication with AnalyticsServer");
+										}
+									} catch (RemoteException e) {
+										e.printStackTrace();
+									}
+									username = user.getName();
+				//					sendText("Successfully logged in as " + user.getName());
+									Debug.printDebug("Successfully logged in as " + user.getName());
+								}
+							}
+						
+							completed = true;
+					}
+					else{
+						Debug.printDebug("not allowed to Log In user ..." + username);
+						Debug.printDebug("c: "+challange);
+					}
+					
 			}
 		}
 	}

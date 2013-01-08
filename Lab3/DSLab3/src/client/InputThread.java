@@ -108,7 +108,7 @@ public class InputThread implements Runnable {
 							}
 						}
 	            		else  if(token!=null) {
-							System.out.println(input);
+							System.out.println("input from server: "+input);
 						}						
 					}            		
 				 }
