@@ -328,6 +328,7 @@ public class AuctionServerThread extends Thread {
 	public void sendText(String text) {
 		
 		try {
+
 			if(user==null) cipher.unsetSendEncrypted();
 			cipher.send(text.getBytes("UTF8"));
 			if(user==null) cipher.setSendEncrypted();
