@@ -117,6 +117,7 @@ public class Auction {
 			if(this.highest.getMoney() > 0.00) {
 				temp = new BidEvent(BidEvent.types.BID_OVERBID, this.highest.getUser().getName(), this.id, this.highest.getMoney());
 				try {
+					if(AuctionServer.analytics != null)
 					AuctionServer.analytics.processEvent(temp);
 				} catch (RemoteException e) {					
 					Debug.printInfo("No connection to Analytics Server");
@@ -130,7 +131,8 @@ public class Auction {
 			
 			temp = new BidEvent(BidEvent.types.BID_PLACED, this.highest.getUser().getName(), this.id, this.highest.getMoney());
 			try {
-				AuctionServer.analytics.processEvent(temp);
+				if(AuctionServer.analytics != null)
+				AuctionServer.analytics.processEvent(null);
 			} catch (RemoteException e) {				
 				Debug.printInfo("No connection to Analytics Server");
 			}
