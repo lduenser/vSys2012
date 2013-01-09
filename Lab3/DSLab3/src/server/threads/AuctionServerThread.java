@@ -1,15 +1,18 @@
 package server.threads;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.util.StringTokenizer;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.util.encoders.Base64;
 
 import methods.Methods;
@@ -35,10 +38,10 @@ public class AuctionServerThread extends Thread {
 	User user = null;
 	String username = "";
 	int port;
+	public PublicKey publickey = null;
 	
 	public AuctionServerThread(Socket s) throws IOException {
-		this.s = s;
-		
+		this.s = s;		
 		initCipher();
 	}
  
@@ -112,8 +115,8 @@ public class AuctionServerThread extends Thread {
 				int portUser;
 				
 				if(!st.hasMoreTokens()) {
-					//sendText("enter your username!");
-					Debug.printDebug("username is missing");
+					sendText("enter your username!");
+				//	Debug.printDebug("username is missing");
 				}
 				
 				else{
@@ -143,13 +146,22 @@ public class AuctionServerThread extends Thread {
                      String secondMessage=("!ok "+clientChallange+" "+serverChallange+" "+new String(Base64.encode(secretKey.getEncoded()),"UTF8")+" "+ivParam);
                      assert secondMessage.matches("!ok ["+Methods.B64+"]{43}= ["+Methods.B64+"]{43}= ["+Methods.B64+"]{43}= ["+Methods.B64+"]{22}==") : "2nd message";
                                           
-                     Debug.printDebug("second: "+ secondMessage);
+                //     Debug.printDebug("second: "+ secondMessage);
+                    
                      
-                     cipher.send(secondMessage.getBytes());
-                     
-                     cipher.setalgorithm("AES/CTR/NoPadding");
-                     cipher.setKey(secretKey);
-                     cipher.setInitVector(Base64.decode(ivParam.getBytes()));
+                     if(getPublicKeyUser()){
+            //        	 Debug.printDebug("read public key from user:" +username);
+                    	 Debug.printInfo("sending 2nd msg");
+                    	 cipher.send(secondMessage.getBytes());
+                         
+                         cipher.setalgorithm("AES/CTR/NoPadding");
+                         cipher.setKey(secretKey);
+                         cipher.setInitVector(Base64.decode(ivParam.getBytes()));
+                     }
+                     else{
+                    	 Debug.printError("Login Denied!");
+                    	 sendText("Login Denied!");
+                     }                     
                                           
 				}				
 			}				
@@ -179,8 +191,8 @@ public class AuctionServerThread extends Thread {
 				completed = true;
 			}
 			else if(token.equals("!create")) {
-				String algo = cipher.getalgorithm();
-				Debug.printDebug("algo is: "+algo);
+	//			String algo = cipher.getalgorithm();
+	//			Debug.printDebug("algo is: "+algo);
 				if(st.countTokens() < 2) {
 					sendText("Please enter duration and a name for your auction!");
 				}
@@ -257,20 +269,22 @@ public class AuctionServerThread extends Thread {
 				
 				Debug.printDebug("\r\n!clientListStart\r\n" + DataHandler.users.toString() + "\r\n!clientListEnd");
 			}
-			else if(token.startsWith("!")){
-				sendText("Unknown command! - test");
-				Debug.printDebug("Unknown command from " + s.toString());
+			else if(token.startsWith("!") ){
+				if(token.equals("!login")){
+				}
+				else{
+					sendText("!Unknown command! - " + token);
+					Debug.printDebug("Unknown command from " + s.toString());
+				}				
 			}
 			
 			else {			
 				String serverChallangefromClient = token;
 					                   
-					Debug.printDebug("User tries to Log In");
-					Debug.printDebug("3rd msg from Client: "+ serverChallangefromClient);
+					Debug.printInfo("User " + username + " tries to Log In");
 					
 					if(challange.equals(serverChallangefromClient)){
-						Debug.printDebug("3rd msg is ok !");
-					
+										
 							Debug.printInfo("Login User " + username + " - " + s.toString());
 							
 							user = new User(username, s.getInetAddress(), port);
@@ -301,7 +315,8 @@ public class AuctionServerThread extends Thread {
 					}
 					else{
 						Debug.printDebug("not allowed to Log In user ..." + username);
-						Debug.printDebug("c: "+challange);
+		//				Debug.printDebug("c: "+challange);
+						sendText("login failed - please try again");
 					}
 					
 			}
@@ -318,6 +333,35 @@ public class AuctionServerThread extends Thread {
 		s.close();
 	}
 	
+	@SuppressWarnings("finally")
+	public boolean getPublicKeyUser(){
+		PEMReader inPublic = null;
+		try {
+			//public key from user
+			try {
+				String path = ("keys/"+username+".pub.pem");
+		//		Debug.printDebug("user public key name is: "+username);
+				inPublic = new PEMReader(new FileReader(path));			
+			} catch (Exception e) {
+				System.out.println("Can't read file for public key!");
+				return false;
+			}
+			publickey= (PublicKey) inPublic.readObject();
+        }
+		finally 
+		{
+			try {
+				if (inPublic!=null) {
+					inPublic.close();
+				}
+	                
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+			return true;
+		}
+	}
+	
 	public void initCipher(){
 		try {
 			
@@ -330,14 +374,17 @@ public class AuctionServerThread extends Thread {
 		}	
 	}
 	
-	public void sendText(String text) {
-		
+	public void sendText(String text) {		
 		try {
-
-			if(user==null) cipher.unsetSendEncrypted();
-			cipher.send(text.getBytes("UTF8"));
-			if(user==null) cipher.setSendEncrypted();
+			if(user==null) {
+				cipher.unsetSendEncrypted();
+			}
 			
+			cipher.send(text.getBytes("UTF8"));
+			
+			if(user==null) {
+				cipher.setSendEncrypted();
+			}			
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

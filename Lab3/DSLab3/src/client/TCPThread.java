@@ -4,28 +4,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.StringTokenizer;
 
 import methods.Methods;
-
-import server.AuctionServer;
-import server.threads.AuctionServerThread;
-
 import debug.Debug;
-
 
 public class TCPThread implements Runnable {
 	
 	ServerSocket tcpSocket = null;
 	private int port;
 	Client parentClient;
-	
-	
-	
+		
 	public TCPThread(int port, Client current) {
 		this.port = port;
 		openServerSocket();

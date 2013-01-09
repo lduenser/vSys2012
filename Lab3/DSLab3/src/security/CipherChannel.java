@@ -13,7 +13,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 
-import debug.Debug;
 
 public class CipherChannel extends Decorator{
 

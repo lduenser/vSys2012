@@ -2,7 +2,6 @@ package server;
 
 import server.threads.*;
 import methods.Methods;
-import methods.ReadKeys;
 import methods.ReadProp;
 import debug.Debug;
 
@@ -33,20 +32,20 @@ public class AuctionServer {
 	private static String bindingBilling = "BillingServer";
 	static int maxClients = 10000;
 	static DataHandler data;
-	private static int argCount = 3;
+	private static int argCount = 5;
 	public static boolean active = true;
 	public static boolean stop = false;
 	
 	public static IBillingServerSecure billingServer;
 	public static IAnalyticsServer analytics;
+	private static String serverkey ="keys/auction-server.pem";
+	private static String clientskeydir = "keys/";
 	
 	public static ThreadPooledServer server = null;
 	
 	public static PublicKey publickey = null;
 	public static PrivateKey privatekey = null;
-
-	private static String pathToPublicKeyUser = "keys/alice.pub.pem";
-	private static String pathToPrivateKeyServer ="keys/auction-server.pem";
+	
 	
 	public AuctionServer() {
 		Debug.info = true;
@@ -144,20 +143,11 @@ public class AuctionServer {
         boolean result=false;
         PEMReader inPrivat=null,inPublic = null;
         try {
-            //public key from user
-            try {
-            	
-              inPublic = new PEMReader(new FileReader(pathToPublicKeyUser));
-            } catch (Exception e) {
-                 System.out.println("Can't read file for public key!");
-                 return false;
-            }
-            publickey= (PublicKey) inPublic.readObject();
-
+        
             //private key from server   
             FileReader privateKeyFile=null;
             try {
-               privateKeyFile=new FileReader(pathToPrivateKeyServer);
+            	privateKeyFile=new FileReader(serverkey);
             } catch (Exception e) {
                  System.out.println("Can't read file for private key!");
                  return false;
@@ -206,6 +196,7 @@ public class AuctionServer {
 		return publickey;
 	}
 	
+	
 	private static void checkArguments(String[] args) throws Exception{
 		if(args.length != argCount){
 			throw new Exception("Anzahl der Argumente stimmen nicht");
@@ -222,7 +213,9 @@ public class AuctionServer {
 		                port = Methods.setPort(Integer.valueOf(args[0]));		                
 		                break;	                	                	
 		           case 1:  bindingAnalytics=args[i]; break;
-		           case 2: 	bindingBilling=args[i]; break;		                
+		           case 2: 	bindingBilling=args[i]; break;	
+		           case 3:	serverkey = args[i]; break; 
+		           case 4: clientskeydir = args[i]; break;
 	            }
 	     }
 	}

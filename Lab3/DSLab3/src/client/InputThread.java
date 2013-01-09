@@ -89,26 +89,26 @@ public class InputThread implements Runnable {
 							Key key = new javax.crypto.spec.SecretKeySpec(secretKey, "AES");							
 			                byte[] iv=  Base64.decode(st.nextToken().getBytes());
 										                
-							Debug.printDebug("cc: "+ clientChallange);
-							Debug.printDebug("sc: "+ serverChallange);
-							Debug.printDebug("key: "+ key);
-							Debug.printDebug("iv: "+ iv);
+					//		Debug.printDebug("cc: "+ clientChallange);
+					//		Debug.printDebug("sc: "+ serverChallange);
+					//		Debug.printDebug("key: "+ key);
+					//		Debug.printDebug("iv: "+ iv);
 						
 							// clientChallanges vergleichen mit versendetem ! ok? -> send 3rd msg							
 							if(!clientChallange.equals(parentClient.random)){
 								Debug.printInfo("clientCh nicht ident!");
-								Debug.printDebug("pr: "+parentClient.random);
+					//			Debug.printDebug("pr: "+parentClient.random);
 							}
 							else{ // send 3rd msg														
 								parentClient.createAESChannel(iv, key);															
 								String thirdMessage= serverChallange;
 	                    		assert thirdMessage.matches("["+Methods.B64+"]{43}=") : "3rd message";	                    		
-	                    		Debug.printDebug("third: "+thirdMessage);	                    		
+	                //    		Debug.printDebug("third: "+thirdMessage);	                    		
 	                    		parentClient.channel.send(thirdMessage.getBytes());
 							}
 						}
 	            		else  if(token!=null) {
-							System.out.println("input from server: "+input);
+							System.out.println("from server: "+input);
 						}						
 					}            		
 				 }

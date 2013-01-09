@@ -1,4 +1,5 @@
 package server.threads;
+
 import server.AuctionServer;
 import server.DataHandler;
 import model.Notification;

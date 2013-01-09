@@ -3,10 +3,7 @@ package client;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.net.SocketException;
-import java.security.Key;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -69,7 +66,10 @@ public class CommandThread implements Runnable {
 
 						if(parentClient.getKeysClient()){
 							this.createLoginCommand();
-						}		
+						}
+						else{
+							Debug.printError("Login Denied!");							
+						}
 						
 					}
 					else if(output.contains("!end")) {
@@ -137,14 +137,14 @@ public class CommandThread implements Runnable {
 	} 
 	
 	synchronized void createLoginCommand() {
-		Debug.printInfo("reading client keys success");
+		
 		parentClient.createCipherChannel();
 		
 		String clientChallangeBase64 = parentClient.createRandom(32);
         String firstMessage=("!login "+ parentClient.user.getName() + " "+ parentClient.user.getPort() + " " +clientChallangeBase64);
         
         assert firstMessage.matches("!login [a-zA-Z0-9_\\-]+ [0-9]+ ["+Methods.B64+"]{43}=") : "1st message";
-        Debug.printDebug("first: "+ firstMessage);
+ //       Debug.printDebug("first: "+ firstMessage);
         
         parentClient.channel.send(firstMessage.getBytes());	
 	}

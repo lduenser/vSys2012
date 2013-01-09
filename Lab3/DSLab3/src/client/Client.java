@@ -27,13 +27,15 @@ import debug.Debug;
 
 public class Client {
 	
-	private static int argCount = 3;
+	private static int argCount = 5;
 	static int port = 5000;
 	static boolean active = true;
 	static int keepAliveTime = 5000;
 	static String host = "localhost";
 	static int serverPort = 10290;
 	static int clientPort = 10291;
+	static String pathToPublicKeyServer = "keys/auction-server.pub.pem";
+	static String clientskeydir = "keys/";
 	
 	private UserList users = null;
 	
@@ -53,8 +55,6 @@ public class Client {
 	public PublicKey publickey = null;
 	public PrivateKey privatekey = null;
 
-	private String pathToPublicKeyServer = "keys/auction-server.pub.pem";
-	
 	
 	public Client() {
 		Debug.info = true;
@@ -68,6 +68,8 @@ public class Client {
 		
 		current.socket = null;
 		current.signedBids = new SignedBidList();
+		
+	//	checkArguments(args);
 		
 		Debug.printInfo("Client started");
 		
@@ -111,7 +113,6 @@ public class Client {
 		Debug.printInfo("Shutdown Client completed!");
 	}
 	
-	
 	private static void checkArguments(String[] args) throws Exception{
 		if(args.length != argCount){
 			throw new Exception("Anzahl der Argumente stimmen nicht");
@@ -140,6 +141,9 @@ public class Client {
 	                	}
 	                	clientPort = Methods.setPort(Integer.valueOf(args[2]));
 	                	break;
+	                	
+	                case 3: pathToPublicKeyServer = args[i]; break;
+	                case 4: clientskeydir = args[i]; break;
 	            }
 	     }
 	}	
@@ -295,10 +299,8 @@ public class Client {
             //private key from client    
             FileReader privateKeyFile=null;
             try {
-            	String path = ("keys/"+ getUser() + ".pem");
-            	Debug.printDebug("private key from user: "+getUser());
+            	String path = (clientskeydir + getUser() + ".pem");
                privateKeyFile=new FileReader(path);
-          //     privateKeyFile=new FileReader(pathToPrivateKeyUser);
            	
             } catch (Exception e) {
                  System.out.println("Can't read file for private key!");

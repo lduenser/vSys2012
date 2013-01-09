@@ -9,16 +9,9 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import methods.Methods;
 import model.User;
-
-import security.Base64Channel;
-import security.CipherChannel;
-import security.TCPChannel;
 import server.AuctionServer;
-
 import debug.Debug;
-
 
 public class ThreadPooledServer implements Runnable{
 
@@ -88,8 +81,7 @@ public class ThreadPooledServer implements Runnable{
             }
             if(clientSocket!=null) {
             	
-            	try {
-            		
+            	try {            		
 					this.threadPool.execute(new AuctionServerThread(clientSocket));
 										
 				} catch (IOException e) {
@@ -100,7 +92,6 @@ public class ThreadPooledServer implements Runnable{
             } 
         }
     }
-
 
    
     public synchronized void stop(){
