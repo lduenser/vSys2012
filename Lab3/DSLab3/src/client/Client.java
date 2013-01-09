@@ -159,6 +159,10 @@ public class Client {
 		return this.user.getName();
 	}
 	
+	public String keydir(){
+		return clientskeydir;
+	}
+	
 	private static boolean checkAlive(Client client){
 		
 		boolean error = false;

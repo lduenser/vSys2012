@@ -44,8 +44,8 @@ public class AuctionList {
 		for (Auction auction:auctionList) {
 			if(auction.checkOpen()) temp+=auction.toString() + "\r\n";
 		}
-		temp+="-\r\n";
-		if(temp.equals("-\r\n")) return "No active Auctions";
+		temp+="\r\n";
+		if(temp.equals("-List of auctions" + "\r\n" + "\r\n")) return "-No active auctions";
 		return temp;
 	}
 	

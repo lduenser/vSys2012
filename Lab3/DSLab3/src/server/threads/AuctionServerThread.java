@@ -248,6 +248,8 @@ public class AuctionServerThread extends Thread {
 					
 					synchronized(DataHandler.auctions) {
 						check.output = DataHandler.auctions.listAuctions(false);
+						
+						Debug.printDebug("sending: '"+DataHandler.auctions.listAuctions(false)+"'");
 					}
 					
 					check.updateHMac();
@@ -255,7 +257,7 @@ public class AuctionServerThread extends Thread {
 					sendText(sendToServer);
 				}
 				else{
-					Debug.printDebug(" normal senden ");
+					Debug.printDebug(" ohne hMac ");
 					synchronized(DataHandler.auctions) {
 						sendText(DataHandler.auctions.listAuctions(false));
 					}

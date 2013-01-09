@@ -15,12 +15,9 @@ import methods.Methods;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
-public class IntegrityCheck {
+import debug.Debug;
 
-	// Message Authentication Codes (hash MACs) to realize 
-	// To generate such a HMAC you should use SHA256 hashing ("HmacSHA256") initialized with a secret key 
-	// shared between the auction server and the client
-	//
+public class IntegrityCheck {
 	
 	    public String output="";
 	    public byte[] hash = null;
@@ -39,6 +36,7 @@ public class IntegrityCheck {
 	    		FileInputStream fis;
 	    		try {
 	    			fis = new FileInputStream(directory + filename);
+	    			Debug.printDebug("File: "+directory + filename);
 	    			fis.read(keyBytes);
 	    			fis.close();
 	    			byte[] input = Hex.decode(keyBytes);
@@ -64,12 +62,20 @@ public class IntegrityCheck {
 	       }
 	       hMac.update(output.getBytes());
 	       hash = hMac.doFinal();
+	       
+	       try {
+	    	   Debug.printDebug("string hash update: "+new String(Base64.encode(hash), "UTF8"));
+	       } catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+	    	   e.printStackTrace();
+	       }
 	    }
 	    
 	    public String getAttachedHMac() {
 
-	        try {
-	            return ""+output+" "+new String(Base64.encode(hash), "UTF8");
+	        try {                
+	            return output+" "+new String(Base64.encode(hash), "UTF8");            
+	            
 	        } catch (UnsupportedEncodingException uns) {
 	            uns.printStackTrace();
 	        }

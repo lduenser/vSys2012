@@ -5,9 +5,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.util.StringTokenizer;
 
 import org.bouncycastle.util.encoders.Base64;
+
+import security.IntegrityCheck;
 
 import methods.Methods;
 import model.SignedBid;
@@ -57,6 +60,9 @@ public class InputThread implements Runnable {
 						
 						if(token.equals("!clientListStart")) {
 	            			//Obtain Client List
+							
+							Debug.printDebug("clientlist wanted");
+							
 	            			this.getUserList();
 	            		}
 	            		
@@ -108,10 +114,38 @@ public class InputThread implements Runnable {
 							}
 						}
 	            		
-	            		else  if(token!=null) {
-	            			if(token.startsWith("-List")){
-	            				System.out.println("hier sollte liste stehen: " + input);
-	            			}
+	            		else if(token!=null) {
+	            			if((token.startsWith("-List") || token.startsWith("-No")) && parentClient.user != null){
+	            				            				
+	            				int count = st.countTokens();
+	            				String plaintext = "'"+token;	            		            				
+	            				for(int i = 0; i<= count-2; i++){
+	            					plaintext+=" "+st.nextToken();
+	            				}
+	            				plaintext+="'";
+	            				Debug.printDebug("plaintext: "+plaintext);
+	            				
+	            				String receivedHash = st.nextToken();	            				
+	            				Debug.printDebug("hmac from server: "+receivedHash);
+	            				
+	            				IntegrityCheck checkUser = new IntegrityCheck(Client.clientskeydir, parentClient.user.getName());	            				
+	            				checkUser.output = plaintext;	            				
+	            				checkUser.updateHMac();
+	            				
+	            				Debug.printDebug("hmac from user: "+ checkUser.hash);	            			
+	            				Debug.printDebug("server hash decoded: "+Base64.decode(receivedHash.getBytes()));
+	            				
+	            				boolean validHash = MessageDigest.isEqual(checkUser.hash,Base64.decode(receivedHash.getBytes()));
+	            				
+	            				if(validHash){
+	            					Debug.printDebug("valid");
+	            				}
+	            				else{
+	            					Debug.printDebug("not valid");
+	            				}
+	            				
+	            				System.out.println("liste: " + input);
+	            			}	            			
 	            			else{
 	            				System.out.println("from server: "+input);
 	            			}	            			
