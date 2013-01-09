@@ -92,8 +92,7 @@ public class Client {
 		catch(Exception e) {
 			Debug.printError("Could not connect to server " + host + " on Port " + serverPort + "!");
 			active = false;
-		}
-		
+		}		
 		
 		while(active) {
 			checkAlive(current);

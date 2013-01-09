@@ -31,8 +31,7 @@ public class CommandThread implements Runnable {
 		scanner = new Scanner(System.in);
 	}
 	
-	public void updateStreams() {
-		
+	public void updateStreams() {		
 	}
  
 	public void run() {
@@ -75,9 +74,10 @@ public class CommandThread implements Runnable {
 					else if(output.contains("!end")) {
 						Client.active = false;
 					}
-					else parentClient.channel.send(output.getBytes());
+					else {
+						parentClient.channel.send(output.getBytes());						
+					}
 					
-
 					//Wenn Fehler bei der †bertragung aufgetreten ist
 					if(parentClient.channel.getError()) {
 

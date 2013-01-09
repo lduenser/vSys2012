@@ -81,7 +81,7 @@ public class InputThread implements Runnable {
 	            			parentClient.signedBids.updateBid(signedBid);
 	            		}
 						
-	            		if(token.equals("!ok")) {
+	            		else if(token.equals("!ok")) {
 	            			
 	            			String clientChallange = st.nextToken();
 							String serverChallange = st.nextToken();							
@@ -107,8 +107,14 @@ public class InputThread implements Runnable {
 	                    		parentClient.channel.send(thirdMessage.getBytes());
 							}
 						}
+	            		
 	            		else  if(token!=null) {
-							System.out.println("from server: "+input);
+	            			if(token.startsWith("-List")){
+	            				System.out.println("hier sollte liste stehen: " + input);
+	            			}
+	            			else{
+	            				System.out.println("from server: "+input);
+	            			}	            			
 						}						
 					}            		
 				 }

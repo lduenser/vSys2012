@@ -39,7 +39,7 @@ public class AuctionServer {
 	public static IBillingServerSecure billingServer;
 	public static IAnalyticsServer analytics;
 	private static String serverkey ="keys/auction-server.pem";
-	private static String clientskeydir = "keys/";
+	public static String clientskeydir = "keys/";
 	
 	public static ThreadPooledServer server = null;
 	
@@ -194,6 +194,10 @@ public class AuctionServer {
 	
 	public static PublicKey getPublicKey(){
 		return publickey;
+	}
+	
+	public static String dir(){
+		return clientskeydir;
 	}
 	
 	

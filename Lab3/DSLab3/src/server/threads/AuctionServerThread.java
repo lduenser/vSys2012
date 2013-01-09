@@ -21,6 +21,7 @@ import model.Bid;
 import model.User;
 import security.Base64Channel;
 import security.CipherChannel;
+import security.IntegrityCheck;
 import security.TCPChannel;
 import server.AuctionServer;
 import server.DataHandler;
@@ -241,9 +242,25 @@ public class AuctionServerThread extends Thread {
 		
 		if(!completed) {
 			if(token.equals("!list")) {
-				synchronized(DataHandler.auctions) {
-					sendText(DataHandler.auctions.listAuctions(false));
+				if(user != null){
+					Debug.printDebug(" hMAC anhängen ");
+					IntegrityCheck check = new IntegrityCheck(AuctionServer.clientskeydir, user.getName());
+					
+					synchronized(DataHandler.auctions) {
+						check.output = DataHandler.auctions.listAuctions(false);
+					}
+					
+					check.updateHMac();
+					String sendToServer = check.getAttachedHMac();
+					sendText(sendToServer);
 				}
+				else{
+					Debug.printDebug(" normal senden ");
+					synchronized(DataHandler.auctions) {
+						sendText(DataHandler.auctions.listAuctions(false));
+					}
+				}
+				
 				completed = true;
 			}
 			
@@ -339,7 +356,7 @@ public class AuctionServerThread extends Thread {
 		try {
 			//public key from user
 			try {
-				String path = ("keys/"+username+".pub.pem");
+				String path = (AuctionServer.clientskeydir+username+".pub.pem");
 		//		Debug.printDebug("user public key name is: "+username);
 				inPublic = new PEMReader(new FileReader(path));			
 			} catch (Exception e) {
