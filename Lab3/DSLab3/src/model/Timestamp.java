@@ -4,24 +4,25 @@ import java.security.Signature;
 
 public class Timestamp {
 
-	double timestamp;
+	String timestamp;
 	int auctionId;
 	double price;
-	User user;
-	Signature signature;
+	String user;
+	String signature;
 	
-	public Timestamp(double timestamp, int aucitonId, double price, String signature) {
+	public Timestamp(long timestamp, int aucitonId, double price, String user, String signature) {
 		setTimestamp(timestamp);
 		setAuctionId(auctionId);
 		setPrice(price);
-		//setUser(user);
+		setSignature(signature);
+		setUser(user);
 	}
 	
-	public double getTimestamp() {
+	public String getTimestamp() {
 		return timestamp;
 	}
-	public void setTimestamp(double timestamp) {
-		this.timestamp = timestamp;
+	public void setTimestamp(long timestamp) {
+		this.timestamp = Long.toString(timestamp);
 	}
 	public int getAuctionId() {
 		return auctionId;
@@ -35,10 +36,19 @@ public class Timestamp {
 	public void setPrice(double price) {
 		this.price = price;
 	}
-	public User getUser() {
+	public String getUser() {
 		return user;
 	}
-	public void setUser(User user) {
+	public void setUser(String user) {
 		this.user = user;
 	}
+
+	public String getSignature() {
+		return signature;
+	}
+
+	public void setSignature(String signature) {
+		this.signature = signature;
+	}
+	
 }

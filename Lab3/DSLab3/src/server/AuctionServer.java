@@ -40,6 +40,8 @@ public class AuctionServer {
 	public static IAnalyticsServer analytics;
 	private static String serverkey ="keys/auction-server.pem";
 	public static String clientskeydir = "keys/";
+
+	public static String clientsKeyPasswd = "12345";
 	
 	public static ThreadPooledServer server = null;
 	

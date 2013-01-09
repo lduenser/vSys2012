@@ -1,18 +1,25 @@
 package server.threads;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.rmi.RemoteException;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.StringTokenizer;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.openssl.PasswordFinder;
 import org.bouncycastle.util.encoders.Base64;
 
 import methods.Methods;
@@ -238,6 +245,48 @@ public class AuctionServerThread extends Thread {
 				
 				completed = true;
 			}
+			else if(token.equals("!signedBid")) {
+				DataHandler.auctions.updateList();
+				Debug.printDebug(input);
+				
+				if(st.countTokens() < 4) {
+					sendText("Error with signed bid");
+				}
+				else {
+					sendText("Signed bid recieved");
+					
+					String auction = st.nextToken();
+					String bid = st.nextToken();
+					
+					String userString1 = st.nextToken();
+					String userString2 = st.nextToken();
+					
+					if(verifyString(userString1, auction, bid) && verifyString(userString2, auction, bid)) {
+						Debug.printDebug("User verified");
+						
+						String[] items1 = userString1.split(":");
+						long timestamp1 = Long.parseLong(items1[1]);
+						String[] items2 = userString2.split(":");
+						long timestamp2 = Long.parseLong(items2[1]);
+						
+						long timestamp = (timestamp1 + timestamp2) / 2;
+						
+						int id = Integer.parseInt(auction);
+						double price = Double.parseDouble(bid);
+						
+						if(DataHandler.auctions.getAuctionById(id) != null) {
+							synchronized(DataHandler.auctions) {
+								if(DataHandler.auctions.getAuctionById(id).bid(new Bid(user, price))) {
+									sendText("You successfully bid with "+ price +" on '"+DataHandler.auctions.getAuctionById(id).getName()+"'.");
+								}
+								else sendText("Your bid was not high enough or auction is over!");
+							}
+						}	
+						else sendText("Couldn't find auction with id " + id);
+					}
+				}
+			}
+			completed = true;
 		}
 		
 		if(!completed) {
@@ -326,8 +375,9 @@ public class AuctionServerThread extends Thread {
 										e.printStackTrace();
 									}
 									username = user.getName();
-									sendText("Successfully logged in as " + user.getName());
-									Debug.printDebug("Successfully logged in as " + user.getName());
+									
+									sendText("!loggedIn - Successfully logged in as " + username);
+									Debug.printDebug("Successfully logged in as " + username);
 								}
 							}
 						
@@ -343,6 +393,71 @@ public class AuctionServerThread extends Thread {
 		}
 	}
 	
+	private boolean verifyString(String userString, String auctionId, String bid) {
+		// TODO Auto-generated method stub
+		String[] items = userString.split(":");
+		String name = items[0];
+		String timestamp = items[1];
+		String hash = items[2];
+		
+		String message = "!timestamp " + auctionId +  " " + bid + " " + timestamp;
+		
+		Signature sha_rsa;
+		
+		try {
+			sha_rsa = Signature.getInstance("SHA512withRSA");
+			sha_rsa.initVerify(getPublicKeyByClientName(name));
+			sha_rsa.update(message.getBytes("UTF8"));
+			return sha_rsa.verify(hash.getBytes("UTF8"));
+			
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SignatureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return false;		
+	}
+		
+	@SuppressWarnings("resource")
+	private PublicKey getPublicKeyByClientName(String name) {
+		PEMReader inPrivat=null;
+		
+		//private key from client    
+        FileReader privateKeyFile=null;
+        try {
+        	String path = (AuctionServer.clientskeydir + name + ".pem");
+           privateKeyFile=new FileReader(path);
+       	
+        } catch (Exception e) {
+             
+        }
+        
+		inPrivat = new PEMReader(privateKeyFile, new PasswordFinder() {
+                @Override
+                 public char[] getPassword() {
+                	return AuctionServer.clientsKeyPasswd.toCharArray();
+                }
+            });
+
+           KeyPair keyPair = null;
+		try {
+			keyPair = (KeyPair) inPrivat.readObject();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+           return keyPair.getPublic();
+	}
+
 	public synchronized void terminateClient() throws IOException {
 		
 		//Logout User

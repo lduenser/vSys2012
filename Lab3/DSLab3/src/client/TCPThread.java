@@ -4,9 +4,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.StringTokenizer;
+
+import security.Base64Channel;
+import security.Channel;
+import security.TCPChannel;
 
 import methods.Methods;
 import debug.Debug;
@@ -21,6 +30,7 @@ public class TCPThread implements Runnable {
 		this.port = port;
 		openServerSocket();
 		this.parentClient = current;
+		
 	}
  
 	public void run() {
@@ -33,43 +43,81 @@ public class TCPThread implements Runnable {
         while(Client.active) {
           
         	Socket clientSocket = null;
-            try {
+           
+        	try {
             	clientSocket = this.tcpSocket.accept();
-                
-            	PrintWriter printer = new PrintWriter(clientSocket.getOutputStream(), true);
-            	BufferedReader socketReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             	
-            	while(!socketReader.ready()) {
-            		try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-            	}
-            	if(socketReader.ready()) {
-            		String input = socketReader.readLine();
+            	Channel channel = this.createTCPChannel(clientSocket);
+            	
+            	while(clientSocket.isConnected()) {
             		
-            		StringTokenizer st = new StringTokenizer(input);
-            		String token = st.nextToken();
+            		String input = null;
+    				byte[] temp = channel.receive();
+    				
+    				if(temp != null){
+    					try{
+    						input = new String(temp, "UTF8");						
+    					}
+    					catch(UnsupportedEncodingException uns) {
+    						uns.printStackTrace();
+    					}
+    				}
+    				 
+    				if(input!=null) {
+    					StringTokenizer st = new StringTokenizer(input);
+                		int countToken = st.countTokens();
+                		
+                		Debug.printDebug("input: " + input);
+                		Debug.printDebug("token: " + st.countTokens());
+                		
+                		if(countToken<3)
+                			break;
+                		
+                		if(st.nextToken().equals("!getTimestamp") && countToken==3) {
+                			String auction = st.nextToken();
+                			String price = st.nextToken();
+                			String timestamp = Long.toString(Methods.getTimeStamp());
+            
+                			String response = "!timestamp " + auction +  " " + price + " " + timestamp;
+                			
+                			Signature sha_rsa;
+                			byte[] hash = null;
+                			
+							try {
+								sha_rsa = Signature.getInstance("SHA512withRSA");
+								sha_rsa.initSign(parentClient.privatekey);
+	        					sha_rsa.update(response.getBytes("UTF8"));
+	        					hash = sha_rsa.sign();
+	                			
+							} catch (NoSuchAlgorithmException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (InvalidKeyException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (SignatureException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+							response = response + " " + Methods.bytes2String(hash);
+							
+							Debug.printDebug(response);
+                			channel.send(response.getBytes("UTF8"));
+
+                		}
+    				}
             		
-            		if(token.equals("!getTimestamp")) {
-            			String auction = st.nextToken();
-            			String price = st.nextToken();
-            			String timestamp = Long.toString(Methods.getTimeStamp());
-            			
-            			String response = "!timestamp " + auction +  " " + price + " " + timestamp;
-            			printer.println(response);
-            			printer.flush();
-            		}
+            		Thread.sleep(100);
             	}
-            	
-            	
             }
                 
             catch (IOException e) {
             	Debug.printError("Error accepting client connection");
             }
+        	catch (InterruptedException i) {
+        		Debug.printError("Error with thread");
+        	}
             
             try {
 				clientSocket.close();
@@ -96,6 +144,19 @@ public class TCPThread implements Runnable {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	private Channel createTCPChannel(Socket socket) {
+		Channel channel = null;
+		
+		try {
+			channel = new TCPChannel(socket);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return channel;
 	}
 	
 	private boolean openServerSocket() {

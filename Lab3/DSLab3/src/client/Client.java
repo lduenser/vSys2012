@@ -33,7 +33,6 @@ public class Client {
 	static int keepAliveTime = 5000;
 	static String host = "localhost";
 	static int serverPort = 10290;
-	static int clientPort = 10291;
 	static String pathToPublicKeyServer = "keys/auction-server.pub.pem";
 	static String clientskeydir = "keys/";
 	
@@ -42,6 +41,7 @@ public class Client {
 	User user = null;
 	boolean serverDisconnect = false;
 	Socket socket = null;
+	int clientPort = 10291;
 	
 	CommandThread output = null;
 	InputThread input = null;
@@ -53,6 +53,7 @@ public class Client {
 	public String random = null;
 	
 	public PublicKey publickey = null;
+	public PublicKey publicSignedKey = null;
 	public PrivateKey privatekey = null;
 
 	
@@ -66,12 +67,14 @@ public class Client {
 		
 		Client current = new Client();
 		
+		current.clientPort = 10290 + 1 + Methods.getRandomInt(200);
+		
 		current.socket = null;
 		current.signedBids = new SignedBidList();
 		
 	//	checkArguments(args);
 		
-		Debug.printInfo("Client started");
+		Debug.printInfo("Client started on input port " + current.clientPort);
 		
 		try {
 			current.socket = new Socket(host, serverPort);
@@ -80,8 +83,8 @@ public class Client {
 			current.createTCPChannel();
 			
 			current.input = new InputThread(current.socket, current);
-			current.output = new CommandThread(current.socket, clientPort, current);
-			current.tcp = new TCPThread(clientPort, current);
+			current.output = new CommandThread(current.socket, current.clientPort, current);
+			current.tcp = new TCPThread(current.clientPort, current);
 			
 			new Thread(current.input).start();
 			new Thread(current.output).start();
@@ -112,7 +115,7 @@ public class Client {
 		Debug.printInfo("Shutdown Client completed!");
 	}
 	
-	private static void checkArguments(String[] args) throws Exception{
+	private static void checkArguments(String[] args, Client current) throws Exception{
 		if(args.length != argCount){
 			throw new Exception("Anzahl der Argumente stimmen nicht");
 		}
@@ -133,12 +136,12 @@ public class Client {
 	                	
 	                case 2: 
 	                	try{
-	                		clientPort = Integer.parseInt(args[i]);
+	                		current.clientPort = Integer.parseInt(args[i]);
 	                	}
 	                	catch(Exception e){
 	                		Debug.printError("clientPort is no Integer");
 	                	}
-	                	clientPort = Methods.setPort(Integer.valueOf(args[2]));
+	                	current.clientPort = Methods.setPort(Integer.valueOf(args[2]));
 	                	break;
 	                	
 	                case 3: pathToPublicKeyServer = args[i]; break;
@@ -325,6 +328,7 @@ public class Client {
 
            KeyPair keyPair = (KeyPair) inPrivat.readObject();
            privatekey = keyPair.getPrivate();
+           publicSignedKey = keyPair.getPublic();
            result=true;
            System.out.println("Keys successfully initialized!");
         } catch (IOException ex) {
@@ -344,6 +348,10 @@ public class Client {
             return result;
         }
     }
+	
+	public void sendSignedBids() {
+		this.output.sendSignedBids();
+	}
 }
 
 

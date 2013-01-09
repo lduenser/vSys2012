@@ -1,9 +1,12 @@
 package client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.util.StringTokenizer;
@@ -60,33 +63,11 @@ public class InputThread implements Runnable {
 						
 						if(token.equals("!clientListStart")) {
 	            			//Obtain Client List
-							
+			
 							Debug.printDebug("clientlist wanted");
 							
-	            			this.getUserList();
+	            			this.getUserList(input);
 	            		}
-	            		
-	            		else if(token.equals("!timestamp")) {
-	            			
-	            			double timestamp = Double.parseDouble(st.nextToken());
-	            			int auction = Integer.parseInt(st.nextToken());
-	            			double bid = Double.parseDouble(st.nextToken());
-	            			String hash = st.nextToken();
-	            			
-	            			Timestamp stamp = new Timestamp(timestamp, auction, bid, hash);
-	            			
-	            			SignedBid signedBid = parentClient.signedBids.getBidByBid(auction, bid);
-	            			
-	            			//Auction not in List
-	            			if(signedBid==null) {
-	            				signedBid = new SignedBid(null, bid, auction);
-	            				parentClient.signedBids.addBid(signedBid);
-	            			}
-	            			
-	            			signedBid.addTimestamp(stamp);
-	            			parentClient.signedBids.updateBid(signedBid);
-	            		}
-						
 	            		else if(token.equals("!ok")) {
 	            			
 	            			String clientChallange = st.nextToken();
@@ -111,6 +92,7 @@ public class InputThread implements Runnable {
 	                    		assert thirdMessage.matches("["+Methods.B64+"]{43}=") : "3rd message";	                    		
 	                //    		Debug.printDebug("third: "+thirdMessage);	                    		
 	                    		parentClient.channel.send(thirdMessage.getBytes());
+	                    		
 							}
 						}
 	            		
@@ -149,6 +131,7 @@ public class InputThread implements Runnable {
 	            			else{
 	            				System.out.println("from server: "+input);
 	            			}	            			
+
 						}						
 					}            		
 				 }
@@ -165,41 +148,26 @@ public class InputThread implements Runnable {
 		 Debug.printInfo("Shutdown InputThread complete");		 
 	}
 	
-	void getUserList() throws IOException {
-		String output = "";
+	void getUserList(String input) throws IOException {
+		
+		String[] lines = input.split("[\\r\\n]+");
+		String line = null;
 		UserList list = new UserList();
 		
-		boolean recieveList = true;
-		
-		while(recieveList) {
+		for(int i=0; i<lines.length; i++) {
+			line = lines[i];
 			
-			String input = null;
-			byte[] temp = parentClient.channel.receive();
-			
-			if(temp != null){
-				try{
-					input = new String(temp, "UTF8");
-					
-				}
-				catch(UnsupportedEncodingException uns) {
-					uns.printStackTrace();
-				}
-			}
-			else break;
-			
-			if(input.trim().equals("")) {
+			if(line.startsWith("!clientList")) {
 				
-			}
-			else if (input.startsWith("!clientListEnd")){
-				Debug.printDebug("End of List");
-				recieveList = false;
 			}
 			else {
-				InetAddress inet = InetAddress.getByName(output.substring(0, output.lastIndexOf(":")));
-        		int port = Integer.parseInt(output.substring(output.lastIndexOf(":")+1, output.indexOf(" ")));
-        		String name = output.substring(output.indexOf(" - ")+3);
+				
+				InetAddress inet = InetAddress.getByName(line.substring(0, line.indexOf(":")));
+        		int port = Integer.parseInt(line.substring(line.lastIndexOf(":")+1, line.indexOf(" ")));
+        		String name = line.substring(line.indexOf(" - ")+3);
 				
 				User user = new User(name, inet, port);
+				
 				list.login(user);
 			}
 		}

@@ -23,9 +23,12 @@ public class SignedBidList {
 		else return null;
 	}
 	
+	public int getSize() {
+		return signedBids.size();
+	}
 	public SignedBid getBidByBid(int auctionId, double bid) {
 		for(SignedBid signedBid:signedBids) {
-			if(signedBid.getMoney()==bid && signedBid.getAuction() == auctionId) {
+			if(signedBid.getMoney().equals(bid) && signedBid.getAuction() == auctionId) {
 				return signedBid;
 			}
 		}

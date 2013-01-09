@@ -5,7 +5,7 @@ public class SignedBid extends Bid {
 	int auctionId = 0;
 	Timestamp timestamp1 = null;
 	Timestamp timestamp2 = null;
-	double meanTimestamp = 0d;
+	String meanTimestamp = null;
 	
 	boolean complete = false;
 	
@@ -14,8 +14,16 @@ public class SignedBid extends Bid {
 		this.auctionId = auctionId;
 	}
 	
-	public double getMeanTimestamp() {
-		if(meanTimestamp==0) {
+	public Timestamp getTimestamp(int id) {
+		switch(id) {
+		case 1: return timestamp1;
+		case 2: return timestamp2;
+		}
+		return null;
+	}
+	
+	public String getMeanTimestamp() {
+		if(meanTimestamp==null) {
 			calculateMeanTimestamp();
 		}		
 		return meanTimestamp;
@@ -26,14 +34,15 @@ public class SignedBid extends Bid {
 	}
 	
 	void calculateMeanTimestamp() {
-		double result = 0d;
+		long result = 0;
 		
-		result = (timestamp1.getTimestamp() + timestamp2.getTimestamp())/2;
+		result = (Long.parseLong(timestamp1.getTimestamp()) + Long.parseLong(timestamp2.getTimestamp()))/2;
 		
-		if(result>0) meanTimestamp = result;
+		if(result>0) meanTimestamp = Long.toString(result);
 	}
 	
 	public void addTimestamp(Timestamp stamp) {
+		
 		if(timestamp1==null) timestamp1 = stamp;
 		else {
 			timestamp2 = stamp;
