@@ -325,6 +325,7 @@ public class AuctionServerThread extends Thread {
 									}
 									username = user.getName();
 									sendText("Successfully logged in as " + user.getName());
+									Debug.printDebug("Successfully logged in as " + user.getName());
 								}
 							}
 						
