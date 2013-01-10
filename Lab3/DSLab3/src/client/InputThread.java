@@ -68,6 +68,9 @@ public class InputThread implements Runnable {
 							
 	            			this.getUserList(input);
 	            		}
+						else if(token.equals("!loggedIn")) {
+							parentClient.output.sendSignedBids();
+						}
 	            		else if(token.equals("!ok")) {
 	            			
 	            			String clientChallange = st.nextToken();

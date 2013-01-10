@@ -28,7 +28,7 @@ public class SignedBidList {
 	}
 	public SignedBid getBidByBid(int auctionId, double bid) {
 		for(SignedBid signedBid:signedBids) {
-			if(signedBid.getMoney().equals(bid) && signedBid.getAuction() == auctionId) {
+			if(Double.compare(bid, signedBid.getMoney()) == 0 && signedBid.getAuction() == auctionId) {
 				return signedBid;
 			}
 		}
@@ -46,7 +46,7 @@ public class SignedBidList {
 	
 	public void updateBid(SignedBid bid) {
 		for(SignedBid signedBid:signedBids) {
-			if(signedBid.getMoney()==bid.getMoney() && signedBid.getAuction() == bid.getAuction()) {
+			if(Double.compare(bid.getMoney(), signedBid.getMoney()) == 0 && signedBid.getAuction() == bid.getAuction()) {
 				signedBids.set(signedBids.indexOf(signedBid), bid);
 			}
 		}

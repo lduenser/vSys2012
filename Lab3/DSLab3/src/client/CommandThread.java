@@ -148,21 +148,18 @@ public class CommandThread implements Runnable {
 			if(signedBid.getComplete()) {
 				Debug.printDebug("Send bid to Server");
 				
-				String buffer = "!signedBid " + signedBid.getAuction() + 
-						" " + signedBid.getMoney() + 
+				String buffer = null;
+				buffer = "!signedBid " + signedBid.getAuction() + 
+						" " + signedBid.getTimestamp(1).getPrice() + 
 						" " + signedBid.getTimestamp(1).getUser() + 
-						":" + signedBid.getTimestamp(1).getTimestamp() + 
-						":" + signedBid.getTimestamp(1).getSignature() + 
+						":" +  signedBid.getTimestamp(1).getTimestamp() + 
+						":" + new String(Base64.encode(signedBid.getTimestamp(1).getSignature().getBytes())) + 
 						" " + signedBid.getTimestamp(2).getUser() + 
 						":" + signedBid.getTimestamp(2).getTimestamp() + 
-						":" + signedBid.getTimestamp(2).getSignature();
+						":" + new String(Base64.encode(signedBid.getTimestamp(2).getSignature().getBytes()));
 				
-				try {
-					parentClient.channel.send(buffer.getBytes("UTF8"));
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				Debug.printDebug("Send: " + buffer);
+				parentClient.channel.send(buffer.getBytes());
 			}
 			
 			parentClient.signedBids.removeBid(signedBid);
@@ -215,9 +212,9 @@ public class CommandThread implements Runnable {
 				Channel client1 = createTCPChannel(s1);
 				Channel client2 = createTCPChannel(s2);
 				
-				String command = "!getTimestamp "+auctionId+" "+bid+"\r\n";
-				client1.send(command.getBytes("UTF8"));
-				client2.send(command.getBytes("UTF8"));
+				String command = "!getTimestamp "+auctionId+" "+Double.parseDouble(bid)+"\r\n";
+				client1.send(command.getBytes());
+				client2.send(command.getBytes());
 				
 				if(client1.getError() || client2.getError()) {
 					Debug.printError("Error while sending timestamp requests");
@@ -269,8 +266,6 @@ public class CommandThread implements Runnable {
 					}
 				}
 
-			} catch (IOException e) {
-				Debug.printError("Couldn't send timestamp requests");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -306,8 +301,8 @@ public class CommandThread implements Runnable {
 				
 				if(token.equals("!timestamp") && countToken == 5) {
 					int responseAuction = Integer.parseInt(st.nextToken());
-        			long responseTimestamp = Long.parseLong(st.nextToken());
         			double responseBid = Double.parseDouble(st.nextToken());
+        			long responseTimestamp = Long.parseLong(st.nextToken());
         			String responseHash = st.nextToken();
         			
         			Debug.printDebug("Auktion: " + responseAuction);

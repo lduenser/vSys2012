@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.util.StringTokenizer;
@@ -55,12 +56,7 @@ public class TCPThread implements Runnable {
     				byte[] temp = channel.receive();
     				
     				if(temp != null){
-    					try{
-    						input = new String(temp, "UTF8");						
-    					}
-    					catch(UnsupportedEncodingException uns) {
-    						uns.printStackTrace();
-    					}
+    					input = new String(temp);
     				}
     				 
     				if(input!=null) {
@@ -84,9 +80,11 @@ public class TCPThread implements Runnable {
                 			byte[] hash = null;
                 			
 							try {
+								Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+								
 								sha_rsa = Signature.getInstance("SHA512withRSA");
 								sha_rsa.initSign(parentClient.privatekey);
-	        					sha_rsa.update(response.getBytes("UTF8"));
+	        					sha_rsa.update(response.getBytes());
 	        					hash = sha_rsa.sign();
 	                			
 							} catch (NoSuchAlgorithmException e) {
@@ -103,7 +101,7 @@ public class TCPThread implements Runnable {
 							response = response + " " + Methods.bytes2String(hash);
 							
 							Debug.printDebug(response);
-                			channel.send(response.getBytes("UTF8"));
+                			channel.send(response.getBytes());
 
                 		}
     				}

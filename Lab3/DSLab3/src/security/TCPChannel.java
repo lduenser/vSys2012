@@ -27,11 +27,7 @@ public class TCPChannel implements Channel {
     public void send(byte[] sendBytes) {
         try {
             String s="";
-            try {
-                 s = new String(sendBytes, "UTF8");
-            } catch (UnsupportedEncodingException ex) {
-                 System.out.println("encoding failure");
-            }
+            s = new String(sendBytes);
             out.writeBytes(s+"\r\n");
             out.flush();
             
@@ -47,7 +43,7 @@ public class TCPChannel implements Channel {
         	   String s = null;
                
         	   while ((s = in.readLine()) != null) {
-        		    return s.getBytes("UTF8");
+        		    return s.getBytes();
         		}
            }
         	
