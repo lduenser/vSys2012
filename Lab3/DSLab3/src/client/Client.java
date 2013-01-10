@@ -300,7 +300,7 @@ public class Client {
                  System.out.println("Can't read file for public key!");
                  return false;
             }
-            publickey= (PublicKey) inPublic.readObject();
+            publickey = (PublicKey) inPublic.readObject();
 
             //private key from client    
             FileReader privateKeyFile=null;

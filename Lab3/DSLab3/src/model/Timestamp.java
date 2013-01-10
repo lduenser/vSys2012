@@ -10,7 +10,7 @@ public class Timestamp {
 	String user;
 	String signature;
 	
-	public Timestamp(long timestamp, int aucitonId, double price, String user, String signature) {
+	public Timestamp(long timestamp, int auctionId, double price, String user, String signature) {
 		setTimestamp(timestamp);
 		setAuctionId(auctionId);
 		setPrice(price);
