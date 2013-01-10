@@ -36,7 +36,6 @@ public class IntegrityCheck {
 	    		FileInputStream fis;
 	    		try {
 	    			fis = new FileInputStream(directory + filename);
-	    			Debug.printDebug("File: "+directory + filename);
 	    			fis.read(keyBytes);
 	    			fis.close();
 	    			byte[] input = Hex.decode(keyBytes);
@@ -45,7 +44,7 @@ public class IntegrityCheck {
 	    			try {
 	    				hMac = Mac.getInstance("HmacSHA256");
 	    				hMac.init(secretkey);
-	    				Debug.printDebug("secret key is: "+secretkey);
+	    				
 	    			} catch (InvalidKeyException inv) {
 	    				inv.printStackTrace();
 	    			} catch (NoSuchAlgorithmException no) {
@@ -63,13 +62,6 @@ public class IntegrityCheck {
 	       }
 	       hMac.update(output.getBytes());
 	       hash = hMac.doFinal();
-	       
-	       try {
-	    	   Debug.printDebug("string hash update: "+new String(Base64.encode(hash), "UTF8"));
-	       } catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-	    	   e.printStackTrace();
-	       }
 	    }
 	    
 	    public String getAttachedHMac() {

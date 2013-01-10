@@ -108,24 +108,26 @@ public class InputThread implements Runnable {
 	            				Debug.printDebug("plaintext: "+plaintext);
 	            				
 	            				String receivedHash = st.nextToken();	            				
-	            				Debug.printDebug("hmac from server: "+receivedHash);
 	            				
 	            				IntegrityCheck checkUser = new IntegrityCheck(Client.clientskeydir, parentClient.user.getName());	            				
 	            				checkUser.output = plaintext;	            				
 	            				checkUser.updateHMac();
-	            				
-	            				Debug.printDebug("hmac from user: "+ checkUser.hash);	            			
-	            				Debug.printDebug("server hash decoded: "+Base64.decode(receivedHash.getBytes()));
 	            				
 	            				boolean validHash = MessageDigest.isEqual(checkUser.hash,Base64.decode(receivedHash.getBytes()));
 	            				
 	            				if(validHash){
 	            					Debug.printDebug("valid");
 	            					System.out.println(" "+ input);
+	            					parentClient.channel.send("!list".getBytes());
+	            					break;
 	            				}
 	            				else{
 	            					Debug.printDebug("not valid");
 	            					Debug.printInfo("!list nochmal anfordern! (ohne hash)");
+	 // In case of a mismatch, the behaviour of a client should be as follows: 
+	// The respective message is printed to stdout and the output is requested for a second time automatically. 
+	// If the second attempt fails, too, print out the respective message again, but do not try to request the output again 					
+	            					parentClient.channel.send("!list".getBytes());
 	            				}
 	            				
 	            			}	            			

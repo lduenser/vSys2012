@@ -51,7 +51,7 @@ public class Client {
 	
 	public Channel channel = null;
 	public String random = null;
-	
+	public PublicKey userkey = null;
 	public PublicKey publickey = null;
 	public PublicKey publicSignedKey = null;
 	public PrivateKey privatekey = null;
@@ -292,7 +292,7 @@ public class Client {
 	@SuppressWarnings("finally")
 	public boolean getKeysClient() {
         boolean result=false;
-        PEMReader inPrivat=null,inPublic = null;
+        PEMReader inPrivat=null,inPublic = null, inUser = null;
         try {
             //public key from server
             try {
@@ -303,6 +303,16 @@ public class Client {
             }
             publickey = (PublicKey) inPublic.readObject();
 
+            try{
+            	inUser = new PEMReader(new FileReader("keys/alice.pub.pem"));
+            	
+            } catch (Exception e) {
+                System.out.println("Can't read file for public key!");
+                return false;
+           }
+            userkey = (PublicKey) inUser.readObject();
+            
+            
             //private key from client    
             FileReader privateKeyFile=null;
             try {
@@ -330,6 +340,13 @@ public class Client {
            KeyPair keyPair = (KeyPair) inPrivat.readObject();
            privatekey = keyPair.getPrivate();
            publicSignedKey = keyPair.getPublic();
+           if(userkey.equals(publicSignedKey)){
+        	   Debug.printDebug("gleiche keys");
+           }
+           else{
+        	   Debug.printDebug("NOT");
+           }
+           
            result=true;
            System.out.println("Keys successfully initialized!");
         } catch (IOException ex) {
@@ -337,6 +354,9 @@ public class Client {
             result=getKeysClient();
         } finally {
             try {
+            	if (inUser!=null) {
+                    inUser.close();
+                  }
                 if (inPublic!=null) {
                   inPublic.close();
                 }

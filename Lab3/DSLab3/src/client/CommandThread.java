@@ -67,22 +67,26 @@ public class CommandThread implements Runnable {
 						
 						StringTokenizer st = new StringTokenizer(output);
 						String name = null;
-						
+						String cmd = null;
 						if(st.countTokens()>1) {
-							name = st.nextToken();
+							cmd = st.nextToken();
 							name = st.nextToken();
 						}	            		
 						
-						parentClient.setUser(name, clientPort);
-						Debug.printDebug("user: " + name);
-						
-						if(parentClient.getKeysClient()){
-							this.createLoginCommand();
+						if(parentClient.user != null){
+							Debug.printError("already logged in as: "+name);						
 						}
 						else{
-							Debug.printError("Login Denied!");							
+							parentClient.setUser(name, clientPort);
+							Debug.printDebug("user: " + name);
+							
+							if(parentClient.getKeysClient()){
+								this.createLoginCommand();
+							}
+							else{
+								Debug.printError("Login Denied!");							
+							}
 						}
-						
 					}
 					else if(output.contains("!end")) {
 						Client.active = false;

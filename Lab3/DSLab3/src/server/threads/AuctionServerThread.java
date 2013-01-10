@@ -291,7 +291,7 @@ public class AuctionServerThread extends Thread {
 		
 		if(!completed) {
 			if(token.equals("!list")) {
-				Debug.printDebug("in !list (server)");
+				// beim 2ten mal ohne hMAC!
 				if(user != null){
 					Debug.printDebug(" hMAC anhängen ");
 					IntegrityCheck check = new IntegrityCheck(AuctionServer.clientskeydir, user.getName());
@@ -476,7 +476,6 @@ public class AuctionServerThread extends Thread {
 			//public key from user
 			try {
 				String path = (AuctionServer.clientskeydir+username+".pub.pem");
-		//		Debug.printDebug("user public key name is: "+username);
 				inPublic = new PEMReader(new FileReader(path));			
 			} catch (Exception e) {
 				System.out.println("Can't read file for public key!");
