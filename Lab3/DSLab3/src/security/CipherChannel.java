@@ -13,6 +13,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 
+import debug.Debug;
+
 
 public class CipherChannel extends Decorator{
 
@@ -141,6 +143,9 @@ public class CipherChannel extends Decorator{
 		        	noAlgo.printStackTrace();
 		        } catch (NoSuchPaddingException noPadd) {
 		        	noPadd.printStackTrace();
-		        }    	
+		        } catch (ArrayIndexOutOfBoundsException ae) {
+		        	Debug.printDebug("Message to long - unencrypted");
+		        	super.send(sendBytes);
+		        }
 	    }
 }

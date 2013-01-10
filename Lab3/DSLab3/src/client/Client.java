@@ -234,10 +234,7 @@ public class Client {
 			output.login(user);
 		}
 		
-		if(signedBids!=null) {
-			if(!signedBids.isEmpty())
-			output.sendSignedBids();
-		}		
+				
 	}
 	
 	void setOffline() {

@@ -1,6 +1,7 @@
 package server.threads;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +12,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.util.StringTokenizer;
@@ -247,7 +249,6 @@ public class AuctionServerThread extends Thread {
 			}
 			else if(token.equals("!signedBid")) {
 				DataHandler.auctions.updateList();
-				Debug.printDebug(input);
 				
 				if(st.countTokens() < 4) {
 					sendText("Error with signed bid");
@@ -260,6 +261,9 @@ public class AuctionServerThread extends Thread {
 					
 					String userString1 = st.nextToken();
 					String userString2 = st.nextToken();
+					
+					Debug.printDebug(userString1);
+					Debug.printDebug(userString2);
 					
 					if(verifyString(userString1, auction, bid) && verifyString(userString2, auction, bid)) {
 						Debug.printDebug("User verified");
@@ -284,7 +288,7 @@ public class AuctionServerThread extends Thread {
 						}	
 						else sendText("Couldn't find auction with id " + id);
 					}
-				}completed = true;
+				} completed = true;
 			}
 			
 		}
@@ -399,17 +403,26 @@ public class AuctionServerThread extends Thread {
 		String[] items = userString.split(":");
 		String name = items[0];
 		String timestamp = items[1];
-		String hash = items[2];
+		String hash = new String(Base64.decode(items[2].getBytes()));
+		
+		Debug.printDebug(hash);
 		
 		String message = "!timestamp " + auctionId +  " " + bid + " " + timestamp;
 		
 		Signature sha_rsa;
 		
 		try {
+			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+			
 			sha_rsa = Signature.getInstance("SHA512withRSA");
 			sha_rsa.initVerify(getPublicKeyFromUser(name));
-			sha_rsa.update(message.getBytes("UTF8"));
-			return sha_rsa.verify(hash.getBytes("UTF8"));
+			sha_rsa.update(message.getBytes());
+			
+			if(sha_rsa.verify(hash.getBytes())) {
+				Debug.printDebug(userString + " - verified");
+				return true;
+			}
+			
 			
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
@@ -418,9 +431,6 @@ public class AuctionServerThread extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SignatureException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -434,17 +444,20 @@ public class AuctionServerThread extends Thread {
 		PublicKey key = null;
 		try {
 			//public key from user
+			
 			try {
 				String path = (AuctionServer.clientskeydir+userName+".pub.pem");
 		//		Debug.printDebug("user public key name is: "+username);
 				inPublic = new PEMReader(new FileReader(path));			
-				key = (PublicKey) inPublic.readObject();
 			} catch (Exception e) {
 				System.out.println("Can't read file for public key!");
-				return null;
 			}
+			key = (PublicKey) inPublic.readObject();
 			
-        }
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		finally 
 		{
 			try {
@@ -455,8 +468,9 @@ public class AuctionServerThread extends Thread {
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
-			return key;
+			
 		}
+		return key;
 	}
 
 	public synchronized void terminateClient() throws IOException {

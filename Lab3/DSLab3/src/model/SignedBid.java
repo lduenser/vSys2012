@@ -54,6 +54,4 @@ public class SignedBid extends Bid {
 		return complete;
 	}
 	
-	
-	
 }
