@@ -63,9 +63,6 @@ public class TCPThread implements Runnable {
     					StringTokenizer st = new StringTokenizer(input);
                 		int countToken = st.countTokens();
                 		
-                		Debug.printDebug("input: " + input);
-                		Debug.printDebug("token: " + st.countTokens());
-                		
                 		if(countToken<3)
                 			break;
                 		
@@ -84,6 +81,7 @@ public class TCPThread implements Runnable {
 								
 								sha_rsa = Signature.getInstance("SHA512withRSA");
 								sha_rsa.initSign(parentClient.privatekey);
+								
 	        					sha_rsa.update(response.getBytes());
 	        					hash = sha_rsa.sign();
 	                			

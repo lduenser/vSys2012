@@ -40,12 +40,18 @@ public class AuctionList {
 	}
 	
 	public String listAuctions(boolean all) {
-		String temp = "-List of auctions" + "\r\n";
+	//	String temp = "-List of auctions" + "\r\n";
+		String temp = "-List of auctions ";
 		for (Auction auction:auctionList) {
-			if(auction.checkOpen()) temp+=auction.toString() + "\r\n";
+		//	if(auction.checkOpen()) temp+=auction.toString() + "\r\n";
+			if(auction.checkOpen()) temp+=auction.toString();
+
 		}
-		temp+="\r\n";
-		if(temp.equals("-List of auctions" + "\r\n" + "\r\n")) return "-No active auctions";
+	//	temp+="\r\n";
+		
+	//	if(temp.equals("-List of auctions" + "\r\n" + "\r\n")) return "-No active auctions";
+		if(temp.equals("-List of auctions ")) return "-No active auctions";
+
 		return temp;
 	}
 	

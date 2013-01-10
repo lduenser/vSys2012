@@ -45,8 +45,7 @@ public class AuctionServer {
 	
 	public static PublicKey publickey = null;
 	public static PrivateKey privatekey = null;
-	
-	
+		
 	public AuctionServer() {
 		Debug.info = true;
 		Debug.error = true;
@@ -57,7 +56,7 @@ public class AuctionServer {
 		
 		data = new DataHandler();
 		
-	//	checkArguments(args);		
+		checkArguments(args);		
 		
 		UpdateThread updater = new UpdateThread();
 		ScannerThread scanner = new ScannerThread();

@@ -295,15 +295,14 @@ public class AuctionServerThread extends Thread {
 		
 		if(!completed) {
 			if(token.equals("!list")) {
-				// beim 2ten mal ohne hMAC!
+				
 				if(user != null){
-					Debug.printDebug(" hMAC anhängen ");
+					Debug.printDebug(" hMAC anhaengen ");
 					IntegrityCheck check = new IntegrityCheck(AuctionServer.clientskeydir, user.getName());
 					
 					synchronized(DataHandler.auctions) {
-						check.output = DataHandler.auctions.listAuctions(false);
-						
-						Debug.printDebug("sending: '"+DataHandler.auctions.listAuctions(false)+"'");
+						check.output = DataHandler.auctions.listAuctions(false);						
+						Debug.printDebug("sending: "+DataHandler.auctions.listAuctions(false));
 					}
 					
 					check.updateHMac();
@@ -381,7 +380,7 @@ public class AuctionServerThread extends Thread {
 									}
 									username = user.getName();
 									
-									sendText("!loggedIn - Successfully logged in as " + username);
+									sendText("!loggedIn Successfully logged in as " + username);
 									Debug.printDebug("Successfully logged in as " + username);
 								}
 							}
@@ -405,14 +404,16 @@ public class AuctionServerThread extends Thread {
 		String timestamp = items[1];
 		String hash = new String(Base64.decode(items[2].getBytes()));
 		
-		Debug.printDebug(hash);
+		Debug.printDebug("signatur: "+hash);
 		
 		String message = "!timestamp " + auctionId +  " " + bid + " " + timestamp;
+		
+		Debug.printDebug(message);
 		
 		Signature sha_rsa;
 		
 		try {
-			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+	//		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 			
 			sha_rsa = Signature.getInstance("SHA512withRSA");
 			sha_rsa.initVerify(getPublicKeyFromUser(name));

@@ -74,7 +74,7 @@ public class CommandThread implements Runnable {
 						}	            		
 						
 						if(parentClient.user != null){
-							Debug.printError("already logged in as: "+name);						
+							Debug.printError("already logged in as: "+ parentClient.user.getName());						
 						}
 						else{
 							parentClient.setUser(name, clientPort);
@@ -91,7 +91,7 @@ public class CommandThread implements Runnable {
 					else if(output.contains("!end")) {
 						Client.active = false;
 					}
-					else if(output.contains("!getClientlist")) {
+					else if(output.contains("!getClientList")) {
 						this.getClientList();
 						Debug.printDebug(parentClient.getUserList().toString());
 					}

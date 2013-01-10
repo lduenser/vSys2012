@@ -1,12 +1,9 @@
 package client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.util.StringTokenizer;
@@ -16,8 +13,6 @@ import org.bouncycastle.util.encoders.Base64;
 import security.IntegrityCheck;
 
 import methods.Methods;
-import model.SignedBid;
-import model.Timestamp;
 import model.User;
 import model.UserList;
 import debug.Debug;
@@ -27,9 +22,11 @@ public class InputThread implements Runnable {
 	Client parentClient;
 	
 	boolean isRunning = true;
+	int counter = 0;
 	
 	public InputThread(Socket s, Client parent) {
-		this.parentClient = parent;		
+		this.parentClient = parent;	
+		
 	}
 	
 	public void updateStreams() {
@@ -62,14 +59,15 @@ public class InputThread implements Runnable {
 						token = st.nextToken();
 						
 						if(token.equals("!clientListStart")) {
-	            			//Obtain Client List
-			
-							Debug.printDebug("clientlist wanted");
-							
+	            			//Obtain Client List										
 	            			this.getUserList(input);
 	            		}
 						else if(token.equals("!loggedIn")) {
 							parentClient.output.sendSignedBids();
+														
+							if(st.hasMoreTokens()){
+								Debug.printInfo(st.nextToken()+ " " + st.nextToken() + " " +st.nextToken() + " " +st.nextToken() +" " +st.nextToken());
+							}							
 						}
 	            		else if(token.equals("!ok")) {
 	            			
@@ -87,7 +85,7 @@ public class InputThread implements Runnable {
 							// clientChallanges vergleichen mit versendetem ! ok? -> send 3rd msg							
 							if(!clientChallange.equals(parentClient.random)){
 								Debug.printInfo("clientCh nicht ident!");
-					//			Debug.printDebug("pr: "+parentClient.random);
+				
 							}
 							else{ // send 3rd msg														
 								parentClient.createAESChannel(iv, key);															
@@ -107,32 +105,34 @@ public class InputThread implements Runnable {
 	            				for(int i = 0; i<= count-2; i++){
 	            					plaintext+=" "+st.nextToken();
 	            				}
-	            				plaintext+="";
-	            				Debug.printDebug("plaintext: "+plaintext);
 	            				
+	            	//			Debug.printDebug(""+plaintext);
 	            				String receivedHash = st.nextToken();	            				
 	            				
-	            				IntegrityCheck checkUser = new IntegrityCheck(Client.clientskeydir, parentClient.user.getName());	            				
+	            				IntegrityCheck checkUser = new IntegrityCheck(Client.clientskeydir, parentClient.user.getName());
+	            				
 	            				checkUser.output = plaintext;	            				
 	            				checkUser.updateHMac();
-	            				
+	            					            				
 	            				boolean validHash = MessageDigest.isEqual(checkUser.hash,Base64.decode(receivedHash.getBytes()));
 	            				
 	            				if(validHash){
-	            					Debug.printDebug("valid");
-	            					System.out.println(" "+ input);
-	            					parentClient.channel.send("!list".getBytes());
-	            					break;
-	            				}
-	            				else{
-	            					Debug.printDebug("not valid");
-	            					Debug.printInfo("!list nochmal anfordern! (ohne hash)");
-	 // In case of a mismatch, the behaviour of a client should be as follows: 
-	// The respective message is printed to stdout and the output is requested for a second time automatically. 
-	// If the second attempt fails, too, print out the respective message again, but do not try to request the output again 					
-	            					parentClient.channel.send("!list".getBytes());
-	            				}
+	            					System.out.println(" "+ plaintext);	            					
+	            				}	            				
 	            				
+	            				else{
+	            					
+	            					Debug.printError("integrity check failed - could not print List");
+	            					counter++;
+	            					
+	            					if(counter == 1){
+	            						parentClient.channel.send("!list".getBytes());
+	            			//			Debug.printDebug("sent 2nd time");	            					
+	            					}
+	            					if(counter == 2){
+		            					counter = 0;
+		            				}
+	            				}	            				
 	            			}	            			
 	            			else{
 	            				System.out.println("from server: "+input);
@@ -162,19 +162,19 @@ public class InputThread implements Runnable {
 		
 		for(int i=0; i<lines.length; i++) {
 			line = lines[i];
-			
+					
 			if(line.startsWith("!clientList")) {
 				
 			}
 			else {
-				
-				InetAddress inet = InetAddress.getByName(line.substring(0, line.indexOf(":")));
-        		int port = Integer.parseInt(line.substring(line.lastIndexOf(":")+1, line.indexOf(" ")));
-        		String name = line.substring(line.indexOf(" - ")+3);
-				
-				User user = new User(name, inet, port);
-				
-				list.login(user);
+				InetAddress inet = InetAddress.getByName(line.substring(0, line.indexOf(":")));						
+	        	int port = Integer.parseInt(line.substring(line.lastIndexOf(":")+1, line.indexOf(" ")));	    	        	
+	        	String name = line.substring(line.indexOf(" - ")+3);	        
+					
+	        	Debug.printInfo(""+inet+":"+ port+ " - " + name);
+	        	
+				User user = new User(name, inet, port);					
+				list.login(user);						
 			}
 		}
 		
