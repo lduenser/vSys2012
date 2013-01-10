@@ -234,9 +234,6 @@ public class CommandThread implements Runnable {
 						Timestamp stamp1 = recieveTimestamp(client1, user1);
 						Timestamp stamp2 = recieveTimestamp(client2, user2);
 						
-						Debug.printDebug(stamp1.getAuctionId() + "");
-						Debug.printDebug(stamp2.getAuctionId() + "");
-						
 						if(stamp1!=null) {
 							SignedBid signedBid = parentClient.signedBids.getBidByBid(stamp1.getAuctionId(), stamp1.getPrice());
 							if(signedBid==null) {
@@ -312,6 +309,8 @@ public class CommandThread implements Runnable {
         			long responseTimestamp = Long.parseLong(st.nextToken());
         			double responseBid = Double.parseDouble(st.nextToken());
         			String responseHash = st.nextToken();
+        			
+        			Debug.printDebug("Auktion: " + responseAuction);
         			
         			stamp = new Timestamp(responseTimestamp, responseAuction, responseBid, user.getName(), responseHash);
 				}

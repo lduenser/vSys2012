@@ -407,7 +407,7 @@ public class AuctionServerThread extends Thread {
 		
 		try {
 			sha_rsa = Signature.getInstance("SHA512withRSA");
-			sha_rsa.initVerify(getPublicKeyByClientName(name));
+			sha_rsa.initVerify(getPublicKeyFromUser(name));
 			sha_rsa.update(message.getBytes("UTF8"));
 			return sha_rsa.verify(hash.getBytes("UTF8"));
 			
@@ -428,35 +428,35 @@ public class AuctionServerThread extends Thread {
 		return false;		
 	}
 		
-	@SuppressWarnings("resource")
-	private PublicKey getPublicKeyByClientName(String name) {
-		PEMReader inPrivat=null;
-		
-		//private key from client    
-        FileReader privateKeyFile=null;
-        try {
-        	String path = (AuctionServer.clientskeydir + name + ".pem");
-           privateKeyFile=new FileReader(path);
-       	
-        } catch (Exception e) {
-             
-        }
-        
-		inPrivat = new PEMReader(privateKeyFile, new PasswordFinder() {
-                @Override
-                 public char[] getPassword() {
-                	return AuctionServer.clientsKeyPasswd.toCharArray();
-                }
-            });
-
-           KeyPair keyPair = null;
+	@SuppressWarnings("finally")
+	public PublicKey getPublicKeyFromUser(String userName){
+		PEMReader inPublic = null;
+		PublicKey key = null;
 		try {
-			keyPair = (KeyPair) inPrivat.readObject();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//public key from user
+			try {
+				String path = (AuctionServer.clientskeydir+userName+".pub.pem");
+		//		Debug.printDebug("user public key name is: "+username);
+				inPublic = new PEMReader(new FileReader(path));			
+				key = (PublicKey) inPublic.readObject();
+			} catch (Exception e) {
+				System.out.println("Can't read file for public key!");
+				return null;
+			}
+			
+        }
+		finally 
+		{
+			try {
+				if (inPublic!=null) {
+					inPublic.close();
+				}
+	                
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+			return key;
 		}
-           return keyPair.getPublic();
 	}
 
 	public synchronized void terminateClient() throws IOException {
