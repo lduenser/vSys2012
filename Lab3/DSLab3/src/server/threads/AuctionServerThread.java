@@ -284,13 +284,14 @@ public class AuctionServerThread extends Thread {
 						}	
 						else sendText("Couldn't find auction with id " + id);
 					}
-				}
+				}completed = true;
 			}
-			completed = true;
+			
 		}
 		
 		if(!completed) {
 			if(token.equals("!list")) {
+				Debug.printDebug("in !list (server)");
 				if(user != null){
 					Debug.printDebug(" hMAC anhängen ");
 					IntegrityCheck check = new IntegrityCheck(AuctionServer.clientskeydir, user.getName());

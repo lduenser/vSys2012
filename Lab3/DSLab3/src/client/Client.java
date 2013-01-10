@@ -68,6 +68,7 @@ public class Client {
 		Client current = new Client();
 		
 		current.clientPort = 10290 + 1 + Methods.getRandomInt(200);
+	//	current.clientPort = 10291;
 		
 		current.socket = null;
 		current.signedBids = new SignedBidList();

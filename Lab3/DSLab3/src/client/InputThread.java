@@ -100,11 +100,11 @@ public class InputThread implements Runnable {
 	            			if((token.startsWith("-List") || token.startsWith("-No")) && parentClient.user != null){
 	            				            				
 	            				int count = st.countTokens();
-	            				String plaintext = "'"+token;	            		            				
+	            				String plaintext = ""+token;	            		            				
 	            				for(int i = 0; i<= count-2; i++){
 	            					plaintext+=" "+st.nextToken();
 	            				}
-	            				plaintext+="'";
+	            				plaintext+="";
 	            				Debug.printDebug("plaintext: "+plaintext);
 	            				
 	            				String receivedHash = st.nextToken();	            				
@@ -121,12 +121,13 @@ public class InputThread implements Runnable {
 	            				
 	            				if(validHash){
 	            					Debug.printDebug("valid");
+	            					System.out.println(" "+ input);
 	            				}
 	            				else{
 	            					Debug.printDebug("not valid");
+	            					Debug.printInfo("!list nochmal anfordern! (ohne hash)");
 	            				}
 	            				
-	            				System.out.println("liste: " + input);
 	            			}	            			
 	            			else{
 	            				System.out.println("from server: "+input);

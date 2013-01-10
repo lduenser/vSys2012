@@ -45,6 +45,7 @@ public class IntegrityCheck {
 	    			try {
 	    				hMac = Mac.getInstance("HmacSHA256");
 	    				hMac.init(secretkey);
+	    				Debug.printDebug("secret key is: "+secretkey);
 	    			} catch (InvalidKeyException inv) {
 	    				inv.printStackTrace();
 	    			} catch (NoSuchAlgorithmException no) {
